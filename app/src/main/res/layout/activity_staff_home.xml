@@ -37,6 +37,6 @@
         android:layout_gravity="bottom|end"
         android:layout_margin="16dp"
         android:contentDescription="Tạo tài khoản khách hàng mới"
-        app:srcCompat="@drawable/ic_addAccount" />
+        app:srcCompat="@drawable/ic_addaccount" />
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

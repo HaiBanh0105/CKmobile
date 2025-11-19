@@ -1,4 +1,4 @@
-package com.example.baking;
+package com.example.banking;
 
 import android.os.Bundle;
 
@@ -8,13 +8,13 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
-public class activity_login extends AppCompatActivity {
+public class activity_customer_main extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         EdgeToEdge.enable(this);
-        setContentView(R.layout.activity_login);
+        setContentView(R.layout.activity_customer_main);
 
     }
 }

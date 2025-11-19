@@ -1,15 +1,11 @@
-package com.example.baking;
+package com.example.banking;
 
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 
-import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.graphics.Insets;
-import androidx.core.view.ViewCompat;
-import androidx.core.view.WindowInsetsCompat;
 
 public class activity_splash extends AppCompatActivity {
     private static final int SPLASH_DISPLAY_DURATION = 2000;

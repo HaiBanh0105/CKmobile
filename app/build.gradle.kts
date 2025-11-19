@@ -1,13 +1,14 @@
 plugins {
     alias(libs.plugins.android.application)
+    id("com.google.gms.google-services")
 }
 
 android {
-    namespace = "com.example.baking"
+    namespace = "com.example.banking"
     compileSdk = 36
 
     defaultConfig {
-        applicationId = "com.example.baking"
+        applicationId = "com.example.banking"
         minSdk = 24
         targetSdk = 36
         versionCode = 1
@@ -41,9 +42,15 @@ dependencies {
     androidTestImplementation(libs.ext.junit)
     androidTestImplementation(libs.espresso.core)
 
+    implementation(platform("com.google.firebase:firebase-bom:34.6.0"))
+    implementation("com.google.firebase:firebase-analytics")
+
     // Thư viện cho PinView
     implementation("io.github.chaosleung:pinview:1.4.4")
     implementation("androidx.navigation:navigation-fragment-ktx:2.7.7")
     implementation("androidx.navigation:navigation-ui-ktx:2.7.7")
+
+    implementation("com.google.firebase:firebase-auth:22.3.0")
+    implementation("com.google.firebase:firebase-firestore:24.9.1")
 
 }
