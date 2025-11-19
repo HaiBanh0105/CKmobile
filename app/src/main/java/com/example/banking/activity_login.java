@@ -59,10 +59,10 @@ public class activity_login extends AppCompatActivity {
                                             Toast.makeText(this, "Xin chào " + name + " (" + role + ")", Toast.LENGTH_SHORT).show();
 
                                             if ("staff".equalsIgnoreCase(role)) {
-//                                                startActivity(new Intent(this, staff_main.class));
-                                                Intent intent = new Intent(this, staff_main.class);
-                                                startActivity(intent);
-                                                finish();
+                                                startActivity(new Intent(this, staff_main.class));
+//                                                Intent intent = new Intent(this, staff_main.class);
+//                                                startActivity(intent);
+//                                                finish();
 
                                             } else {
                                                 startActivity(new Intent(this, activity_customer_main.class));
