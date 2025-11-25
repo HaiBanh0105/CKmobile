@@ -69,4 +69,6 @@ dependencies {
 
     implementation("androidx.activity:activity:1.8.2")
     implementation("androidx.fragment:fragment:1.6.2")
+
+    implementation("com.google.android.material:material:1.9.0")
 }

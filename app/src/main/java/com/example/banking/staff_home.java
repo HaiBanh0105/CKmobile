@@ -5,15 +5,9 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.animation.Animation;
 
-import androidx.activity.EdgeToEdge;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.graphics.Insets;
-import androidx.core.view.ViewCompat;
-import androidx.core.view.WindowInsetsCompat;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -32,7 +26,7 @@ public class staff_home extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater,
                              @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.activity_staff_home, container, false);
+        return inflater.inflate(R.layout.staff_home, container, false);
     }
 
     @Override
@@ -71,7 +65,7 @@ public class staff_home extends Fragment {
                     @Override
                     public CustomerViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
                         View view = LayoutInflater.from(parent.getContext())
-                                .inflate(R.layout.activity_item_customer_row, parent, false);
+                                .inflate(R.layout.item_customer_row, parent, false);
                         return new CustomerViewHolder(view);
                     }
                 };

@@ -23,7 +23,7 @@ public class activity_login extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_login);
+        setContentView(R.layout.login);
 
         // Ánh xạ view
         edtUsername = findViewById(R.id.edtUsername);
@@ -65,7 +65,7 @@ public class activity_login extends AppCompatActivity {
 //                                                finish();
 
                                             } else {
-                                                startActivity(new Intent(this, activity_customer_main.class));
+                                                startActivity(new Intent(this, customer_main.class));
                                             }
 
                                             finish();

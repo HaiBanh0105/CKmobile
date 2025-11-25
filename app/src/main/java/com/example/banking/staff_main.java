@@ -3,7 +3,6 @@ package com.example.banking;
 import android.content.Intent;
 import android.os.Bundle;
 
-import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.view.GravityCompat;
@@ -21,7 +20,7 @@ public class staff_main extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_staff_main);
+        setContentView(R.layout.staff_main);
 
         drawerLayout = findViewById(R.id.activity_staff_main);
         navView = findViewById(R.id.nav_view);

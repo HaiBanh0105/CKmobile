@@ -19,7 +19,7 @@ public class activity_splash extends AppCompatActivity {
         // setContentView(binding.getRoot());
 
         // Cách 2: Dùng setContentView truyền thống
-        setContentView(R.layout.activity_splash);
+        setContentView(R.layout.splash);
 
         // Sử dụng Handler để trì hoãn việc chuyển Activity
         new Handler(Looper.getMainLooper()).postDelayed(new Runnable() {

@@ -2,12 +2,13 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
 
-    <uses-permission android:name="android.permission.CAMERA"/>
-
-    <!-- Khai báo tính năng camera, nhưng không bắt buộc (để app vẫn cài được trên máy không có camera) -->
-    <uses-feature android:name="android.hardware.camera" android:required="false"/>
-    <uses-feature android:name="android.hardware.camera.front" android:required="false"/>
-
+    <uses-permission android:name="android.permission.CAMERA" /> <!-- Khai báo tính năng camera, nhưng không bắt buộc (để app vẫn cài được trên máy không có camera) -->
+    <uses-feature
+        android:name="android.hardware.camera"
+        android:required="false" />
+    <uses-feature
+        android:name="android.hardware.camera.front"
+        android:required="false" />
 
     <application
         android:allowBackup="true"
@@ -18,7 +19,6 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.Banking">
-
         <activity
             android:name=".ekyc"
             android:exported="false" />
@@ -33,39 +33,28 @@
             android:exported="false" />
         <activity
             android:name=".nav_header_staff"
-            android:exported="false" />
-<!--        <activity-->
-<!--            android:name=".staff_home"-->
-<!--            android:exported="false" />-->
+            android:exported="false" /> <!-- <activity -->
+        <!-- android:name=".staff_home" -->
+        <!-- android:exported="false" /> -->
         <activity
             android:name=".staff_main"
             android:exported="false">
-<!--            <intent-filter>-->
-<!--                <action android:name="android.intent.action.MAIN" />-->
 
-<!--                <category android:name="android.intent.category.LAUNCHER" />-->
-<!--            </intent-filter>-->
+            <!-- <intent-filter> -->
+            <!-- <action android:name="android.intent.action.MAIN" /> -->
+
+
+            <!-- <category android:name="android.intent.category.LAUNCHER" /> -->
+            <!-- </intent-filter> -->
         </activity>
         <activity
             android:name=".activity_account_detail"
-            android:exported="false" />
-        <activity
-            android:name=".fragment_accounts"
             android:exported="false" />
         <activity
             android:name=".item_account"
             android:exported="false" />
         <activity
             android:name=".item_transaction_history"
-            android:exported="false" />
-        <activity
-            android:name=".fragment_home"
-            android:exported="false" />
-        <activity
-            android:name=".fragment_profile"
-            android:exported="false" />
-        <activity
-            android:name=".fragment_utilities"
             android:exported="false" />
         <activity
             android:name=".activity_otp"
@@ -80,22 +69,20 @@
             android:name=".MainActivity"
             android:exported="false" />
         <activity
-            android:name=".activity_customer_main"
-            android:exported="false" />
+            android:name=".customer_main"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
         <activity
             android:name=".activity_login"
             android:exported="false" />
         <activity
             android:name=".activity_splash"
-            android:exported="true">
-
-             <intent-filter>
-             <action android:name="android.intent.action.MAIN" />
-
-
-             <category android:name="android.intent.category.LAUNCHER" />
-             </intent-filter>
-        </activity>
+            android:exported="false"/>
     </application>
 
 </manifest>

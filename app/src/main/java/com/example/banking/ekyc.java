@@ -1,25 +1,15 @@
 package com.example.banking;
 
-import com.google.mlkit.vision.common.InputImage;
-import com.google.mlkit.vision.face.Face;
-import com.google.mlkit.vision.face.FaceDetection;
-import com.google.mlkit.vision.face.FaceDetector;
-import com.google.mlkit.vision.face.FaceDetectorOptions;
-
 import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.media.Image;
 import android.os.Bundle;
 import android.util.Log;
-import android.widget.ImageButton;
 import android.widget.Toast;
 
-import androidx.activity.EdgeToEdge;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.camera.core.CameraSelector;
-import androidx.camera.core.ImageAnalysis;
 import androidx.camera.core.ImageCapture;
 import androidx.camera.core.ImageCaptureException;
 import androidx.camera.core.Preview;
@@ -27,16 +17,9 @@ import androidx.camera.lifecycle.ProcessCameraProvider;
 import androidx.camera.view.PreviewView;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
-import androidx.core.graphics.Insets;
-import androidx.core.view.ViewCompat;
-import androidx.core.view.WindowInsetsCompat;
 
 import com.google.android.material.button.MaterialButton;
 import com.google.common.util.concurrent.ListenableFuture;
-import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.mlkit.vision.common.InputImage;
-import com.google.mlkit.vision.face.FaceDetection;
-import com.google.mlkit.vision.face.FaceDetectorOptions;
 
 import java.io.File;
 
@@ -51,7 +34,7 @@ public class ekyc extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_ekyc);
+        setContentView(R.layout.ekyc);
 
         viewFinder = findViewById(R.id.viewFinder);
 

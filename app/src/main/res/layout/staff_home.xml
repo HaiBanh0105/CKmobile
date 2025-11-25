@@ -26,7 +26,7 @@
             android:layout_height="0dp"
             android:layout_weight="1"
             app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
-            tools:listitem="@layout/activity_item_customer_row" />
+            tools:listitem="@layout/item_customer_row" />
 
     </LinearLayout>
 
