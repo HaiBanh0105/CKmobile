@@ -70,6 +70,12 @@
             android:exported="false" />
         <activity
             android:name=".customer_main"
+            android:exported="false"/>
+        <activity
+            android:name=".activity_login"
+            android:exported="false" />
+        <activity
+            android:name=".activity_splash"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -77,12 +83,6 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity
-            android:name=".activity_login"
-            android:exported="false" />
-        <activity
-            android:name=".activity_splash"
-            android:exported="false"/>
     </application>
 
 </manifest>

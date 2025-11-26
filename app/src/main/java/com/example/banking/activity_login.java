@@ -10,7 +10,11 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 
 public class activity_login extends AppCompatActivity {
 
@@ -31,6 +35,7 @@ public class activity_login extends AppCompatActivity {
         btnLogin = findViewById(R.id.btnLogin);
         btnRegister = findViewById(R.id.btnRegister);
         tvForgotPassword = findViewById(R.id.tvForgotPassword);
+        btnRegister = findViewById(R.id.btnRegister);
 
         // Firebase
         mAuth = FirebaseAuth.getInstance();
@@ -38,51 +43,53 @@ public class activity_login extends AppCompatActivity {
 
         // Xử lý nút đăng nhập
         btnLogin.setOnClickListener(v -> {
-            String email = edtUsername.getText().toString().trim();
+            String phone = edtUsername.getText().toString().trim();
             String password = edtPassword.getText().toString().trim();
+            String hashedInput = hashPassword(password);
 
-            if (email.isEmpty() || password.isEmpty()) {
-                Toast.makeText(this, "Vui lòng nhập đầy đủ thông tin", Toast.LENGTH_SHORT).show();
-                return;
-            }
 
-            mAuth.signInWithEmailAndPassword(email, password)
-                    .addOnCompleteListener(task -> {
-                        if (task.isSuccessful()) {
-                            String uid = mAuth.getCurrentUser().getUid();
-                            db.collection("Users").document(uid).get()
-                                    .addOnSuccessListener(doc -> {
-                                        if (doc.exists()) {
-                                            String role = doc.getString("role");
-                                            String name = doc.getString("name");
+            db.collection("Users")
+                    .whereEqualTo("phone", phone)
+                    .get()
+                    .addOnSuccessListener(querySnapshot -> {
+                        if (!querySnapshot.isEmpty()) {
+                            DocumentSnapshot doc = querySnapshot.getDocuments().get(0);
 
-                                            Toast.makeText(this, "Xin chào " + name + " (" + role + ")", Toast.LENGTH_SHORT).show();
+                            String storedHash = doc.getString("password");
+                            String name = doc.getString("name");
+                            String role = doc.getString("role");
 
-                                            if ("staff".equalsIgnoreCase(role)) {
-                                                startActivity(new Intent(this, staff_main.class));
-//                                                Intent intent = new Intent(this, staff_main.class);
-//                                                startActivity(intent);
-//                                                finish();
+                            if (hashedInput.equals(storedHash)) {
+                                Toast.makeText(this, "Xin chào " + name + " (" + role + ")", Toast.LENGTH_SHORT).show();
 
-                                            } else {
-                                                startActivity(new Intent(this, customer_main.class));
-                                            }
-
-                                            finish();
-                                        } else {
-                                            Toast.makeText(this, "Không tìm thấy thông tin người dùng", Toast.LENGTH_SHORT).show();
-                                        }
-                                    });
+                                if ("staff".equalsIgnoreCase(role)) {
+                                    startActivity(new Intent(this, staff_main.class));
+                                } else {
+                                    startActivity(new Intent(this, customer_main.class));
+                                }
+                                finish();
+                            } else {
+                                Toast.makeText(this, "Sai mật khẩu", Toast.LENGTH_SHORT).show();
+                            }
                         } else {
-                            Toast.makeText(this, "Đăng nhập thất bại: " + task.getException().getMessage(), Toast.LENGTH_LONG).show();
+                            Toast.makeText(this, "Không tìm thấy số điện thoại", Toast.LENGTH_SHORT).show();
                         }
+                    })
+                    .addOnFailureListener(e -> {
+                        Toast.makeText(this, "Lỗi: " + e.getMessage(), Toast.LENGTH_SHORT).show();
                     });
+
         });
 
-//        // Xử lý nút mở tài khoản eKYC
-//        btnRegister.setOnClickListener(v -> {
-//            startActivity(new Intent(this, RegisterActivity.class));
-//        });
+        // Xử lý nút mở tài khoản eKYC
+        btnRegister.setOnClickListener(v -> {
+//            startActivity(new Intent(this, edit_customer.class));
+            Intent intent = new Intent(this, edit_customer.class);
+
+            // Gửi dữ liệu kèm theo
+            intent.putExtra("role", "customer");
+            startActivity(intent);
+        });
 
 //        // Xử lý quên mật khẩu
 //        tvForgotPassword.setOnClickListener(v -> {
@@ -95,5 +102,21 @@ public class activity_login extends AppCompatActivity {
 //                        .addOnFailureListener(e -> Toast.makeText(this, "Lỗi: " + e.getMessage(), Toast.LENGTH_SHORT).show());
 //            }
 //        });
+    }
+
+    private String hashPassword(String password) {
+        try {
+            MessageDigest digest = MessageDigest.getInstance("SHA-256");
+            byte[] hash = digest.digest(password.getBytes());
+            StringBuilder hexString = new StringBuilder();
+            for (byte b : hash) {
+                String hex = Integer.toHexString(0xff & b);
+                if (hex.length() == 1) hexString.append('0');
+                hexString.append(hex);
+            }
+            return hexString.toString();
+        } catch (NoSuchAlgorithmException e) {
+            throw new RuntimeException(e);
+        }
     }
 }

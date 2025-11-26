@@ -30,6 +30,14 @@ android {
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
     }
+
+    packaging {
+        resources {
+            // pickFirsts: Nếu gặp trùng file, chỉ lấy file đầu tiên tìm thấy và bỏ qua các file sau
+            pickFirsts.add("META-INF/LICENSE.md")
+            pickFirsts.add("META-INF/NOTICE.md")
+        }
+    }
 }
 
 dependencies {
@@ -71,4 +79,8 @@ dependencies {
     implementation("androidx.fragment:fragment:1.6.2")
 
     implementation("com.google.android.material:material:1.9.0")
+
+    // Thư viện gửi Email
+    implementation("com.sun.mail:android-mail:1.6.7")
+    implementation("com.sun.mail:android-activation:1.6.7")
 }

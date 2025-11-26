@@ -10,7 +10,9 @@ import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.button.MaterialButton;
+import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.security.MessageDigest;
@@ -23,6 +25,8 @@ public class edit_customer extends AppCompatActivity {
 
     private EditText edtFullName, edtPhoneNumber, edtEmail, edtAddress, edtIdCard;
     private MaterialButton btnEkycScan, btnSave;
+
+    private MaterialToolbar toolbar;
     private String faceImagePath; // lưu đường dẫn ảnh khuôn mặt
 
     private ActivityResultLauncher<Intent> ekycLauncher;
@@ -39,6 +43,16 @@ public class edit_customer extends AppCompatActivity {
         edtIdCard = findViewById(R.id.edtIdCard);
         btnEkycScan = findViewById(R.id.btnEkycScan);
         btnSave = findViewById(R.id.btnSave);
+        toolbar = findViewById(R.id.toolbar);
+
+        String role = getIntent().getStringExtra("role");
+
+        if("customer".equalsIgnoreCase(role)){
+            toolbar.setTitle("Đăng ký tài khoản");
+        }
+        else{
+            toolbar.setTitle("Thông tin tài khoản");
+        }
 
         // Đăng ký nhận kết quả từ EkycActivity
         ekycLauncher = registerForActivityResult(
@@ -65,8 +79,10 @@ public class edit_customer extends AppCompatActivity {
         String address = edtAddress.getText().toString().trim();
         String idCard = edtIdCard.getText().toString().trim();
 
-        if (name.isEmpty() || phone.isEmpty()) {
-            Toast.makeText(this, "Vui lòng nhập đủ thông tin", Toast.LENGTH_SHORT).show();
+
+        // Kiểm tra dữ liệu bắt buộc
+        if (name.isEmpty() || phone.isEmpty() || idCard.isEmpty()) {
+            Toast.makeText(this, "Vui lòng nhập đủ thông tin bắt buộc", Toast.LENGTH_SHORT).show();
             return;
         }
 
@@ -76,33 +92,88 @@ public class edit_customer extends AppCompatActivity {
         // 2. Mã hóa mật khẩu bằng SHA-256
         String hashedPassword = hashPassword(rawPassword);
 
-        // 3. Gửi SMS bằng Intent (mật khẩu gốc cho khách hàng)
-        String smsMessage = "Chào " + name + ", mật khẩu đăng nhập của bạn là: " + rawPassword;
-        Intent smsIntent = new Intent(Intent.ACTION_VIEW);
-        smsIntent.setData(Uri.parse("sms:" + phone));
-        smsIntent.putExtra("sms_body", smsMessage);
-        startActivity(smsIntent);
+        // Tiêu đề Email
+        String subject = "Chào mừng bạn đến với Ngân hàng ABC";
 
+        // Nội dung Email
+        String emailBody = "Xin chào " + name + ",\n\n" +
+                "Tài khoản của bạn đã được tạo thành công.\n" +
+                "Tên đăng nhập: " + phone + "\n" +
+                "Mật khẩu của bạn là: " + rawPassword + "\n\n" +
+                "Vui lòng đổi mật khẩu sau khi đăng nhập lần đầu.\n" +
+                "Trân trọng,\nNgân hàng ABC.";
+
+        if (name.isEmpty() || phone.isEmpty() || idCard.isEmpty() || email.isEmpty() || address.isEmpty()) {
+            Toast.makeText(this, "Vui lòng nhập đủ thông tin bắt buộc", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        if (faceImagePath == null || faceImagePath.isEmpty()) {
+            Toast.makeText(this, "Vui lòng quét sinh trắc học", Toast.LENGTH_SHORT).show();
+            return; // dừng lại, không tạo tài khoản
+        }
+
+
+
+        // Gọi hàm gửi mail (hàm này tự báo thành công/thất bại bằng Toast)
+        EmailService.sendEmail(this, email, subject, emailBody, new EmailService.EmailCallback() {
+            @Override
+            public void onSuccess() {
+                // Chỉ tạo tài khoản khi gửi mail thành công
+                FirebaseFirestore db = FirebaseFirestore.getInstance();
+                Map<String, Object> customer = new HashMap<>();
+                customer.put("user_id", idCard);
+                customer.put("name", name);
+                customer.put("role", "customer");
+                customer.put("phone", phone);
+                customer.put("email", email);
+                customer.put("address", address);
+                customer.put("faceImagePath", faceImagePath);
+                customer.put("password", hashedPassword);
+
+                db.collection("Users")
+                        .document(idCard)
+                        .set(customer)
+                        .addOnSuccessListener(aVoid -> {
+                            Toast.makeText(getApplicationContext(), "Thêm khách hàng thành công", Toast.LENGTH_SHORT).show();
+                            createDefaultCheckingAccount(idCard);
+                            finish();
+                        })
+                        .addOnFailureListener(e -> {
+                            Toast.makeText(getApplicationContext(), "Lỗi: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                        });
+            }
+
+            @Override
+            public void onFailure(String error) {
+                Toast.makeText(getApplicationContext(), "Không thể gửi email, hủy tạo tài khoản!", Toast.LENGTH_SHORT).show();
+            }
+        });
+
+    }
+
+
+    private void createDefaultCheckingAccount(String userId) {
         FirebaseFirestore db = FirebaseFirestore.getInstance();
-        Map<String, Object> customer = new HashMap<>();
-        customer.put("name", name);
-        customer.put("phone", phone);
-        customer.put("email", email);
-        customer.put("address", address);
-        customer.put("idCard", idCard);
-        customer.put("faceImagePath", faceImagePath); // lưu đường dẫn ảnh khuôn mặt
-        customer.put("password", hashedPassword); // lưu mật khẩu đã mã hóa
 
-        db.collection("Customers")
-                .add(customer)
-                .addOnSuccessListener(docRef -> {
-                    Toast.makeText(this, "Thêm khách hàng thành công", Toast.LENGTH_SHORT).show();
-                    finish();
+        String accountId = userId+"_checking";
+
+        Map<String, Object> account = new HashMap<>();
+        account.put("account_id", accountId);
+        account.put("user_id", userId);
+        account.put("account_type", "checking");
+        account.put("balance", 0.0); // số dư mặc định = 0
+        account.put("created_at", FieldValue.serverTimestamp());
+
+        db.collection("Accounts").document(accountId).set(account)
+                .addOnSuccessListener(aVoid -> {
+                    Toast.makeText(this, "Tài khoản checking mặc định đã được tạo", Toast.LENGTH_SHORT).show();
                 })
                 .addOnFailureListener(e -> {
-                    Toast.makeText(this, "Lỗi: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                    Toast.makeText(this, "Lỗi tạo tài khoản: " + e.getMessage(), Toast.LENGTH_SHORT).show();
                 });
     }
+
 
 
     private String generateRandomPassword() {
