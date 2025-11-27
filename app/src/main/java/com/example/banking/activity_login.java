@@ -58,8 +58,11 @@ public class activity_login extends AppCompatActivity {
                             String storedHash = doc.getString("password");
                             String name = doc.getString("name");
                             String role = doc.getString("role");
+                            String user_id = doc.getString("user_id");
 
                             if (hashedInput.equals(storedHash)) {
+                                SessionManager.getInstance().setUserId(user_id);
+
                                 Toast.makeText(this, "Xin chào " + name + " (" + role + ")", Toast.LENGTH_SHORT).show();
 
                                 if ("staff".equalsIgnoreCase(role)) {
@@ -87,7 +90,7 @@ public class activity_login extends AppCompatActivity {
             Intent intent = new Intent(this, edit_customer.class);
 
             // Gửi dữ liệu kèm theo
-            intent.putExtra("role", "customer");
+            intent.putExtra("role", "customer_register");
             startActivity(intent);
         });
 

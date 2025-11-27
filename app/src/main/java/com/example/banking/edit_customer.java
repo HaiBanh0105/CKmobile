@@ -9,6 +9,9 @@ import android.widget.Toast;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.graphics.Insets;
+import androidx.core.view.ViewCompat;
+import androidx.core.view.WindowInsetsCompat;
 
 import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.button.MaterialButton;
@@ -35,6 +38,11 @@ public class edit_customer extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.edit_customer);
+        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.CustomerInfor), (v, insets) -> {
+            Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
+            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
+            return insets;
+        });
 
         edtFullName = findViewById(R.id.edtFullName);
         edtPhoneNumber = findViewById(R.id.edtPhoneNumber);
@@ -47,11 +55,13 @@ public class edit_customer extends AppCompatActivity {
 
         String role = getIntent().getStringExtra("role");
 
-        if("customer".equalsIgnoreCase(role)){
+        if("customer_register".equalsIgnoreCase(role)){
             toolbar.setTitle("Đăng ký tài khoản");
         }
         else{
+            String userId = SessionManager.getInstance().getUserId();
             toolbar.setTitle("Thông tin tài khoản");
+            loadCustomerInfor(userId);
         }
 
         // Đăng ký nhận kết quả từ EkycActivity
@@ -67,6 +77,10 @@ public class edit_customer extends AppCompatActivity {
         btnEkycScan.setOnClickListener(v -> {
             Intent intent = new Intent(this, ekyc.class);
             ekycLauncher.launch(intent);
+        });
+
+        toolbar.setNavigationOnClickListener(v -> {
+            onBackPressed();
         });
 
         btnSave.setOnClickListener(v -> saveCustomer());
@@ -156,10 +170,11 @@ public class edit_customer extends AppCompatActivity {
     private void createDefaultCheckingAccount(String userId) {
         FirebaseFirestore db = FirebaseFirestore.getInstance();
 
-        String accountId = userId+"_checking";
+        // accountId là đảo ngược của userId
+        String accountId = reverseString(userId);
 
         Map<String, Object> account = new HashMap<>();
-        account.put("account_id", accountId);
+        account.put("account_number", accountId);
         account.put("user_id", userId);
         account.put("account_type", "checking");
         account.put("balance", 0.0); // số dư mặc định = 0
@@ -186,6 +201,10 @@ public class edit_customer extends AppCompatActivity {
         return sb.toString();
     }
 
+    private String reverseString(String input) {
+        return new StringBuilder(input).reverse().toString();
+    }
+
     private String hashPassword(String password) {
         try {
             MessageDigest digest = MessageDigest.getInstance("SHA-256");
@@ -200,6 +219,35 @@ public class edit_customer extends AppCompatActivity {
         } catch (NoSuchAlgorithmException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    private void loadCustomerInfor(String userId) {
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+
+        db.collection("Users").document(userId).get()
+                .addOnSuccessListener(documentSnapshot -> {
+                    if (documentSnapshot.exists()) {
+                        // Lấy dữ liệu từ Firestore
+                        String name = documentSnapshot.getString("name");
+                        String phone = documentSnapshot.getString("phone");
+                        String email = documentSnapshot.getString("email");
+                        String address = documentSnapshot.getString("address");
+                        String id = documentSnapshot.getString("user_id");
+
+
+                        edtFullName.setText(name);
+                        edtPhoneNumber.setText(phone);
+                        edtEmail.setText(email);
+                        edtAddress.setText(address);
+                        edtIdCard.setText(id);
+
+                    } else {
+                        Toast.makeText(this, "Không tìm thấy khách hàng!", Toast.LENGTH_SHORT).show();
+                    }
+                })
+                .addOnFailureListener(e -> {
+                    Toast.makeText(this, "Lỗi tải dữ liệu: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                });
     }
 
 }

@@ -23,6 +23,6 @@
         android:paddingBottom="8dp"
         app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
         tools:listitem="@layout/item_account"
-        tools:itemCount="3"/>
+        tools:itemCount="1"/>
 
 </LinearLayout>

@@ -75,6 +75,7 @@
                         android:textAppearance="@style/TextAppearance.MaterialComponents.Body1"/>
 
                     <ImageView
+                        android:id="@+id/btnInfor"
                         android:layout_width="24dp"
                         android:layout_height="24dp"
                         android:src="@drawable/ic_chevron_right" />
@@ -114,6 +115,7 @@
                     android:textAppearance="@style/TextAppearance.MaterialComponents.Body1"/>
 
                 <ImageView
+                    android:id="@+id/changePass"
                     android:layout_width="24dp"
                     android:layout_height="24dp"
                     android:src="@drawable/ic_chevron_right" />

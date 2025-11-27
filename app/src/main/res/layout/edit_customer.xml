@@ -3,6 +3,7 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/CustomerInfor"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".edit_customer">
@@ -17,8 +18,9 @@
             android:id="@+id/toolbar"
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
-            app:title="Thông tin Khách hàng"/>
-<!--            app:navigationIcon="@drawable/ic_arrow_back_24" -->
+            app:title="Thông tin Khách hàng"
+            app:titleCentered="true"
+            app:navigationIcon="@drawable/ic_arrow_back_standard" />
 
     </com.google.android.material.appbar.AppBarLayout>
 
