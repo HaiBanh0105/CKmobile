@@ -1,7 +1,8 @@
 package com.example.banking;
 
 import android.content.Intent;
-import android.net.Uri;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.widget.EditText;
 import android.widget.Toast;
@@ -18,9 +19,12 @@ import com.google.android.material.button.MaterialButton;
 import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 
+import java.io.IOException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Random;
 
@@ -34,10 +38,12 @@ public class edit_customer extends AppCompatActivity {
 
     private ActivityResultLauncher<Intent> ekycLauncher;
 
+    String userId = SessionManager.getInstance().getUserId();
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.edit_customer);
+        setContentView(R.layout.customer_infor);
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.CustomerInfor), (v, insets) -> {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
@@ -59,7 +65,6 @@ public class edit_customer extends AppCompatActivity {
             toolbar.setTitle("Đăng ký tài khoản");
         }
         else{
-            String userId = SessionManager.getInstance().getUserId();
             toolbar.setTitle("Thông tin tài khoản");
             loadCustomerInfor(userId);
         }
@@ -83,10 +88,17 @@ public class edit_customer extends AppCompatActivity {
             onBackPressed();
         });
 
-        btnSave.setOnClickListener(v -> saveCustomer());
+        btnSave.setOnClickListener(v -> {
+            if("customer_register".equalsIgnoreCase(role)){
+                RegiterCustomer();
+            }
+            else{
+//                UpdateCustomer();
+            }
+        });
     }
 
-    private void saveCustomer() {
+    private void RegiterCustomer() {
         String name = edtFullName.getText().toString().trim();
         String phone = edtPhoneNumber.getText().toString().trim();
         String email = edtEmail.getText().toString().trim();
@@ -105,6 +117,16 @@ public class edit_customer extends AppCompatActivity {
 
         // 2. Mã hóa mật khẩu bằng SHA-256
         String hashedPassword = hashPassword(rawPassword);
+
+
+        final List<Float> faceEmbedding;
+        try {
+            faceEmbedding = extractFaceEmbedding(faceImagePath);
+        } catch (IOException e) {
+            e.printStackTrace();
+            Toast.makeText(this, "Lỗi xử lý ảnh: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+            return; // dừng lại nếu không tạo được embedding
+        }
 
         // Tiêu đề Email
         String subject = "Chào mừng bạn đến với Ngân hàng ABC";
@@ -128,8 +150,6 @@ public class edit_customer extends AppCompatActivity {
         }
 
 
-
-        // Gọi hàm gửi mail (hàm này tự báo thành công/thất bại bằng Toast)
         EmailService.sendEmail(this, email, subject, emailBody, new EmailService.EmailCallback() {
             @Override
             public void onSuccess() {
@@ -142,8 +162,10 @@ public class edit_customer extends AppCompatActivity {
                 customer.put("phone", phone);
                 customer.put("email", email);
                 customer.put("address", address);
-                customer.put("faceImagePath", faceImagePath);
                 customer.put("password", hashedPassword);
+                customer.put("avatar", "");
+
+                customer.put("faceEmbedding", faceEmbedding);
 
                 db.collection("Users")
                         .document(idCard)
@@ -157,7 +179,6 @@ public class edit_customer extends AppCompatActivity {
                             Toast.makeText(getApplicationContext(), "Lỗi: " + e.getMessage(), Toast.LENGTH_SHORT).show();
                         });
             }
-
             @Override
             public void onFailure(String error) {
                 Toast.makeText(getApplicationContext(), "Không thể gửi email, hủy tạo tài khoản!", Toast.LENGTH_SHORT).show();
@@ -167,6 +188,7 @@ public class edit_customer extends AppCompatActivity {
     }
 
 
+    //Tạo tài khoản checking
     private void createDefaultCheckingAccount(String userId) {
         FirebaseFirestore db = FirebaseFirestore.getInstance();
 
@@ -189,8 +211,7 @@ public class edit_customer extends AppCompatActivity {
                 });
     }
 
-
-
+    //Tạo mật khẩu ngãu nhiên
     private String generateRandomPassword() {
         String chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
         StringBuilder sb = new StringBuilder();
@@ -201,10 +222,12 @@ public class edit_customer extends AppCompatActivity {
         return sb.toString();
     }
 
+    //Đảo chuỗi
     private String reverseString(String input) {
         return new StringBuilder(input).reverse().toString();
     }
 
+    //Mã hóa
     private String hashPassword(String password) {
         try {
             MessageDigest digest = MessageDigest.getInstance("SHA-256");
@@ -221,33 +244,40 @@ public class edit_customer extends AppCompatActivity {
         }
     }
 
+    //Load dữ liệu lên form khi cập nhật
     private void loadCustomerInfor(String userId) {
-        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        FirestoreHelper helper = new FirestoreHelper();
 
-        db.collection("Users").document(userId).get()
-                .addOnSuccessListener(documentSnapshot -> {
-                    if (documentSnapshot.exists()) {
-                        // Lấy dữ liệu từ Firestore
-                        String name = documentSnapshot.getString("name");
-                        String phone = documentSnapshot.getString("phone");
-                        String email = documentSnapshot.getString("email");
-                        String address = documentSnapshot.getString("address");
-                        String id = documentSnapshot.getString("user_id");
+        helper.loadCustomerInfor(userId, new FirestoreHelper.CustomerCallback() {
+            @Override
+            public void onSuccess(String name, String phone, String email, String address, String id) {
+                edtFullName.setText(name);
+                edtPhoneNumber.setText(phone);
+                edtEmail.setText(email);
+                edtAddress.setText(address);
+                edtIdCard.setText(id);
+            }
 
-
-                        edtFullName.setText(name);
-                        edtPhoneNumber.setText(phone);
-                        edtEmail.setText(email);
-                        edtAddress.setText(address);
-                        edtIdCard.setText(id);
-
-                    } else {
-                        Toast.makeText(this, "Không tìm thấy khách hàng!", Toast.LENGTH_SHORT).show();
-                    }
-                })
-                .addOnFailureListener(e -> {
-                    Toast.makeText(this, "Lỗi tải dữ liệu: " + e.getMessage(), Toast.LENGTH_SHORT).show();
-                });
+            @Override
+            public void onFailure(String errorMessage) {
+                Toast.makeText(edit_customer.this, errorMessage, Toast.LENGTH_SHORT).show();
+            }
+        });
     }
+
+    //Xử lý ảnh khuôn mặt
+    private List<Float> extractFaceEmbedding(String imagePath) throws IOException {
+        Bitmap bitmap = BitmapFactory.decodeFile(imagePath);
+        FaceEmbeddingExtractor extractor = new FaceEmbeddingExtractor(this);
+        float[] embeddingArray = extractor.getEmbedding(bitmap);
+
+        List<Float> embedding = new ArrayList<>();
+        for (float v : embeddingArray) {
+            embedding.add(v);
+        }
+        return embedding;
+    }
+
+
 
 }

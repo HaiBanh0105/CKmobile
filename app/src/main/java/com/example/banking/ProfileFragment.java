@@ -6,14 +6,25 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
+import com.google.android.material.imageview.ShapeableImageView;
+import com.google.firebase.firestore.FirebaseFirestore;
+
 public class ProfileFragment extends Fragment {
     private ImageView infor;
     private ImageView changePass;
+
+    private TextView Username;
+
+    private ShapeableImageView avt;
+
+    String userId = SessionManager.getInstance().getUserId();
 
 
     @Nullable
@@ -23,8 +34,12 @@ public class ProfileFragment extends Fragment {
                              @Nullable Bundle savedInstanceState) {
         View root = inflater.inflate(R.layout.fragment_profile, container, false);
 
+        loadCustomerInfor(userId);
+
         infor = root.findViewById(R.id.btnInfor);
         changePass = root.findViewById(R.id.changePass);
+        Username = root.findViewById(R.id.tvCustomerName);
+        avt = root.findViewById(R.id.imgProfile);
 
         infor.setOnClickListener(v -> {
             Intent intent = new Intent(requireContext(), edit_customer.class);
@@ -38,6 +53,22 @@ public class ProfileFragment extends Fragment {
         });
 
         return  root;
+    }
+
+    private void loadCustomerInfor(String userId) {
+        FirestoreHelper helper = new FirestoreHelper();
+        helper.loadCustomerInfor(userId, new FirestoreHelper.CustomerCallback() {
+            @Override
+            public void onSuccess(String name, String phone, String email, String address, String id) {
+                Username.setText(name);
+            }
+
+            @Override
+            public void onFailure(String errorMessage) {
+                Toast.makeText(requireContext(), errorMessage, Toast.LENGTH_SHORT).show();
+            }
+        });
+
     }
 
 

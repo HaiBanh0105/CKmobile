@@ -35,14 +35,28 @@
                 android:layout_height="wrap_content"
                 android:padding="16dp">
 
+                <!-- Số tài khoản + số -->
+                <TextView
+                    android:id="@+id/tvAccountNumber"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Số tài khoản: 1234 5678 9999"
+                    android:textAppearance="@style/TextAppearance.MaterialComponents.Body1"
+                    android:textStyle="bold"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    tools:text="Số tài khoản: 1234 5678 9999" />
+
+                <!-- Số dư tài khoản chính -->
                 <TextView
                     android:id="@+id/tvBalanceLabel"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
                     android:text="Số dư tài khoản chính"
                     android:textAppearance="@style/TextAppearance.MaterialComponents.Caption"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent" />
+                    app:layout_constraintTop_toBottomOf="@id/tvAccountNumber" />
 
                 <TextView
                     android:id="@+id/tvBalanceAmount"
@@ -67,6 +81,8 @@
                     app:layout_constraintBottom_toBottomOf="parent" />
 
             </androidx.constraintlayout.widget.ConstraintLayout>
+
+
         </com.google.android.material.card.MaterialCardView>
 
         <TextView

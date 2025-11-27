@@ -1,5 +1,6 @@
 package com.example.banking;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -9,13 +10,25 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
+
 public class AccountsFragment extends Fragment {
 
+    FloatingActionButton openSaving;
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater,
                              @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.fragment_accounts, container, false);
+        View root = inflater.inflate(R.layout.fragment_accounts, container, false);
+
+        openSaving = root.findViewById(R.id.fabOpenSavings);
+
+        openSaving.setOnClickListener(v -> {
+            Intent intent = new Intent(requireContext(), open_savings.class);
+            startActivity(intent);
+        });
+
+        return  root;
     }
 }

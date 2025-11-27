@@ -20,6 +20,9 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.Banking">
         <activity
+            android:name=".open_savings"
+            android:exported="false" />
+        <activity
             android:name=".change_password"
             android:exported="false" />
         <activity
