@@ -32,7 +32,7 @@
             android:name=".interest_rate"
             android:exported="false" />
         <activity
-            android:name=".edit_customer"
+            android:name=".customer_infor"
             android:exported="false" />
         <activity
             android:name=".item_customer_row"

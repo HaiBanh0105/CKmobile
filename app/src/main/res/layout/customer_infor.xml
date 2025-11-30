@@ -6,7 +6,7 @@
     android:id="@+id/CustomerInfor"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".edit_customer">
+    tools:context=".customer_infor">
 
     <com.google.android.material.appbar.AppBarLayout
         android:id="@+id/appBarLayout"

@@ -14,7 +14,6 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
 import com.google.android.material.imageview.ShapeableImageView;
-import com.google.firebase.firestore.FirebaseFirestore;
 
 public class ProfileFragment extends Fragment {
     private ImageView infor;
@@ -42,7 +41,7 @@ public class ProfileFragment extends Fragment {
         avt = root.findViewById(R.id.imgProfile);
 
         infor.setOnClickListener(v -> {
-            Intent intent = new Intent(requireContext(), edit_customer.class);
+            Intent intent = new Intent(requireContext(), customer_infor.class);
             intent.putExtra("role", "customer_update");
             startActivity(intent);
         });

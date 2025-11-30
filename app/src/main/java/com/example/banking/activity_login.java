@@ -86,8 +86,8 @@ public class activity_login extends AppCompatActivity {
 
         // Xử lý nút mở tài khoản eKYC
         btnRegister.setOnClickListener(v -> {
-//            startActivity(new Intent(this, edit_customer.class));
-            Intent intent = new Intent(this, edit_customer.class);
+//            startActivity(new Intent(this, customer_infor.class));
+            Intent intent = new Intent(this, customer_infor.class);
 
             // Gửi dữ liệu kèm theo
             intent.putExtra("role", "customer_register");

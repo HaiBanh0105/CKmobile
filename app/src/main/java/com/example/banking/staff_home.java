@@ -41,7 +41,7 @@ public class staff_home extends Fragment {
 
         fabAddCustomer.setOnClickListener(v -> {
             // Mở EditCustomerActivity
-            Intent intent = new Intent(requireContext(), edit_customer.class);
+            Intent intent = new Intent(requireContext(), customer_infor.class);
             startActivity(intent);
         });
 

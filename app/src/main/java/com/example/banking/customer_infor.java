@@ -28,7 +28,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Random;
 
-public class edit_customer extends AppCompatActivity {
+public class customer_infor extends AppCompatActivity {
 
     private EditText edtFullName, edtPhoneNumber, edtEmail, edtAddress, edtIdCard;
     private MaterialButton btnEkycScan, btnSave;
@@ -260,7 +260,7 @@ public class edit_customer extends AppCompatActivity {
 
             @Override
             public void onFailure(String errorMessage) {
-                Toast.makeText(edit_customer.this, errorMessage, Toast.LENGTH_SHORT).show();
+                Toast.makeText(customer_infor.this, errorMessage, Toast.LENGTH_SHORT).show();
             }
         });
     }

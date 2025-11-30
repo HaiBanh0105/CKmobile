@@ -70,6 +70,5 @@ public class HomeFragment extends Fragment {
                 Toast.makeText(requireContext(), errorMessage, Toast.LENGTH_SHORT).show();
             }
         });
-
     }
 }
