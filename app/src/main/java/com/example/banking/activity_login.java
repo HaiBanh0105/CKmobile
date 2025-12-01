@@ -59,11 +59,13 @@ public class activity_login extends AppCompatActivity {
                             String name = doc.getString("name");
                             String role = doc.getString("role");
                             String user_id = doc.getString("user_id");
+                            String email = doc.getString("email");
 
                             if (hashedInput.equals(storedHash)) {
                                 SessionManager.getInstance().setUserId(user_id);
+                                SessionManager.getInstance().setEmail(email);
 
-                                Toast.makeText(this, "Xin chào " + name + " (" + role + ")", Toast.LENGTH_SHORT).show();
+                                Toast.makeText(this, "Xin chào " + name, Toast.LENGTH_SHORT).show();
 
                                 if ("staff".equalsIgnoreCase(role)) {
                                     startActivity(new Intent(this, staff_main.class));

@@ -61,11 +61,15 @@ public class AccountsFragment extends Fragment {
                     accountList.clear();
                     for (DocumentSnapshot doc : queryDocumentSnapshots) {
                         Account account = doc.toObject(Account.class);
-                        accountList.add(account);
+                        if (!"checking".equals(account.getAccount_type())) {
+                            accountList.add(account);
+                        }
                     }
                     adapter.notifyDataSetChanged();
                 })
                 .addOnFailureListener(e ->
                         Toast.makeText(getContext(), "Lỗi tải dữ liệu: " + e.getMessage(), Toast.LENGTH_SHORT).show());
     }
+
+
 }

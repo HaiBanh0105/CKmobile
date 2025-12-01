@@ -3,6 +3,7 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/otp"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".activity_otp">
@@ -29,7 +30,7 @@
         android:layout_marginTop="32dp"
         android:layout_marginEnd="32dp"
         android:gravity="center"
-        android:text="Nhập mã OTP đã gửi đến SĐT của bạn"
+        android:text="Nhập mã OTP đã gửi đến email của bạn"
         android:textAppearance="@style/TextAppearance.MaterialComponents.Subtitle1"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -41,7 +42,9 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="24dp"
         android:cursorVisible="true"
-        android:inputType="number"
+        android:focusable="true"
+        android:focusableInTouchMode="true"
+        android:inputType="numberPassword"
         android:padding="10dp"
         android:textColor="?attr/colorOnSurface"
         android:textSize="18sp"
@@ -55,6 +58,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/tvOtpInstruction"
         app:lineColor="?attr/colorPrimary" />
+
 
 
 

@@ -1,5 +1,7 @@
 package com.example.banking;
 
+import android.content.Context;
+import android.content.Intent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -32,6 +34,13 @@ public class AccountAdapter extends RecyclerView.Adapter<AccountAdapter.AccountV
         holder.tvAccountName.setText(account.getAccount_type().equals("checking") ? "Tài khoản thanh toán" : "Tài khoản tiết kiệm");
         holder.tvAccountNumber.setText(account.getAccount_id());
         holder.tvAccountBalance.setText(String.format("%,.0f VND", account.getBalance()));
+
+        holder.itemView.setOnClickListener(v -> {
+            Context context = v.getContext();
+            Intent intent = new Intent(context, saving_infor.class);
+            intent.putExtra("account_id", account.getAccount_id());
+            context.startActivity(intent);
+        });
     }
 
     @Override

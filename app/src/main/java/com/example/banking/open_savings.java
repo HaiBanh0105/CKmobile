@@ -1,5 +1,6 @@
 package com.example.banking;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -11,6 +12,8 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
@@ -45,10 +48,13 @@ public class open_savings extends AppCompatActivity {
     private AutoCompleteTextView autoCompleteTerm;
 
     String userId = SessionManager.getInstance().getUserId();
+    String email = SessionManager.getInstance().getEmail();
 
     private FirebaseFirestore db;
 
     MaterialButton btnOpen;
+
+    private ActivityResultLauncher<Intent> launcher;
 
 
     @Override
@@ -61,6 +67,22 @@ public class open_savings extends AppCompatActivity {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
             return insets;
         });
+
+        // Khởi tạo launcher
+        launcher = registerForActivityResult(
+                new ActivityResultContracts.StartActivityForResult(),
+                result -> {
+                    if (result.getResultCode() == RESULT_OK) {
+                        Intent data = result.getData();
+                        if (data != null) {
+                            String value = data.getStringExtra("result_key");
+                            if(value.equalsIgnoreCase("OK")){
+                                OpenSaving(userId);
+                            }
+                        }
+                    }
+                }
+        );
 
         db = FirebaseFirestore.getInstance();
 
@@ -135,7 +157,9 @@ public class open_savings extends AppCompatActivity {
         btnOpen.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                OpenSaving(userId);
+                Intent intent = new Intent(open_savings.this, activity_otp.class);
+                intent.putExtra("email",email);
+                launcher.launch(intent);
             }
         });
     }

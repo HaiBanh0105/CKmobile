@@ -80,6 +80,8 @@
         <activity
             android:name=".activity_login"
             android:exported="false" />
+        <activity android:name=".saving_infor"
+            android:exported="false" />
         <activity
             android:name=".activity_splash"
             android:exported="true">

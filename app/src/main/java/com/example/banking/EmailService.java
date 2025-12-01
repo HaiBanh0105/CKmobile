@@ -69,7 +69,7 @@ public class EmailService {
 
                 // 5. Quay về luồng chính báo thành công
                 handler.post(() -> {
-                    Toast.makeText(context, "Đã gửi Email mật khẩu!", Toast.LENGTH_LONG).show();
+                    Toast.makeText(context, "Đã gửi mã sang Email!", Toast.LENGTH_LONG).show();
                     if (callback != null) callback.onSuccess();
                 });
 
