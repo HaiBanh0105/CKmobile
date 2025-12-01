@@ -192,8 +192,8 @@ public class customer_infor extends AppCompatActivity {
     private void createDefaultCheckingAccount(String userId) {
         FirebaseFirestore db = FirebaseFirestore.getInstance();
 
-        // accountId là đảo ngược của userId
-        String accountId = reverseString(userId);
+        // accountId sinh tự động
+        String accountId = generateAccountId("01");
 
         Map<String, Object> account = new HashMap<>();
         account.put("account_number", accountId);
@@ -222,10 +222,19 @@ public class customer_infor extends AppCompatActivity {
         return sb.toString();
     }
 
-    //Đảo chuỗi
-    private String reverseString(String input) {
-        return new StringBuilder(input).reverse().toString();
+    //Tạo mã tự động
+    private String generateAccountId(String type) {
+        String branchCode = "7010";      // mã chi nhánh
+
+        // Sinh 6 số ngẫu nhiên
+        int randomNumber = (int)(Math.random() * 1000000);
+        String randomSixDigits = String.format("%06d", randomNumber);
+
+        // Ghép lại thành accountId
+        return branchCode + type + randomSixDigits;
     }
+
+
 
     //Mã hóa
     private String hashPassword(String password) {
