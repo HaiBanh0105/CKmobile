@@ -1,32 +1,48 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="horizontal"
     android:padding="16dp"
-    android:gravity="center_vertical">
+    android:gravity="center_vertical"
+    android:background="?attr/selectableItemBackground">
 
     <ImageView
-        android:layout_width="40dp"
-        android:layout_height="40dp"
-        android:src="@drawable/ic_person"/>
+    android:id="@+id/imgAvatar"
+    android:layout_width="40dp"
+    android:layout_height="40dp"
+    android:src="@drawable/ic_person" />
+
     <LinearLayout
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_weight="1"
         android:orientation="vertical"
-        android:layout_marginStart="16dp">
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="8dp">
+
         <TextView
             android:id="@+id/tvCustomerName"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Nguyễn Văn A"
+            android:textSize="16sp"
             android:textStyle="bold"/>
+
         <TextView
             android:id="@+id/tvCustomerId"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="ID: 123456"/>
+            android:text="ID: 123456"
+            android:textColor="?android:attr/textColorSecondary"/>
     </LinearLayout>
+
+    <ImageView
+        android:id="@+id/imgAddMortgage"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:src="@drawable/ic_addmortgage" />
+
 </LinearLayout>

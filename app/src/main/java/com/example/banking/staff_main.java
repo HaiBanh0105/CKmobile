@@ -43,7 +43,7 @@ public class staff_main extends AppCompatActivity {
             } else if (id == R.id.nav_manage_interest) {
                 startActivity(new Intent(this, interest_rate.class));
             } else if (id == R.id.nav_logout) {
-                startActivity(new Intent(this, activity_login.class));
+                startActivity(new Intent(this, login.class));
                 finish();
             }
             drawerLayout.closeDrawer(GravityCompat.START);

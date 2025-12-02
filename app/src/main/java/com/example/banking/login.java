@@ -16,7 +16,7 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
-public class activity_login extends AppCompatActivity {
+public class login extends AppCompatActivity {
 
     private TextInputEditText edtUsername, edtPassword;
     private MaterialButton btnLogin, btnRegister;

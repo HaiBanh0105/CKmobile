@@ -8,7 +8,7 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
-public class activity_transfer_confirm extends AppCompatActivity {
+public class transfer_confirm extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

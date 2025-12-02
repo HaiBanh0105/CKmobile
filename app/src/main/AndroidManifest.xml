@@ -54,7 +54,7 @@
             <!-- </intent-filter> -->
         </activity>
         <activity
-            android:name=".activity_account_detail"
+            android:name=".account_detail"
             android:exported="false" />
         <activity
             android:name=".item_account"
@@ -63,13 +63,13 @@
             android:name=".item_transaction_history"
             android:exported="false" />
         <activity
-            android:name=".activity_otp"
+            android:name=".otp"
             android:exported="false" />
         <activity
-            android:name=".activity_transfer_confirm"
+            android:name=".transfer_confirm"
             android:exported="false" />
         <activity
-            android:name=".activity_transfer"
+            android:name=".transfer"
             android:exported="false" />
         <activity
             android:name=".MainActivity"
@@ -78,12 +78,12 @@
             android:name=".customer_main"
             android:exported="false" />
         <activity
-            android:name=".activity_login"
+            android:name=".login"
             android:exported="false" />
         <activity android:name=".saving_infor"
             android:exported="false" />
         <activity
-            android:name=".activity_splash"
+            android:name=".splash"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

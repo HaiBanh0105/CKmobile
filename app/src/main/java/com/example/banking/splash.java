@@ -7,7 +7,7 @@ import android.os.Looper;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-public class activity_splash extends AppCompatActivity {
+public class splash extends AppCompatActivity {
     private static final int SPLASH_DISPLAY_DURATION = 2000;
 
     @Override
@@ -26,11 +26,11 @@ public class activity_splash extends AppCompatActivity {
             @Override
             public void run() {
                 // Tạo một Intent để bắt đầu LoginActivity
-                Intent mainIntent = new Intent(activity_splash.this, activity_login.class);
-                activity_splash.this.startActivity(mainIntent);
+                Intent mainIntent = new Intent(splash.this, login.class);
+                splash.this.startActivity(mainIntent);
 
                 // Đóng SplashActivity để người dùng không thể quay lại nó
-                activity_splash.this.finish();
+                splash.this.finish();
             }
         }, SPLASH_DISPLAY_DURATION);
     }

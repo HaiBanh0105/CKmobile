@@ -5,7 +5,6 @@ import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.View;
-import android.widget.AbsListView;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.TextView;
@@ -157,7 +156,7 @@ public class open_savings extends AppCompatActivity {
         btnOpen.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(open_savings.this, activity_otp.class);
+                Intent intent = new Intent(open_savings.this, otp.class);
                 intent.putExtra("email",email);
                 launcher.launch(intent);
             }

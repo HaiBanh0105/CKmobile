@@ -1,5 +1,6 @@
 package com.example.banking;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -16,7 +17,7 @@ public class HomeFragment extends Fragment {
 
     private TextView tvaccountNumber, tvbalance;
 
-    private ImageView btnToggleBalance;
+    private ImageView btnToggleBalance, btnTransfer;
 
     private boolean isBalanceVisible = true;
 
@@ -33,6 +34,7 @@ public class HomeFragment extends Fragment {
         tvaccountNumber = root.findViewById(R.id.tvAccountNumber);
         tvbalance = root.findViewById(R.id.tvBalanceAmount);
         btnToggleBalance = root.findViewById(R.id.btnToggleBalance);
+        btnTransfer = root.findViewById(R.id.btnTransfer);
 
         loadCheckingInfor(userId);
 
@@ -50,6 +52,11 @@ public class HomeFragment extends Fragment {
                 btnToggleBalance.setImageResource(R.drawable.ic_visibility_off); // icon ẩn
             }
             isBalanceVisible = !isBalanceVisible;
+        });
+
+        btnTransfer.setOnClickListener(v -> {
+            Intent intent = new Intent(requireContext(), transfer.class);
+            startActivity(intent);
         });
 
         return root;

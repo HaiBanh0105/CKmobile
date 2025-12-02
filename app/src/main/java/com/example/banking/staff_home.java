@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -12,14 +13,21 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.example.banking.modal.Customer;
+import com.example.banking.model.Customer;
 import com.example.banking.viewHolder.CustomerViewHolder;
 import com.firebase.ui.firestore.FirestoreRecyclerAdapter;
 import com.firebase.ui.firestore.FirestoreRecyclerOptions;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class staff_home extends Fragment {
+    private RecyclerView rvCustomers;
+    private CustomerAdapter adapter;
+    private List<Customer> customerList = new ArrayList<>();
     private FirebaseFirestore db;
     @Nullable
     @Override
@@ -42,36 +50,42 @@ public class staff_home extends Fragment {
         fabAddCustomer.setOnClickListener(v -> {
             // Mở EditCustomerActivity
             Intent intent = new Intent(requireContext(), customer_infor.class);
+            intent.putExtra("role", "customer_register");
             startActivity(intent);
         });
 
-        RecyclerView rvCustomers = view.findViewById(R.id.rvCustomers);
-        rvCustomers.setLayoutManager(new LinearLayoutManager(requireContext()));
-
-        FirestoreRecyclerOptions<Customer> options =
-                new FirestoreRecyclerOptions.Builder<Customer>()
-                        .setQuery(db.collection("Customers"), Customer.class)
-                        .build();
-
-        FirestoreRecyclerAdapter<Customer, CustomerViewHolder> adapter =
-                new FirestoreRecyclerAdapter<Customer, CustomerViewHolder>(options) {
-                    @Override
-                    protected void onBindViewHolder(@NonNull CustomerViewHolder holder, int position, @NonNull Customer model) {
-                        holder.tvName.setText(model.getName());
-                        holder.tvId.setText("ID: " + model.getIdCard());
-                    }
-
-                    @NonNull
-                    @Override
-                    public CustomerViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-                        View view = LayoutInflater.from(parent.getContext())
-                                .inflate(R.layout.item_customer_row, parent, false);
-                        return new CustomerViewHolder(view);
-                    }
-                };
-
+        rvCustomers = view.findViewById(R.id.rvCustomers);
+        rvCustomers.setLayoutManager(new LinearLayoutManager(getContext()));
+        adapter = new CustomerAdapter(getContext(), customerList);
         rvCustomers.setAdapter(adapter);
-        adapter.startListening();
 
+        db = FirebaseFirestore.getInstance();
+
+        loadCustomers();
     }
+
+    private void loadCustomers() {
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+
+        db.collection("Users")
+                .whereEqualTo("role", "customer")   // lọc theo role = customer
+                .get()
+                .addOnSuccessListener(queryDocumentSnapshots -> {
+                    customerList.clear();
+                    for (DocumentSnapshot doc : queryDocumentSnapshots) {
+                        // ánh xạ sang model Customer
+                        Customer customer = new Customer(
+                                doc.getString("user_id"),   // hoặc doc.getId() nếu bạn dùng id document
+                                doc.getString("name")
+                        );
+                        customerList.add(customer);
+                    }
+                    adapter.notifyDataSetChanged();
+                })
+                .addOnFailureListener(e ->
+                        Toast.makeText(getContext(),
+                                "Lỗi tải dữ liệu: " + e.getMessage(),
+                                Toast.LENGTH_SHORT).show());
+    }
+
 }

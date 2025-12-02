@@ -13,11 +13,13 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
+import com.google.android.material.button.MaterialButton;
 import com.google.android.material.imageview.ShapeableImageView;
 
 public class ProfileFragment extends Fragment {
-    private ImageView infor;
-    private ImageView changePass;
+    private ImageView infor,changePass;
+
+    MaterialButton logout;
 
     private TextView Username;
 
@@ -38,6 +40,7 @@ public class ProfileFragment extends Fragment {
         infor = root.findViewById(R.id.btnInfor);
         changePass = root.findViewById(R.id.changePass);
         Username = root.findViewById(R.id.tvCustomerName);
+        logout = root.findViewById(R.id.btnLogout);
         avt = root.findViewById(R.id.imgProfile);
 
         infor.setOnClickListener(v -> {
@@ -49,6 +52,15 @@ public class ProfileFragment extends Fragment {
         changePass.setOnClickListener(v -> {
             Intent intent = new Intent(requireContext(), change_password.class);
             startActivity(intent);
+        });
+
+
+        logout.setOnClickListener(v -> {
+            Intent intent = new Intent(requireContext(), login.class);
+            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
+            startActivity(intent);
+            requireActivity().finish();
+
         });
 
         return  root;

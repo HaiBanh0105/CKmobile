@@ -60,12 +60,22 @@ public class customer_infor extends AppCompatActivity {
         toolbar = findViewById(R.id.toolbar);
 
         String role = getIntent().getStringExtra("role");
+        String customer_ID = getIntent().getStringExtra("user_id");
 
+        //Đăng ký tài khoản
         if("customer_register".equalsIgnoreCase(role)){
             toolbar.setTitle("Đăng ký tài khoản");
         }
+        //Nhân viên sửa
+        else if(customer_ID != null && !customer_ID.isEmpty()){
+            toolbar.setTitle("Thông tin khách hàng");
+            btnSave.setText("Cập nhật thông tin");
+            loadCustomerInfor(customer_ID);
+        }
+        //Khách hàng tự sửa
         else{
             toolbar.setTitle("Thông tin tài khoản");
+            btnSave.setText("Cập nhật thông tin");
             loadCustomerInfor(userId);
         }
 
@@ -190,6 +200,7 @@ public class customer_infor extends AppCompatActivity {
 
     //Tạo tài khoản checking
     private void createDefaultCheckingAccount(String userId) {
+        String name = edtFullName.getText().toString().trim();
         FirebaseFirestore db = FirebaseFirestore.getInstance();
 
         // accountId sinh tự động
@@ -198,6 +209,7 @@ public class customer_infor extends AppCompatActivity {
         Map<String, Object> account = new HashMap<>();
         account.put("account_number", accountId);
         account.put("user_id", userId);
+        account.put("name", name);
         account.put("account_type", "checking");
         account.put("balance", 0.0); // số dư mặc định = 0
         account.put("created_at", FieldValue.serverTimestamp());

@@ -17,7 +17,7 @@ import com.google.android.material.button.MaterialButton;
 
 import java.util.Random;
 
-public class activity_otp extends AppCompatActivity {
+public class otp extends AppCompatActivity {
     private PinView pinView;
     private MaterialButton btnConfirmOtp;
     private TextView tvResendOtp;
@@ -52,13 +52,13 @@ public class activity_otp extends AppCompatActivity {
         btnConfirmOtp.setOnClickListener(v -> {
             String enteredOtp = pinView.getText().toString().trim();
             if (enteredOtp.equals(currentOtp)) {
-                Toast.makeText(activity_otp.this, "Xác thực thành công!", Toast.LENGTH_SHORT).show();
+                Toast.makeText(otp.this, "Xác thực thành công!", Toast.LENGTH_SHORT).show();
                 Intent resultIntent = new Intent();
                 resultIntent.putExtra("result_key", "OK");
                 setResult(RESULT_OK, resultIntent);
                 finish();
             } else {
-                Toast.makeText(activity_otp.this, "Mã OTP không đúng!", Toast.LENGTH_SHORT).show();
+                Toast.makeText(otp.this, "Mã OTP không đúng!", Toast.LENGTH_SHORT).show();
             }
         });
     }
@@ -75,7 +75,7 @@ public class activity_otp extends AppCompatActivity {
 
                     @Override
                     public void onFailure(String error) {
-                        Toast.makeText(activity_otp.this, "Không gửi được OTP: " + error, Toast.LENGTH_SHORT).show();
+                        Toast.makeText(otp.this, "Không gửi được OTP: " + error, Toast.LENGTH_SHORT).show();
                     }
                 });
     }
