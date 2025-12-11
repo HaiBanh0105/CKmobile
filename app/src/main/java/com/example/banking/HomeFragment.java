@@ -19,7 +19,7 @@ public class HomeFragment extends Fragment {
 
     private ImageView btnToggleBalance, btnTransfer;
 
-    private boolean isBalanceVisible = true;
+    private boolean isBalanceVisible = false;
 
     private Double currentBalance; // lưu số dư hiện tại
     String userId = SessionManager.getInstance().getUserId();
@@ -43,13 +43,13 @@ public class HomeFragment extends Fragment {
             if (isBalanceVisible) {
                 // Ẩn số dư
                 tvbalance.setText("********* VND");
-                btnToggleBalance.setImageResource(R.drawable.ic_visibility); // icon hiện
+                btnToggleBalance.setImageResource(R.drawable.ic_visibility_off); // icon hiện
             } else {
                 // Hiện số dư
                 if (currentBalance != null) {
                     tvbalance.setText(String.format("%,.0f VND", currentBalance));
                 }
-                btnToggleBalance.setImageResource(R.drawable.ic_visibility_off); // icon ẩn
+                btnToggleBalance.setImageResource(R.drawable.ic_visibility); // icon ẩn
             }
             isBalanceVisible = !isBalanceVisible;
         });
@@ -68,7 +68,7 @@ public class HomeFragment extends Fragment {
             @Override
             public void onSuccess(String number, Double balance){
                 tvaccountNumber.setText("Số tài khoản: " + number);
-                tvbalance.setText(String.format("%,.0f VND", balance));
+                tvbalance.setText("********* VND");
                 currentBalance = balance;
             }
 

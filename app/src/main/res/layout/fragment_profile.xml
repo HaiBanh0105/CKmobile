@@ -89,7 +89,6 @@
 
 
             <LinearLayout
-
                 android:id="@+id/itemSecurity"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -111,7 +110,7 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:layout_marginStart="16dp"
-                    android:text="Cài đặt bảo mật"
+                    android:text="Đổi mật khẩu"
                     android:textAppearance="@style/TextAppearance.MaterialComponents.Body1"/>
 
                 <ImageView
@@ -149,7 +148,7 @@
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
                         android:layout_marginStart="16dp"
-                        android:text="Hỗ trợ"
+                        android:text="Mã pin"
                         android:textAppearance="@style/TextAppearance.MaterialComponents.Body1"/>
 
                     <ImageView

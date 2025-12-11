@@ -1,24 +1,89 @@
 package com.example.banking;
 
+import android.content.Intent;
 import android.os.Bundle;
+import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
+import com.google.android.material.appbar.MaterialToolbar;
+import com.google.android.material.button.MaterialButton;
+
 public class transfer_confirm extends AppCompatActivity {
+    private TextView tvConfirmAmount, tvConfirmAccountNumber, tvConfirmAccountName, tvConfirmContent;
+    private MaterialButton btnConfirm;
+    private MaterialToolbar toolbar;
+
+    String email = SessionManager.getInstance().getEmail();
+
+    private ActivityResultLauncher<Intent> launcher;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         EdgeToEdge.enable(this);
         setContentView(R.layout.transfer_confirm);
-        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
+        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.transfer_confirm), (v, insets) -> {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
             return insets;
+        });
+        // Khởi tạo launcher
+        launcher = registerForActivityResult(
+                new ActivityResultContracts.StartActivityForResult(),
+                result -> {
+                    if (result.getResultCode() == RESULT_OK) {
+                        Intent data = result.getData();
+                        if (data != null) {
+                            String value = data.getStringExtra("result_key");
+                            if(value.equalsIgnoreCase("OK")){
+//                                OpenSaving(userId);
+                            }
+                        }
+                    }
+                }
+        );
+
+        tvConfirmAmount = findViewById(R.id.tvConfirmAmount);
+        tvConfirmAccountNumber = findViewById(R.id.tvConfirmAccountNumber);
+        tvConfirmAccountName = findViewById(R.id.tvConfirmAccountName);
+        tvConfirmContent = findViewById(R.id.tvConfirmContent);
+        btnConfirm = findViewById(R.id.btnConfirm);
+        toolbar = findViewById(R.id.toolbar);
+
+        // Lấy dữ liệu từ Intent
+        Intent getIntent = getIntent();
+        String accountNumber = getIntent.getStringExtra("accountNumber");
+        String accountName   = getIntent.getStringExtra("accountName");
+        String amount        = getIntent.getStringExtra("amount");
+        String content       = getIntent.getStringExtra("content");
+
+        // Gán dữ liệu lên UI
+        tvConfirmAmount.setText(amount + " VND");
+        tvConfirmAccountNumber.setText(accountNumber);
+        tvConfirmAccountName.setText(accountName);
+        tvConfirmContent.setText(content);
+
+        // Xử lý nút xác nhận
+        btnConfirm.setOnClickListener(v -> {
+            Intent intent = new Intent(transfer_confirm.this, otp.class);
+            intent.putExtra("email",email);
+            intent.putExtra("type","transfer");
+            intent.putExtra("amount",amount);
+            launcher.launch(intent);
+        });
+
+
+        //Nút trở về
+        toolbar.setNavigationOnClickListener(v -> {
+            onBackPressed();
         });
     }
 }

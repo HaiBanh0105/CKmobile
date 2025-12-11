@@ -57,12 +57,15 @@ public class login extends AppCompatActivity {
 
                             String storedHash = doc.getString("password");
                             String name = doc.getString("name");
+                            String pin = doc.getString("pin");
                             String role = doc.getString("role");
                             String user_id = doc.getString("user_id");
                             String email = doc.getString("email");
 
                             if (hashedInput.equals(storedHash)) {
                                 SessionManager.getInstance().setUserId(user_id);
+                                SessionManager.getInstance().setUserName(name);
+                                SessionManager.getInstance().setPinNumber(pin);
                                 SessionManager.getInstance().setEmail(email);
 
                                 Toast.makeText(this, "Xin chào " + name, Toast.LENGTH_SHORT).show();

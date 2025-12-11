@@ -3,6 +3,7 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/transfer_confirm"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".transfer_confirm">
@@ -17,8 +18,8 @@
             android:id="@+id/toolbar"
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
-            app:title="Xác nhận Giao dịch"/>
-<!--            app:navigationIcon="@drawable/ic_arrow_back_24" -->
+            app:title="Xác nhận Giao dịch"
+            app:navigationIcon="@drawable/ic_arrow_back_standard" />
 
     </com.google.android.material.appbar.AppBarLayout>
 
@@ -69,13 +70,13 @@
                 <View
                     android:layout_width="match_parent"
                     android:layout_height="1dp"
-                    android:background="?android:attr/divider"
+                    android:background="@android:color/darker_gray"
                     android:layout_marginBottom="16dp"/>
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Đến tài khoản"
+                    android:text="Tài khoản thụ hưởng"
                     android:textAppearance="@style/TextAppearance.MaterialComponents.Caption"/>
                 <TextView
                     android:id="@+id/tvConfirmAccountNumber"
@@ -89,16 +90,17 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Ngân hàng"
+                    android:text="Tên người dùng"
                     android:textAppearance="@style/TextAppearance.MaterialComponents.Caption"/>
                 <TextView
-                    android:id="@+id/tvConfirmBankName"
+                    android:id="@+id/tvConfirmAccountName"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    tools:text="Vietcombank"
+                    tools:text="Võ Đạt Hải"
                     android:textAppearance="@style/TextAppearance.MaterialComponents.Body1"
                     android:textStyle="bold"
                     android:layout_marginBottom="12dp"/>
+
 
                 <TextView
                     android:layout_width="wrap_content"
@@ -118,13 +120,14 @@
 
     </androidx.core.widget.NestedScrollView>
 
+
     <com.google.android.material.button.MaterialButton
         android:id="@+id/btnConfirm"
-        android:layout_width="0dp"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Xác nhận"
-        android:padding="14dp"
         android:layout_margin="16dp"
+        android:padding="14dp"
+        android:text="Xác nhận"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />

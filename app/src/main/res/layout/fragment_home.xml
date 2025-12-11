@@ -71,8 +71,8 @@
 
                 <ImageView
                     android:id="@+id/btnToggleBalance"
-                    android:layout_width="24dp"
-                    android:layout_height="24dp"
+                    android:layout_width="30dp"
+                    android:layout_height="30dp"
                     android:background="?attr/selectableItemBackgroundBorderless"
                     android:contentDescription="Ẩn/hiện số dư"
                     android:src="@drawable/ic_visibility_off"

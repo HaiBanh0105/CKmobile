@@ -2,6 +2,7 @@ package com.example.banking;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -20,10 +21,13 @@ import java.util.Random;
 public class otp extends AppCompatActivity {
     private PinView pinView;
     private MaterialButton btnConfirmOtp;
-    private TextView tvResendOtp;
+    private TextView tvResendOtp, tvTitle;
     private String currentOtp;
 
+    String pin = SessionManager.getInstance().getPinNumber();
+
     String email;
+    double amount;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -43,23 +47,58 @@ public class otp extends AppCompatActivity {
         pinView = findViewById(R.id.pinView);
         btnConfirmOtp = findViewById(R.id.btnConfirmOtp);
         tvResendOtp = findViewById(R.id.tvResendOtp);
+        tvTitle = findViewById(R.id.tvOtpInstruction);
 
-        SendOtp();
+        if(intent.hasExtra("type")){
+            String type = intent.getStringExtra("type");
+            if ("transfer".equals(type)) {
+                String amountStr = intent.getStringExtra("amount");
+                amount = Double.parseDouble(amountStr);
+                //Nhỏ hơn 2 triệu thì chỉ cần nhập mã pin
+                if(amount < 2000000){
+                    tvTitle.setText("Nhập mã pin 6 số của ban");
+                    tvResendOtp.setVisibility(View.INVISIBLE);
+                }
+                else{
+                    SendOtp();
+                }
+            }
+        }
+        else{
+            SendOtp();
+        }
+
+
         tvResendOtp.setOnClickListener(v -> {
             SendOtp();
         });
 
         btnConfirmOtp.setOnClickListener(v -> {
             String enteredOtp = pinView.getText().toString().trim();
-            if (enteredOtp.equals(currentOtp)) {
-                Toast.makeText(otp.this, "Xác thực thành công!", Toast.LENGTH_SHORT).show();
-                Intent resultIntent = new Intent();
-                resultIntent.putExtra("result_key", "OK");
-                setResult(RESULT_OK, resultIntent);
-                finish();
-            } else {
-                Toast.makeText(otp.this, "Mã OTP không đúng!", Toast.LENGTH_SHORT).show();
+            if(intent.hasExtra("type")){
+                if (enteredOtp.equals(pin)) {
+                    Toast.makeText(otp.this, "Xác thực thành công!", Toast.LENGTH_SHORT).show();
+                    Intent resultIntent = new Intent();
+                    resultIntent.putExtra("result_key", "OK");
+                    setResult(RESULT_OK, resultIntent);
+                    finish();
+                }
+                else {
+                    Toast.makeText(otp.this, "Mã pin không đúng!", Toast.LENGTH_SHORT).show();
+                }
             }
+            else{
+                if (enteredOtp.equals(currentOtp)) {
+                    Toast.makeText(otp.this, "Xác thực thành công!", Toast.LENGTH_SHORT).show();
+                    Intent resultIntent = new Intent();
+                    resultIntent.putExtra("result_key", "OK");
+                    setResult(RESULT_OK, resultIntent);
+                    finish();
+                } else {
+                    Toast.makeText(otp.this, "Mã OTP không đúng!", Toast.LENGTH_SHORT).show();
+                }
+            }
+
         });
     }
 

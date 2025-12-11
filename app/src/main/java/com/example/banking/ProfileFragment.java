@@ -6,6 +6,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -18,6 +19,8 @@ import com.google.android.material.imageview.ShapeableImageView;
 
 public class ProfileFragment extends Fragment {
     private ImageView infor,changePass;
+
+    LinearLayout LnInfor, LnPassword, LnPin;
 
     MaterialButton logout;
 
@@ -42,10 +45,24 @@ public class ProfileFragment extends Fragment {
         Username = root.findViewById(R.id.tvCustomerName);
         logout = root.findViewById(R.id.btnLogout);
         avt = root.findViewById(R.id.imgProfile);
+        LnInfor = root.findViewById(R.id.itemPersonalInfo);
+        LnPassword = root.findViewById(R.id.itemSecurity);
+
+
+        LnInfor.setOnClickListener(v -> {
+            Intent intent = new Intent(requireContext(), customer_infor.class);
+            intent.putExtra("role", "customer_update");
+            startActivity(intent);
+        });
 
         infor.setOnClickListener(v -> {
             Intent intent = new Intent(requireContext(), customer_infor.class);
             intent.putExtra("role", "customer_update");
+            startActivity(intent);
+        });
+
+        LnPassword.setOnClickListener(v -> {
+            Intent intent = new Intent(requireContext(), change_password.class);
             startActivity(intent);
         });
 

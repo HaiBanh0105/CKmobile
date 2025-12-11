@@ -4,6 +4,9 @@ public class SessionManager {
     private static SessionManager instance;
     private String userId;
 
+    private String name;
+
+    private String pin;
     private String email;
 
     private SessionManager() {}
@@ -17,6 +20,12 @@ public class SessionManager {
 
     public void setUserId(String id) { this.userId = id; }
     public String getUserId() { return userId; }
+
+    public void setUserName(String name) { this.name = name; }
+    public String getUserName() { return name; }
+
+    public void setPinNumber(String pin) { this.pin = pin; }
+    public String getPinNumber() { return pin; }
 
     public void setEmail(String email) { this.email = email; }
     public String getEmail() { return email; }

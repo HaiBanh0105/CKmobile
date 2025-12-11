@@ -1,7 +1,9 @@
 package com.example.banking;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.text.Editable;
+import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -13,6 +15,7 @@ import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
 import com.google.android.material.appbar.MaterialToolbar;
+import com.google.android.material.button.MaterialButton;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -20,9 +23,11 @@ import com.google.firebase.firestore.FirebaseFirestore;
 public class transfer extends AppCompatActivity {
     private TextView tvcheckingAmount;
 
+    MaterialButton btnContinue;
     TextInputEditText edtAccountNumber,edtAccountName,edtAmount,edtContent;
     private MaterialToolbar toolbar;
     String userId = SessionManager.getInstance().getUserId();
+    String userName = SessionManager.getInstance().getUserName();
     FirebaseFirestore db = FirebaseFirestore.getInstance();
 
     @Override
@@ -36,24 +41,19 @@ public class transfer extends AppCompatActivity {
             return insets;
         });
 
+
         toolbar = findViewById(R.id.toolbar);
         edtAccountNumber = findViewById(R.id.edtAccountNumber);
         edtAccountName = findViewById(R.id.edtAccountName);
         tvcheckingAmount = findViewById(R.id.tvSourceBalance);
         edtAmount = findViewById(R.id.edtAmount);
         edtContent = findViewById(R.id.edtContent);
+        btnContinue = findViewById(R.id.btnContinue);
 
         loadCheckingInfor(userId);
 
-        // Theo dõi khi người dùng nhập xong số tài khoản
-//        edtAccountNumber.setOnFocusChangeListener((v, hasFocus) -> {
-//            if (!hasFocus) { // khi người dùng rời khỏi ô nhập
-//                String accountNumber = edtAccountNumber.getText().toString().trim();
-//                if (accountNumber.length() == 12) { // kiểm tra độ dài hợp lệ
-//                    loadAccountName(accountNumber);
-//                }
-//            }
-//        });
+        edtContent.setText(userName + " chuyển tiền");
+
 
         edtAccountNumber.addTextChangedListener(new TextWatcher() {
             @Override
@@ -73,13 +73,46 @@ public class transfer extends AppCompatActivity {
                 // Chỉ gọi Firestore khi nhập đủ 12 số
                 if (accountNumber.length() != 12) {
                     edtAccountName.setText("Không tìm thấy");
-                    edtContent.setText("");
                 }else{
                     loadAccountName(accountNumber);
                 }
             }
         });
 
+        btnContinue.setOnClickListener(v -> {
+            String accountNumber = edtAccountNumber.getText() != null ? edtAccountNumber.getText().toString().trim() : "";
+            String accountName   = edtAccountName.getText() != null ? edtAccountName.getText().toString().trim() : "";
+            String amount        = edtAmount.getText() != null ? edtAmount.getText().toString().trim() : "";
+            String content   = edtContent.getText() != null ? edtContent.getText().toString().trim() : "";
+
+            if (TextUtils.isEmpty(accountNumber)) {
+                Toast.makeText(this, "Vui lòng nhập số tài khoản", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            if (TextUtils.isEmpty(accountName) || accountName.equalsIgnoreCase("Không tìm thấy")) {
+                Toast.makeText(this, "Tài khoản không tồn tại", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            if (TextUtils.isEmpty(amount)) {
+                Toast.makeText(this, "Vui lòng nhập số tiền", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            if (TextUtils.isEmpty(content)) {
+                Toast.makeText(this, "Vui lòng nhập nội dung chuyển khoản", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            Intent intent = new Intent(transfer.this,transfer_confirm.class);
+            intent.putExtra("accountNumber",accountNumber);
+            intent.putExtra("accountName",accountName);
+            intent.putExtra("amount",amount);
+            intent.putExtra("content",content);
+            startActivity(intent);
+
+        });
 
 
         //Nút trở về
@@ -117,7 +150,6 @@ public class transfer extends AppCompatActivity {
                         DocumentSnapshot doc = queryDocumentSnapshots.getDocuments().get(0);
                         String name = doc.getString("name");
                         edtAccountName.setText(name != null ? name : "Không rõ");
-                        edtContent.setText(name + " chuyển tiền");
                     } else {
                         edtAccountName.setText("Không tìm thấy");
                         edtContent.setText("");
