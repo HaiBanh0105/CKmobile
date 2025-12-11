@@ -2,6 +2,7 @@ package com.example.banking;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.text.InputType;
 import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -56,6 +57,7 @@ public class otp extends AppCompatActivity {
                 amount = Double.parseDouble(amountStr);
                 //Nhỏ hơn 2 triệu thì chỉ cần nhập mã pin
                 if(amount < 2000000){
+                    pinView.setInputType(InputType.TYPE_CLASS_NUMBER | InputType.TYPE_NUMBER_VARIATION_PASSWORD);
                     tvTitle.setText("Nhập mã pin 6 số của ban");
                     tvResendOtp.setVisibility(View.INVISIBLE);
                 }
@@ -75,7 +77,7 @@ public class otp extends AppCompatActivity {
 
         btnConfirmOtp.setOnClickListener(v -> {
             String enteredOtp = pinView.getText().toString().trim();
-            if(intent.hasExtra("type")){
+            if(amount < 2000000){
                 if (enteredOtp.equals(pin)) {
                     Toast.makeText(otp.this, "Xác thực thành công!", Toast.LENGTH_SHORT).show();
                     Intent resultIntent = new Intent();

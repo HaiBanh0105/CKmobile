@@ -2,7 +2,12 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
 
-    <uses-permission android:name="android.permission.CAMERA" /> <!-- Khai báo tính năng camera, nhưng không bắt buộc (để app vẫn cài được trên máy không có camera) -->
+    <uses-permission android:name="android.permission.INTERNET"/>
+    <uses-permission android:name="android.permission.CAMERA" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
+
+
     <uses-feature
         android:name="android.hardware.camera"
         android:required="false" />
@@ -19,6 +24,11 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.Banking">
+
+        <meta-data
+            android:name="com.google.android.geo.API_KEY"
+            android:value="AIzaSyAisLpwRasU5mLuGIq-ccICakGPNbGVLSo" />
+
         <activity
             android:name=".open_savings"
             android:exported="false" />

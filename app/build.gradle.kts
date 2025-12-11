@@ -88,4 +88,10 @@ dependencies {
 
     //màu
     implementation("com.google.android.material:material:1.12.0")
+
+    //gg map
+    implementation("com.google.android.gms:play-services-location:21.0.1")
+    implementation("com.google.android.gms:play-services-maps:18.1.0")
+    implementation("com.google.android.libraries.places:places:3.5.0")
+
 }
