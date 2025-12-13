@@ -99,13 +99,13 @@ public class FirestoreHelper {
                         db.collection("Accounts")
                                 .document(docId)
                                 .update("balance", newBalance)
-                                .addOnSuccessListener(aVoid -> {
-                                    Toast.makeText(
-                                            context,
-                                            "Cập nhật số dư thành công: " + newBalance,
-                                            Toast.LENGTH_SHORT
-                                    ).show();
-                                })
+//                                .addOnSuccessListener(aVoid -> {
+//                                    Toast.makeText(
+//                                            context,
+//                                            "Cập nhật số dư thành công: " + newBalance,
+//                                            Toast.LENGTH_SHORT
+//                                    ).show();
+//                                })
                                 .addOnFailureListener(e -> {
                                     Toast.makeText(
                                             context,

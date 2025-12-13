@@ -63,6 +63,11 @@ public class transfer_confirm extends AppCompatActivity {
                                 FirestoreHelper helper = new FirestoreHelper();
                                 helper.changeCheckingBalanceByUserId(this,userId,-amountDb);
                                 helper.changeCheckingBalanceByUserId(this,receiverId,amountDb);
+
+                                Intent resultIntent = new Intent();
+                                resultIntent.putExtra("confirmed", true);
+                                setResult(RESULT_OK, resultIntent);
+                                finish();
                             }
                         }
                     }

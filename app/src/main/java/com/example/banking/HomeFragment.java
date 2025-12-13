@@ -13,6 +13,8 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
+import com.google.firebase.firestore.FirebaseFirestore;
+
 public class HomeFragment extends Fragment {
 
     private TextView tvaccountNumber, tvbalance;
@@ -37,6 +39,22 @@ public class HomeFragment extends Fragment {
         btnTransfer = root.findViewById(R.id.btnTransfer);
 
         loadCheckingInfor(userId);
+
+        // Đăng ký listener realtime sau khi đã gán tvbalance
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        db.collection("Accounts")
+                .document(userId)
+                .addSnapshotListener((snapshot, e) -> {
+                    if (snapshot != null && snapshot.exists()) {
+                        Double balance = snapshot.getDouble("balance");
+                        currentBalance = balance;
+                        if (isBalanceVisible) {
+                            tvbalance.setText(String.format("%,.0f VND", balance));
+                        } else {
+                            tvbalance.setText("********* VND");
+                        }
+                    }
+                });
 
         // Xử lý sự kiện click
         btnToggleBalance.setOnClickListener(v -> {
@@ -77,5 +95,11 @@ public class HomeFragment extends Fragment {
                 Toast.makeText(requireContext(), errorMessage, Toast.LENGTH_SHORT).show();
             }
         });
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        loadCheckingInfor(userId);
     }
 }
