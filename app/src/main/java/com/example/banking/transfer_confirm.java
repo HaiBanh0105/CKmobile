@@ -3,7 +3,6 @@ package com.example.banking;
 import android.content.Intent;
 import android.os.Bundle;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
 import androidx.activity.result.ActivityResultLauncher;
@@ -15,6 +14,11 @@ import androidx.core.view.WindowInsetsCompat;
 
 import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.button.MaterialButton;
+import com.google.firebase.firestore.FieldValue;
+import com.google.firebase.firestore.FirebaseFirestore;
+
+import java.util.HashMap;
+import java.util.Map;
 
 public class transfer_confirm extends AppCompatActivity {
     private TextView tvConfirmAmount, tvConfirmAccountNumber, tvConfirmAccountName, tvConfirmContent;
@@ -57,12 +61,15 @@ public class transfer_confirm extends AppCompatActivity {
                         if (data != null) {
                             String value = data.getStringExtra("result_key");
                             if(value.equalsIgnoreCase("OK")){
-//                                OpenSaving(userId);
+
 
                                 double amountDb = Double.parseDouble(amount);
                                 FirestoreHelper helper = new FirestoreHelper();
                                 helper.changeCheckingBalanceByUserId(this,userId,-amountDb);
                                 helper.changeCheckingBalanceByUserId(this,receiverId,amountDb);
+
+                                //Lưu lịch sử giao dịch
+                                saveTransactionHistory(userId, receiverId, accountNumber, accountName, amountDb, content);
 
                                 Intent resultIntent = new Intent();
                                 resultIntent.putExtra("confirmed", true);
@@ -103,4 +110,25 @@ public class transfer_confirm extends AppCompatActivity {
             onBackPressed();
         });
     }
+
+    //Lưu lịch sử giao dịch
+    private void saveTransactionHistory(String senderId, String receiverId,
+                                        String accountNumber, String accountName,
+                                        double amount, String content) {
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+
+        Map<String, Object> transaction = new HashMap<>();
+        transaction.put("sender_id", senderId);
+        transaction.put("receiver_id", receiverId);
+        transaction.put("receiver_account_number", accountNumber);
+        transaction.put("receiver_name", accountName);
+        transaction.put("amount", amount);
+        transaction.put("content", content);
+        transaction.put("create_at", FieldValue.serverTimestamp());
+
+        db.collection("Transactions")
+                .add(transaction);
+
+    }
+
 }
