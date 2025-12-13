@@ -26,6 +26,8 @@ public class HomeFragment extends Fragment {
     private Double currentBalance; // lưu số dư hiện tại
     String userId = SessionManager.getInstance().getUserId();
 
+    String accountNumber;
+
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater,
@@ -40,24 +42,20 @@ public class HomeFragment extends Fragment {
 
         loadCheckingInfor(userId);
 
-        // Đăng ký listener realtime sau khi đã gán tvbalance
-        FirebaseFirestore db = FirebaseFirestore.getInstance();
-        db.collection("Accounts")
-                .document(userId)
-                .addSnapshotListener((snapshot, e) -> {
-                    if (snapshot != null && snapshot.exists()) {
-                        Double balance = snapshot.getDouble("balance");
-                        currentBalance = balance;
-                        if (isBalanceVisible) {
-                            tvbalance.setText(String.format("%,.0f VND", balance));
-                        } else {
-                            tvbalance.setText("********* VND");
-                        }
-                    }
-                });
-
-        // Xử lý sự kiện click
+        // Xử lý sự kiện click ẩn hiện số dư
         btnToggleBalance.setOnClickListener(v -> {
+
+            // Đăng ký listener realtime sau khi đã gán tvbalance
+            FirebaseFirestore db = FirebaseFirestore.getInstance();
+            db.collection("Accounts")
+                    .document(accountNumber)
+                    .addSnapshotListener((snapshot, e) -> {
+                        if (snapshot != null && snapshot.exists()) {
+                            Double newBalance = snapshot.getDouble("balance");
+                            currentBalance = newBalance;
+                        }
+                    });
+
             if (isBalanceVisible) {
                 // Ẩn số dư
                 tvbalance.setText("********* VND");
@@ -87,7 +85,9 @@ public class HomeFragment extends Fragment {
             public void onSuccess(String number, Double balance){
                 tvaccountNumber.setText("Số tài khoản: " + number);
                 tvbalance.setText("********* VND");
+                isBalanceVisible = false;
                 currentBalance = balance;
+                accountNumber = number;
             }
 
             @Override
@@ -101,5 +101,7 @@ public class HomeFragment extends Fragment {
     public void onResume() {
         super.onResume();
         loadCheckingInfor(userId);
+
     }
+
 }

@@ -54,6 +54,9 @@ public class transfer extends AppCompatActivity {
                         boolean confirmed = result.getData().getBooleanExtra("confirmed", false);
                         if (confirmed) {
                             Toast.makeText(this, "Giao dịch đã xác nhận!", Toast.LENGTH_SHORT).show();
+                            Intent resultIntent = new Intent();
+                            resultIntent.putExtra("transactionSuccess", true);
+                            setResult(RESULT_OK, resultIntent);
                             finish();
                         } else {
                             Toast.makeText(this, "Giao dịch bị hủy!", Toast.LENGTH_SHORT).show();
