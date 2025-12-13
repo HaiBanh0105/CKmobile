@@ -27,6 +27,8 @@ public class transfer extends AppCompatActivity {
     TextInputEditText edtAccountNumber,edtAccountName,edtAmount,edtContent;
     private MaterialToolbar toolbar;
     String userId = SessionManager.getInstance().getUserId();
+
+    String receiverId;
     String userName = SessionManager.getInstance().getUserName();
     FirebaseFirestore db = FirebaseFirestore.getInstance();
 
@@ -110,6 +112,7 @@ public class transfer extends AppCompatActivity {
             intent.putExtra("accountName",accountName);
             intent.putExtra("amount",amount);
             intent.putExtra("content",content);
+            intent.putExtra("receiverId",receiverId);
             startActivity(intent);
 
         });
@@ -149,6 +152,7 @@ public class transfer extends AppCompatActivity {
                     if (!queryDocumentSnapshots.isEmpty()) {
                         DocumentSnapshot doc = queryDocumentSnapshots.getDocuments().get(0);
                         String name = doc.getString("name");
+                        receiverId = doc.getString("user_id");
                         edtAccountName.setText(name != null ? name : "Không rõ");
                     } else {
                         edtAccountName.setText("Không tìm thấy");

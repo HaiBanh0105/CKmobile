@@ -94,4 +94,34 @@ dependencies {
     implementation("com.google.android.gms:play-services-maps:18.1.0")
     implementation("com.google.android.libraries.places:places:3.5.0")
 
+
+    val isWindows = System.getProperty("os.name").toLowerCase().contains("win")
+
+    tasks.register("downloadFacenetModel") {
+        doLast {
+            file("$projectDir/src/main/assets").mkdirs()
+            val facenetUrl = "https://drive.google.com/uc?export=download&id=1wglx5H9rOBEuko61msypn_rojNcm3lsr"
+            val facenetFile = "$projectDir/src/main/assets/facenet.tflite"
+
+            if (!file(facenetFile).exists()) {
+                println("Downloading facenet.tflite model...")
+                if (isWindows) {
+                    exec {
+                        commandLine("powershell", "-Command", "Invoke-WebRequest -Uri '$facenetUrl' -OutFile '$facenetFile'")
+                    }
+                } else {
+                    exec {
+                        commandLine("curl", "-L", facenetUrl, "-o", facenetFile)
+                    }
+                }
+            }
+        }
+    }
+
+    tasks.named("preBuild") {
+        dependsOn("downloadFacenetModel")
+    }
+
+
 }
+

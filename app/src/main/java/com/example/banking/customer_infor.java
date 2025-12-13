@@ -1,5 +1,6 @@
 package com.example.banking;
 
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -19,6 +20,7 @@ import com.google.android.material.button.MaterialButton;
 import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 
+import java.io.File;
 import java.io.IOException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -131,7 +133,14 @@ public class customer_infor extends AppCompatActivity {
 
         final List<Float> faceEmbedding;
         try {
-            faceEmbedding = extractFaceEmbedding(faceImagePath);
+
+            File file = new File(faceImagePath);
+            if (!file.exists()) {
+                Toast.makeText(this, "Ảnh không tồn tại: " + faceImagePath, Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            faceEmbedding = extractFaceEmbedding(this,faceImagePath);
         } catch (IOException e) {
             e.printStackTrace();
             Toast.makeText(this, "Lỗi xử lý ảnh: " + e.getMessage(), Toast.LENGTH_SHORT).show();
@@ -287,17 +296,27 @@ public class customer_infor extends AppCompatActivity {
     }
 
     //Xử lý ảnh khuôn mặt
-    private List<Float> extractFaceEmbedding(String imagePath) throws IOException {
+    private List<Float> extractFaceEmbedding(Context context, String imagePath) throws IOException {
         Bitmap bitmap = BitmapFactory.decodeFile(imagePath);
-        FaceEmbeddingExtractor extractor = new FaceEmbeddingExtractor(this);
-        float[] embeddingArray = extractor.getEmbedding(bitmap);
+        if (bitmap == null) {
+            throw new IOException("Không thể đọc ảnh từ đường dẫn: " + imagePath);
+        }
 
-        List<Float> embedding = new ArrayList<>();
+        FaceEmbeddingExtractor extractor = new FaceEmbeddingExtractor(context);
+        float[] embeddingArray = extractor.getEmbedding(bitmap);
+        extractor.close();
+
+        if (embeddingArray == null || embeddingArray.length == 0) {
+            throw new IOException("Không thể trích xuất embedding từ ảnh");
+        }
+
+        List<Float> embedding = new ArrayList<>(embeddingArray.length);
         for (float v : embeddingArray) {
             embedding.add(v);
         }
         return embedding;
     }
+
 
 
 

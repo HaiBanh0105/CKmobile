@@ -21,7 +21,11 @@ public class transfer_confirm extends AppCompatActivity {
     private MaterialButton btnConfirm;
     private MaterialToolbar toolbar;
 
+    String receiverId;
+
     String email = SessionManager.getInstance().getEmail();
+
+    String userId = SessionManager.getInstance().getUserId();
 
     private ActivityResultLauncher<Intent> launcher;
 
@@ -35,6 +39,15 @@ public class transfer_confirm extends AppCompatActivity {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
             return insets;
         });
+
+        // Lấy dữ liệu từ Intent
+        Intent getIntent = getIntent();
+        String accountNumber = getIntent.getStringExtra("accountNumber");
+        String accountName   = getIntent.getStringExtra("accountName");
+        String amount        = getIntent.getStringExtra("amount");
+        String content       = getIntent.getStringExtra("content");
+        receiverId = getIntent.getStringExtra("receiverId");
+
         // Khởi tạo launcher
         launcher = registerForActivityResult(
                 new ActivityResultContracts.StartActivityForResult(),
@@ -45,6 +58,11 @@ public class transfer_confirm extends AppCompatActivity {
                             String value = data.getStringExtra("result_key");
                             if(value.equalsIgnoreCase("OK")){
 //                                OpenSaving(userId);
+
+                                double amountDb = Double.parseDouble(amount);
+                                FirestoreHelper helper = new FirestoreHelper();
+                                helper.changeCheckingBalanceByUserId(this,userId,-amountDb);
+                                helper.changeCheckingBalanceByUserId(this,receiverId,amountDb);
                             }
                         }
                     }
@@ -58,12 +76,6 @@ public class transfer_confirm extends AppCompatActivity {
         btnConfirm = findViewById(R.id.btnConfirm);
         toolbar = findViewById(R.id.toolbar);
 
-        // Lấy dữ liệu từ Intent
-        Intent getIntent = getIntent();
-        String accountNumber = getIntent.getStringExtra("accountNumber");
-        String accountName   = getIntent.getStringExtra("accountName");
-        String amount        = getIntent.getStringExtra("amount");
-        String content       = getIntent.getStringExtra("content");
 
         // Gán dữ liệu lên UI
         tvConfirmAmount.setText(amount + " VND");
