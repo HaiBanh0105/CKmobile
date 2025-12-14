@@ -7,5 +7,7 @@
     <color name="surface">#FFFFFF</color>
     <color name="onSurface">#000000</color>
     <color name="dividerColor">#DDDDDD</color>
+    <color name="blue">#0d68f3</color>
+    <color name="gray">#dddee0</color>
 
 </resources>

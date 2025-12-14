@@ -2,11 +2,10 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
 
-    <uses-permission android:name="android.permission.INTERNET"/>
+    <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.CAMERA" />
-    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
-    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
-
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
 
     <uses-feature
         android:name="android.hardware.camera"
@@ -24,6 +23,15 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.Banking">
+        <activity
+            android:name=".Activity.ChooseFilghtSeat"
+            android:exported="false" />
+        <activity
+            android:name=".Activity.SearchFlight"
+            android:exported="false" />
+        <activity
+            android:name=".Activity.FlightTicketBooking"
+            android:exported="false" />
 
         <meta-data
             android:name="com.google.android.geo.API_KEY"
@@ -90,7 +98,8 @@
         <activity
             android:name=".login"
             android:exported="false" />
-        <activity android:name=".saving_infor"
+        <activity
+            android:name=".saving_infor"
             android:exported="false" />
         <activity
             android:name=".splash"
