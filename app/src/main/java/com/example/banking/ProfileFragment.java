@@ -18,7 +18,7 @@ import com.google.android.material.button.MaterialButton;
 import com.google.android.material.imageview.ShapeableImageView;
 
 public class ProfileFragment extends Fragment {
-    private ImageView infor,changePass;
+    private ImageView infor,changePass, changePin;
 
     LinearLayout LnInfor, LnPassword, LnPin;
 
@@ -42,11 +42,13 @@ public class ProfileFragment extends Fragment {
 
         infor = root.findViewById(R.id.btnInfor);
         changePass = root.findViewById(R.id.changePass);
+        changePin = root.findViewById(R.id.changePin);
         Username = root.findViewById(R.id.tvCustomerName);
         logout = root.findViewById(R.id.btnLogout);
         avt = root.findViewById(R.id.imgProfile);
         LnInfor = root.findViewById(R.id.itemPersonalInfo);
         LnPassword = root.findViewById(R.id.itemSecurity);
+        LnPin = root.findViewById(R.id.itemChangepin);
 
 
         LnInfor.setOnClickListener(v -> {
@@ -68,6 +70,16 @@ public class ProfileFragment extends Fragment {
 
         changePass.setOnClickListener(v -> {
             Intent intent = new Intent(requireContext(), change_password.class);
+            startActivity(intent);
+        });
+
+        LnPin.setOnClickListener(v -> {
+            Intent intent = new Intent(requireContext(), change_pin.class);
+            startActivity(intent);
+        });
+
+        changePin.setOnClickListener(v -> {
+            Intent intent = new Intent(requireContext(), change_pin.class);
             startActivity(intent);
         });
 

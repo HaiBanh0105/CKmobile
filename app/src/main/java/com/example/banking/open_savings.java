@@ -156,8 +156,23 @@ public class open_savings extends AppCompatActivity {
         btnOpen.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                String rawAmount = amount.getText().toString().trim();
+                // Xóa dấu phẩy hoặc chấm ngăn cách hàng nghìn
+                String cleanAmount = rawAmount.replaceAll("[^\\d]", "");
+                double Amount = Double.parseDouble(cleanAmount);
+
+                String rawChecking = tvcheckingAmount.getText().toString().trim();
+                String cleanChecking = rawChecking.replaceAll("[^\\d]", "");
+                double checkingAmount = Double.parseDouble(cleanChecking);
+
+
+                if(Amount > checkingAmount){
+                    Toast.makeText(open_savings.this, "Tài khoản thanh toán không đủ, vui lòng nạp thêm tiền", Toast.LENGTH_SHORT).show();
+                    return;
+                }
                 Intent intent = new Intent(open_savings.this, otp.class);
                 intent.putExtra("email",email);
+                intent.putExtra("type","saving");
                 launcher.launch(intent);
             }
         });
@@ -191,7 +206,6 @@ public class open_savings extends AppCompatActivity {
                         DocumentSnapshot doc = queryDocumentSnapshots.getDocuments().get(0);
                         Double latestRate = doc.getDouble("interest_rate");
                         rate = latestRate;
-
                         tvAppliedRate.setText(latestRate.toString() + "% / năm");
 
                     } else {
@@ -263,15 +277,6 @@ public class open_savings extends AppCompatActivity {
         String cleanAmount = rawAmount.replaceAll("[^\\d]", "");
         double Amount = Double.parseDouble(cleanAmount);
 
-        String rawChecking = tvcheckingAmount.getText().toString().trim();
-        String cleanChecking = rawChecking.replaceAll("[^\\d]", "");
-        double checkingAmount = Double.parseDouble(cleanChecking);
-
-
-        if(Amount > checkingAmount){
-            Toast.makeText(this, "Tài khoản thanh toán không đủ, vui lòng nạp thêm tiền", Toast.LENGTH_SHORT).show();
-            return;
-        }
 
         Map<String, Object> account = new HashMap<>();
         account.put("account_id", accountId);
@@ -289,6 +294,8 @@ public class open_savings extends AppCompatActivity {
 
         db.collection("Accounts").document(accountId).set(account)
                 .addOnSuccessListener(aVoid -> {
+                    FirestoreHelper helper = new FirestoreHelper();
+                    helper.changeCheckingBalanceByUserId(this,userId,-Amount);
                     Toast.makeText(this, "Tài khoản tiết kiệm đã được tạo thành công", Toast.LENGTH_SHORT).show();
                     finish();
                 })
@@ -298,7 +305,7 @@ public class open_savings extends AppCompatActivity {
     }
 
     private String generateAccountId(String type) {
-        String branchCode = "7010";      // mã chi nhánh
+        String branchCode = "1010";      // mã chi nhánh
 
         // Sinh 6 số ngẫu nhiên
         int randomNumber = (int)(Math.random() * 1000000);
