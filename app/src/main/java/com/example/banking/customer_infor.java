@@ -183,6 +183,7 @@ public class customer_infor extends AppCompatActivity {
                 customer.put("address", address);
                 customer.put("password", hashedPassword);
                 customer.put("avatar", "");
+                customer.put("pin", "");
 
                 customer.put("faceEmbedding", faceEmbedding);
 

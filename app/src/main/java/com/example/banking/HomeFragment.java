@@ -21,6 +21,7 @@ import com.google.firebase.firestore.Query;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
@@ -133,7 +134,7 @@ public class HomeFragment extends Fragment {
     private void loadTransactions() {
         FirebaseFirestore db = FirebaseFirestore.getInstance();
         db.collection("Transactions")
-                .whereEqualTo("sender_id", userId)
+                .whereEqualTo("user_id", userId)
                 .orderBy("create_at", Query.Direction.DESCENDING)
                 .limit(10)
                 .addSnapshotListener((queryDocumentSnapshots, e) -> {
@@ -143,11 +144,22 @@ public class HomeFragment extends Fragment {
                     }
                     transactionList.clear();
                     for (DocumentSnapshot doc : queryDocumentSnapshots) {
-                        String name = doc.getString("receiver_name");
-                        String date = new SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
-                                .format(doc.getDate("create_at"));
+                        String type = doc.getString("type");
+                        String name;
+
+                        if ("received".equalsIgnoreCase(type)){
+                            name = doc.getString("sender_name");
+                        }
+                        else{
+                            name = doc.getString("receiver_name");
+                        }
+
+                        Date createdAt = doc.getDate("create_at");
+                        String date = createdAt != null
+                                ? new SimpleDateFormat("dd/MM/yyyy", Locale.getDefault()).format(createdAt)
+                                : "Đang xử lý...";
                         double amount = doc.getDouble("amount");
-                        transactionList.add(new Transaction(name, date, amount));
+                        transactionList.add(new Transaction(name, date, amount,type));
                     }
                     adapter.notifyDataSetChanged();
                 });

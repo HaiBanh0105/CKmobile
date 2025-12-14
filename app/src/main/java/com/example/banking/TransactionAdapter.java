@@ -29,14 +29,15 @@ public class TransactionAdapter extends RecyclerView.Adapter<TransactionAdapter.
     @Override
     public void onBindViewHolder(@NonNull TransactionViewHolder holder, int position) {
         Transaction transaction = transactionList.get(position);
-        holder.tvTransactionName.setText(transaction.getName());
-        holder.tvTransactionDate.setText(transaction.getDate());
-        holder.tvTransactionAmount.setText(String.format("%,.0f VND", transaction.getAmount()));
 
-        if (transaction.getAmount() < 0) {
-            holder.tvTransactionAmount.setText("-" + String.format("%,.0f VND", transaction.getAmount()));
+        holder.tvTransactionDate.setText(transaction.getDate());
+
+        if ("sent".equalsIgnoreCase(transaction.getType())) {
+            holder.tvTransactionName.setText("Chuyển đến " +transaction.getName());
+            holder.tvTransactionAmount.setText("-" +String.format("%,.0f VND", transaction.getAmount()));
             holder.tvTransactionAmount.setTextColor(Color.RED);
         } else {
+            holder.tvTransactionName.setText("Chuyển từ " +transaction.getName());
             holder.tvTransactionAmount.setText("+" + String.format("%,.0f VND", transaction.getAmount()));
             holder.tvTransactionAmount.setTextColor(Color.GREEN);
         }

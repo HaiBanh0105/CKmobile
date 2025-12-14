@@ -31,6 +31,8 @@ public class transfer_confirm extends AppCompatActivity {
 
     String userId = SessionManager.getInstance().getUserId();
 
+    String userName = SessionManager.getInstance().getUserName();
+
     private ActivityResultLauncher<Intent> launcher;
 
     @Override
@@ -69,7 +71,8 @@ public class transfer_confirm extends AppCompatActivity {
                                 helper.changeCheckingBalanceByUserId(this,receiverId,amountDb);
 
                                 //Lưu lịch sử giao dịch
-                                saveTransactionHistory(userId, receiverId, accountNumber, accountName, amountDb, content);
+                                saveTransactionHistory(userId, receiverId, "sent" ,accountNumber, accountName, amountDb, content);
+                                saveTransactionHistory(userId, receiverId, "received" ,accountNumber, userName , amountDb, content);
 
                                 Intent resultIntent = new Intent();
                                 resultIntent.putExtra("confirmed", true);
@@ -112,23 +115,32 @@ public class transfer_confirm extends AppCompatActivity {
     }
 
     //Lưu lịch sử giao dịch
-    private void saveTransactionHistory(String senderId, String receiverId,
+    private void saveTransactionHistory(String senderId, String receiverId, String type,
                                         String accountNumber, String accountName,
                                         double amount, String content) {
         FirebaseFirestore db = FirebaseFirestore.getInstance();
-
         Map<String, Object> transaction = new HashMap<>();
-        transaction.put("sender_id", senderId);
-        transaction.put("receiver_id", receiverId);
-        transaction.put("receiver_account_number", accountNumber);
-        transaction.put("receiver_name", accountName);
+
+        // Sửa key đúng
+        transaction.put("type", type);
+
+        if ("sent".equalsIgnoreCase(type)) {
+            transaction.put("user_id", senderId);
+            transaction.put("receiver_id", receiverId);
+            transaction.put("receiver_account_number", accountNumber);
+            transaction.put("receiver_name", accountName);
+        } else if ("received".equalsIgnoreCase(type)) {
+            transaction.put("user_id", receiverId);
+            transaction.put("sender_id", senderId);
+            transaction.put("sender_account_number", accountNumber);
+            transaction.put("sender_name", accountName);
+        }
+
         transaction.put("amount", amount);
         transaction.put("content", content);
         transaction.put("create_at", FieldValue.serverTimestamp());
 
-        db.collection("Transactions")
-                .add(transaction);
-
+        db.collection("Transactions").add(transaction);
     }
 
 }
