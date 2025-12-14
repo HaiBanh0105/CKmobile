@@ -34,14 +34,23 @@ public class FaceEmbeddingExtractor {
         for (int y = 0; y < 160; y++) {
             for (int x = 0; x < 160; x++) {
                 int pixel = resized.getPixel(x, y);
-                input[0][y][x][0] = ((pixel >> 16) & 0xFF) / 255.0f;
-                input[0][y][x][1] = ((pixel >> 8) & 0xFF) / 255.0f;
-                input[0][y][x][2] = (pixel & 0xFF) / 255.0f;
+                input[0][y][x][0] = (((pixel >> 16) & 0xFF) - 127.5f) / 128.0f;
+                input[0][y][x][1] = (((pixel >> 8) & 0xFF) - 127.5f) / 128.0f;
+                input[0][y][x][2] = ((pixel & 0xFF) - 127.5f) / 128.0f;
+
             }
         }
 
-        float[][] output = new float[1][128]; // vector 128 chiều
+        float[][] output = new float[1][512];
         interpreter.run(input, output);
         return output[0];
+
     }
+
+    public void close() {
+        if (interpreter != null) {
+            interpreter.close();
+        }
+    }
+
 }

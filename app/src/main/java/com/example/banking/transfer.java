@@ -9,6 +9,8 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
@@ -27,9 +29,12 @@ public class transfer extends AppCompatActivity {
     TextInputEditText edtAccountNumber,edtAccountName,edtAmount,edtContent;
     private MaterialToolbar toolbar;
     String userId = SessionManager.getInstance().getUserId();
+
+    String receiverId;
     String userName = SessionManager.getInstance().getUserName();
     FirebaseFirestore db = FirebaseFirestore.getInstance();
 
+    private ActivityResultLauncher<Intent> confirmLauncher;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -40,6 +45,25 @@ public class transfer extends AppCompatActivity {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
             return insets;
         });
+
+        // Đăng ký nhận kết quả
+        confirmLauncher = registerForActivityResult(
+                new ActivityResultContracts.StartActivityForResult(),
+                result -> {
+                    if (result.getResultCode() == RESULT_OK && result.getData() != null) {
+                        boolean confirmed = result.getData().getBooleanExtra("confirmed", false);
+                        if (confirmed) {
+                            Toast.makeText(this, "Giao dịch đã xác nhận!", Toast.LENGTH_SHORT).show();
+                            Intent resultIntent = new Intent();
+                            resultIntent.putExtra("transactionSuccess", true);
+                            setResult(RESULT_OK, resultIntent);
+                            finish();
+                        } else {
+                            Toast.makeText(this, "Giao dịch bị hủy!", Toast.LENGTH_SHORT).show();
+                        }
+                    }
+                }
+        );
 
 
         toolbar = findViewById(R.id.toolbar);
@@ -70,7 +94,7 @@ public class transfer extends AppCompatActivity {
             public void afterTextChanged(Editable s) {
                 String accountNumber = s.toString().trim();
 
-                // Chỉ gọi Firestore khi nhập đủ 12 số
+
                 if (accountNumber.length() != 12) {
                     edtAccountName.setText("Không tìm thấy");
                 }else{
@@ -110,7 +134,8 @@ public class transfer extends AppCompatActivity {
             intent.putExtra("accountName",accountName);
             intent.putExtra("amount",amount);
             intent.putExtra("content",content);
-            startActivity(intent);
+            intent.putExtra("receiverId",receiverId);
+            confirmLauncher.launch(intent);
 
         });
 
@@ -149,10 +174,11 @@ public class transfer extends AppCompatActivity {
                     if (!queryDocumentSnapshots.isEmpty()) {
                         DocumentSnapshot doc = queryDocumentSnapshots.getDocuments().get(0);
                         String name = doc.getString("name");
+                        receiverId = doc.getString("user_id");
                         edtAccountName.setText(name != null ? name : "Không rõ");
                     } else {
                         edtAccountName.setText("Không tìm thấy");
-                        edtContent.setText("");
+
                     }
                 })
                 .addOnFailureListener(e -> {

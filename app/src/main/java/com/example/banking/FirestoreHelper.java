@@ -1,5 +1,8 @@
 package com.example.banking;
 
+import android.content.Context;
+import android.widget.Toast;
+
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 
@@ -63,6 +66,67 @@ public class FirestoreHelper {
                 })
                 .addOnFailureListener(e -> {
                     callback.onFailure("Lỗi tải dữ liệu: " + e.getMessage());
+                });
+    }
+
+    // Hàm thay đổi balance theo user_id
+    public void changeCheckingBalanceByUserId(Context context, String userId, double amountChange) {
+        db.collection("Accounts")
+                .whereEqualTo("user_id", userId)
+                .whereEqualTo("account_type", "checking")
+                .get()
+                .addOnSuccessListener(querySnapshot -> {
+                    if (!querySnapshot.isEmpty()) {
+                        DocumentSnapshot doc = querySnapshot.getDocuments().get(0);
+                        String docId = doc.getId();
+
+                        Double currentBalance = doc.getDouble("balance");
+                        if (currentBalance == null) currentBalance = 0.0;
+
+                        double newBalance = currentBalance + amountChange;
+
+                        // ✅ Kiểm tra số dư âm
+                        if (newBalance < 0) {
+                            Toast.makeText(
+                                    context, // truyền context từ Activity/Fragment
+                                    "Số dư không đủ để thực hiện giao dịch!",
+                                    Toast.LENGTH_LONG
+                            ).show();
+                            return; // Dừng lại, không update Firestore
+                        }
+
+                        // ✅ Nếu hợp lệ thì update
+                        db.collection("Accounts")
+                                .document(docId)
+                                .update("balance", newBalance)
+//                                .addOnSuccessListener(aVoid -> {
+//                                    Toast.makeText(
+//                                            context,
+//                                            "Cập nhật số dư thành công: " + newBalance,
+//                                            Toast.LENGTH_SHORT
+//                                    ).show();
+//                                })
+                                .addOnFailureListener(e -> {
+                                    Toast.makeText(
+                                            context,
+                                            "Lỗi khi cập nhật số dư!",
+                                            Toast.LENGTH_SHORT
+                                    ).show();
+                                });
+                    } else {
+                        Toast.makeText(
+                                context,
+                                "Không tìm thấy tài khoản checking cho user " + userId,
+                                Toast.LENGTH_SHORT
+                        ).show();
+                    }
+                })
+                .addOnFailureListener(e -> {
+                    Toast.makeText(
+                            context,
+                            "Lỗi khi truy vấn Firestore!",
+                            Toast.LENGTH_SHORT
+                    ).show();
                 });
     }
 
