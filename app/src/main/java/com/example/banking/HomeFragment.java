@@ -17,6 +17,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.ListenerRegistration;
 import com.google.firebase.firestore.Query;
 
 import java.text.SimpleDateFormat;
@@ -42,6 +43,8 @@ public class HomeFragment extends Fragment {
     TransactionAdapter adapter;
     List<Transaction> transactionList = new ArrayList<>();
 
+    private ListenerRegistration registration;
+
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater,
@@ -63,17 +66,6 @@ public class HomeFragment extends Fragment {
 
         // Xử lý sự kiện click ẩn hiện số dư
         btnToggleBalance.setOnClickListener(v -> {
-
-//            // Đăng ký listener realtime sau khi đã gán tvbalance
-//            FirebaseFirestore db = FirebaseFirestore.getInstance();
-//            db.collection("Accounts")
-//                    .document(accountNumber)
-//                    .addSnapshotListener((snapshot, e) -> {
-//                        if (snapshot != null && snapshot.exists()) {
-//                            Double newBalance = snapshot.getDouble("balance");
-//                            currentBalance = newBalance;
-//                        }
-//                    });
 
             if (isBalanceVisible) {
                 // Ẩn số dư
@@ -99,28 +91,22 @@ public class HomeFragment extends Fragment {
 
     private void loadCheckingInfor(String userId) {
         FirestoreHelper helper = new FirestoreHelper();
-        helper.loadCheckingInfor(userId, new FirestoreHelper.AccountCallback() {
+        registration = helper.loadCheckingInfor(userId, new FirestoreHelper.AccountCallback() {
             @Override
             public void onSuccess(String number, Double balance){
                 tvaccountNumber.setText("Số tài khoản: " + number);
-                tvbalance.setText("********* VND");
-                isBalanceVisible = false;
+//                tvbalance.setText("********* VND");
+//                isBalanceVisible = false;
+                if (isBalanceVisible) {
+                    // Ẩn số dư
+                    tvbalance.setText("********* VND");
+                    btnToggleBalance.setImageResource(R.drawable.ic_visibility_off); // icon hiện
+                } else {
+                    tvbalance.setText(String.format("%,.0f VND", balance));
+                    btnToggleBalance.setImageResource(R.drawable.ic_visibility); // icon ẩn
+                }
                 currentBalance = balance;
                 accountNumber = number;
-
-                // Đăng ký listener realtime balance
-                FirebaseFirestore db = FirebaseFirestore.getInstance();
-                db.collection("Accounts")
-                        .document(accountNumber)
-                        .addSnapshotListener((snapshot, e) -> {
-                            if (snapshot != null && snapshot.exists()) {
-                                Double newBalance = snapshot.getDouble("balance");
-                                currentBalance = newBalance;
-                                if (isBalanceVisible) {
-                                    tvbalance.setText(String.format("%,.0f VND", newBalance));
-                                }
-                            }
-                        });
             }
 
             @Override
@@ -171,6 +157,14 @@ public class HomeFragment extends Fragment {
         super.onResume();
         loadCheckingInfor(userId);
 
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        if (registration != null) {
+            registration.remove(); // hủy listener khi view bị hủy
+        }
     }
 
 }

@@ -64,7 +64,6 @@ public class transfer_confirm extends AppCompatActivity {
                             String value = data.getStringExtra("result_key");
                             if(value.equalsIgnoreCase("OK")){
 
-
                                 double amountDb = Double.parseDouble(amount);
                                 FirestoreHelper helper = new FirestoreHelper();
                                 helper.changeCheckingBalanceByUserId(this,userId,-amountDb);

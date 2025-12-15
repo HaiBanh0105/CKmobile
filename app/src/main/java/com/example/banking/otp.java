@@ -57,13 +57,14 @@ public class otp extends AppCompatActivity {
                 amount = Double.parseDouble(amountStr);
                 //Nhỏ hơn 2 triệu thì chỉ cần nhập mã pin
                 if(amount < 2000000){
-                    pinView.setInputType(InputType.TYPE_CLASS_NUMBER | InputType.TYPE_NUMBER_VARIATION_PASSWORD);
-                    tvTitle.setText("Nhập mã pin 6 số của ban");
-                    tvResendOtp.setVisibility(View.INVISIBLE);
+                    EnterPin();
                 }
                 else{
                     SendOtp();
                 }
+            }
+            else if ("pin".equals(type)){
+                EnterPin();
             }
         }
         else{
@@ -77,8 +78,10 @@ public class otp extends AppCompatActivity {
 
         btnConfirmOtp.setOnClickListener(v -> {
             String enteredOtp = pinView.getText().toString().trim();
-
-                if(amount < 2000000 && "transfer".equals(type)){
+                if("pin".equals(type)){
+                    confirmPIN();
+                }
+                else if(amount < 2000000 && "transfer".equals(type)){
                     confirmPIN();
                 }
                 else{
@@ -86,6 +89,12 @@ public class otp extends AppCompatActivity {
                 }
 
         });
+    }
+
+    private void EnterPin(){
+        pinView.setInputType(InputType.TYPE_CLASS_NUMBER | InputType.TYPE_NUMBER_VARIATION_PASSWORD);
+        tvTitle.setText("Nhập mã pin 6 số của ban");
+        tvResendOtp.setVisibility(View.INVISIBLE);
     }
 
     private void confirmPIN(){

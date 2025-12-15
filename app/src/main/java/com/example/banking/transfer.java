@@ -21,6 +21,7 @@ import com.google.android.material.button.MaterialButton;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.ListenerRegistration;
 
 public class transfer extends AppCompatActivity {
     private TextView tvcheckingAmount;
@@ -33,6 +34,8 @@ public class transfer extends AppCompatActivity {
     String receiverId;
     String userName = SessionManager.getInstance().getUserName();
     FirebaseFirestore db = FirebaseFirestore.getInstance();
+
+    private ListenerRegistration registration;
 
     private ActivityResultLauncher<Intent> confirmLauncher;
     @Override
@@ -149,7 +152,7 @@ public class transfer extends AppCompatActivity {
     //Cập nhật tiền thanh toán giao diện
     private void loadCheckingInfor(String userId) {
         FirestoreHelper helper = new FirestoreHelper();
-        helper.loadCheckingInfor(userId, new FirestoreHelper.AccountCallback() {
+        registration = helper.loadCheckingInfor(userId, new FirestoreHelper.AccountCallback() {
             @Override
             public void onSuccess(String number, Double balance){
                 tvcheckingAmount.setText(String.format("%,.0f VND", balance));
@@ -184,6 +187,14 @@ public class transfer extends AppCompatActivity {
                 .addOnFailureListener(e -> {
                     edtAccountName.setText("Lỗi kết nối");
                 });
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        if (registration != null) {
+            registration.remove(); // hủy listener khi Activity dừng
+        }
     }
 
 }

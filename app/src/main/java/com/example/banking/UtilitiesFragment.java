@@ -38,7 +38,7 @@ public class UtilitiesFragment extends Fragment {
         binding.btnTopUp.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
+                handleTopUpClick();
             }
         });
 
@@ -47,6 +47,11 @@ public class UtilitiesFragment extends Fragment {
 
     private void handleBookingClick() {
         Intent intent = new Intent(getActivity(), FlightTicketBooking.class);
+        startActivity(intent);
+    }
+
+    private void handleTopUpClick() {
+        Intent intent = new Intent(getActivity(), top_up.class);
         startActivity(intent);
     }
 
