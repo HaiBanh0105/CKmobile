@@ -1,0 +1,180 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#F5F5F5"> <androidx.appcompat.widget.Toolbar
+    android:id="@+id/toolbar"
+    android:layout_width="match_parent"
+    android:layout_height="?attr/actionBarSize"
+    android:background="@color/white"
+    android:elevation="4dp"
+    app:layout_constraintTop_toTopOf="parent"
+    app:title="Nạp tiền điện thoại"
+    app:titleTextColor="#000000" />
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        app:layout_constraintBottom_toTopOf="@+id/btnContinue"
+        app:layout_constraintTop_toBottomOf="@+id/toolbar">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="16dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Nguồn tiền"
+                android:textStyle="bold"
+                android:textColor="#555"
+                android:layout_marginBottom="8dp"/>
+
+            <androidx.cardview.widget.CardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:cardCornerRadius="10dp"
+                app:cardElevation="2dp"
+                android:layout_marginBottom="24dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:padding="16dp"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Tài khoản thanh toán"
+                        android:textSize="12sp"/>
+                    <TextView
+                        android:id="@+id/tvBalance"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="50,000,000 VND"
+                        android:textSize="18sp"
+                        android:textStyle="bold"
+                        android:textColor="#00796B"/> </LinearLayout>
+            </androidx.cardview.widget.CardView>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Thông tin nạp"
+                android:textStyle="bold"
+                android:textColor="#555"
+                android:layout_marginBottom="8dp"/>
+
+            <androidx.cardview.widget.CardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:cardCornerRadius="10dp"
+                app:cardElevation="2dp"
+                android:layout_marginBottom="24dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:padding="16dp"
+                    android:orientation="vertical">
+
+                    <com.google.android.material.textfield.TextInputLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                        android:hint="Số điện thoại">
+
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/edtPhoneNumber"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:inputType="phone"
+                            android:maxLength="10"/>
+                    </com.google.android.material.textfield.TextInputLayout>
+
+                    <TextView
+                        android:id="@+id/tvCarrier"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:text="Viettel"
+                        android:visibility="gone"
+                        android:textColor="#00796B"
+                        android:textStyle="bold"/>
+                </LinearLayout>
+            </androidx.cardview.widget.CardView>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Mệnh giá"
+                android:textStyle="bold"
+                android:textColor="#555"
+                android:layout_marginBottom="8dp"/>
+
+            <GridLayout
+                android:id="@+id/gridAmounts"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:columnCount="3"
+                android:rowCount="3"
+                android:alignmentMode="alignMargins">
+
+                <androidx.appcompat.widget.AppCompatButton
+                    android:id="@+id/btn10k"
+                    style="@style/AmountButtonStyle"
+                    android:text="10.000đ"
+                    android:tag="10000"/>
+
+                <androidx.appcompat.widget.AppCompatButton
+                    android:id="@+id/btn20k"
+                    style="@style/AmountButtonStyle"
+                    android:text="20.000đ"
+                    android:tag="20000"/>
+
+                <androidx.appcompat.widget.AppCompatButton
+                    android:id="@+id/btn50k"
+                    style="@style/AmountButtonStyle"
+                    android:text="50.000đ"
+                    android:tag="50000"/>
+
+                <androidx.appcompat.widget.AppCompatButton
+                    android:id="@+id/btn100k"
+                    style="@style/AmountButtonStyle"
+                    android:text="100.000đ"
+                    android:tag="100000"/>
+
+                <androidx.appcompat.widget.AppCompatButton
+                    android:id="@+id/btn200k"
+                    style="@style/AmountButtonStyle"
+                    android:text="200.000đ"
+                    android:tag="200000"/>
+
+                <androidx.appcompat.widget.AppCompatButton
+                    android:id="@+id/btn500k"
+                    style="@style/AmountButtonStyle"
+                    android:text="500.000đ"
+                    android:tag="500000"/>
+
+            </GridLayout>
+
+        </LinearLayout>
+    </ScrollView>
+
+    <Button
+        android:id="@+id/btnContinue"
+        android:layout_width="match_parent"
+        android:layout_height="60dp"
+        android:text="TIẾP TỤC"
+        android:textSize="16sp"
+        android:textStyle="bold"
+        android:backgroundTint="#00796B"
+        app:layout_constraintBottom_toBottomOf="parent"/>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

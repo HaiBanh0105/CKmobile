@@ -135,6 +135,10 @@ public class customer_infor extends AppCompatActivity {
 
         final List<Float> faceEmbedding;
         try {
+            if (faceImagePath == null || faceImagePath.trim().isEmpty()) {
+                Toast.makeText(this, "Vui lòng quét ảnh khuôn mặt", Toast.LENGTH_SHORT).show();
+                return;
+            }
 
             File file = new File(faceImagePath);
             if (!file.exists()) {
