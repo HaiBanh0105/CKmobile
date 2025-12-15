@@ -9,6 +9,8 @@ public class SessionManager {
     private String pin;
     private String email;
 
+    private String avatarUrl;
+
     private SessionManager() {}
 
     public static SessionManager getInstance() {
@@ -29,4 +31,7 @@ public class SessionManager {
 
     public void setEmail(String email) { this.email = email; }
     public String getEmail() { return email; }
+
+    public void setAvatarUrl(String avatarUrl) { this.avatarUrl = avatarUrl; }
+    public String getAvatarUrl() { return avatarUrl; }
 }

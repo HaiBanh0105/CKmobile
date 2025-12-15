@@ -28,7 +28,7 @@ import java.util.Locale;
 
 public class HomeFragment extends Fragment {
 
-    private TextView tvaccountNumber, tvbalance;
+    private TextView tvaccountNumber, tvbalance, tvWelcome;
 
     private ImageView btnToggleBalance, btnTransfer;
 
@@ -37,6 +37,7 @@ public class HomeFragment extends Fragment {
     private Double currentBalance; // lưu số dư hiện tại
     String userId = SessionManager.getInstance().getUserId();
 
+    String name = SessionManager.getInstance().getUserName();
     String accountNumber;
 
     RecyclerView rvRecentTransactions;
@@ -54,6 +55,7 @@ public class HomeFragment extends Fragment {
 
         tvaccountNumber = root.findViewById(R.id.tvAccountNumber);
         tvbalance = root.findViewById(R.id.tvBalanceAmount);
+        tvWelcome = root.findViewById(R.id.tvWelcome);
         btnToggleBalance = root.findViewById(R.id.btnToggleBalance);
         btnTransfer = root.findViewById(R.id.btnTransfer);
         rvRecentTransactions = root.findViewById(R.id.rvRecentTransactions);
@@ -63,6 +65,8 @@ public class HomeFragment extends Fragment {
 
         loadCheckingInfor(userId);
         loadTransactions();
+
+        tvWelcome.setText("Xin chào, "+ name);
 
         // Xử lý sự kiện click ẩn hiện số dư
         btnToggleBalance.setOnClickListener(v -> {

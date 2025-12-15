@@ -59,12 +59,14 @@ public class login extends AppCompatActivity {
                             String role = doc.getString("role");
                             String user_id = doc.getString("user_id");
                             String email = doc.getString("email");
+                            String avatar = doc.getString("avatar");
 
                             if (hashedInput.equals(storedHash)) {
                                 SessionManager.getInstance().setUserId(user_id);
                                 SessionManager.getInstance().setUserName(name);
                                 SessionManager.getInstance().setPinNumber(pin);
                                 SessionManager.getInstance().setEmail(email);
+                                SessionManager.getInstance().setAvatarUrl(avatar);
 
                                 Toast.makeText(this, "Xin chào " + name, Toast.LENGTH_SHORT).show();
 

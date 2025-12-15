@@ -308,7 +308,7 @@ public class customer_infor extends AppCompatActivity {
 
         helper.loadCustomerInfor(userId, new FirestoreHelper.CustomerCallback() {
             @Override
-            public void onSuccess(String name, String phone, String email, String address, String id) {
+            public void onSuccess(String name, String phone, String email, String address, String id, String avatarUrl) {
                 edtFullName.setText(name);
                 edtPhoneNumber.setText(phone);
                 edtEmail.setText(email);

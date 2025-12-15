@@ -17,7 +17,7 @@ public class FirestoreHelper {
     // Định nghĩa interface callback để trả dữ liệu về
     // Callback cho Customer
     public interface CustomerCallback {
-        void onSuccess(String name, String phone, String email, String address, String id);
+        void onSuccess(String name, String phone, String email, String address, String id, String avatarUrl);
         void onFailure(String errorMessage);
     }
 
@@ -36,8 +36,9 @@ public class FirestoreHelper {
                         String email = documentSnapshot.getString("email");
                         String address = documentSnapshot.getString("address");
                         String id = documentSnapshot.getString("user_id");
+                        String avatarUrl = documentSnapshot.getString("avatar");
 
-                        callback.onSuccess(name, phone, email, address, id);
+                        callback.onSuccess(name, phone, email, address, id,avatarUrl);
                     } else {
                         callback.onFailure("Không tìm thấy khách hàng!");
                     }
