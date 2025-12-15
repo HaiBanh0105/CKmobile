@@ -47,14 +47,12 @@ public class login extends AppCompatActivity {
             String password = edtPassword.getText().toString().trim();
             String hashedInput = hashPassword(password);
 
-
             db.collection("Users")
                     .whereEqualTo("phone", phone)
                     .get()
                     .addOnSuccessListener(querySnapshot -> {
                         if (!querySnapshot.isEmpty()) {
                             DocumentSnapshot doc = querySnapshot.getDocuments().get(0);
-
                             String storedHash = doc.getString("password");
                             String name = doc.getString("name");
                             String pin = doc.getString("pin");
