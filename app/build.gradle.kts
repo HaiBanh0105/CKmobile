@@ -97,6 +97,8 @@ dependencies {
     implementation("com.google.android.gms:play-services-maps:18.1.0")
     implementation("com.google.android.libraries.places:places:3.5.0")
 
+    implementation("com.github.bumptech.glide:glide:4.16.0")
+    annotationProcessor("com.github.bumptech.glide:compiler:4.16.0")
 
     val isWindows = System.getProperty("os.name").toLowerCase().contains("win")
 

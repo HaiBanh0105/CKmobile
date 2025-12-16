@@ -14,14 +14,14 @@
         android:id="@+id/logo"
         android:layout_width="200dp"
         android:layout_height="60dp"
-        android:scaleType="center"
+        android:scaleType="fitCenter"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         tools:srcCompat="@tools:sample/backgrounds/scenic" />
 
     <TextView
-        android:id="@+id/textView"
+        android:id="@+id/txtAirline"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
@@ -31,48 +31,47 @@
         app:layout_constraintTop_toBottomOf="@+id/logo" />
 
     <TextView
-        android:id="@+id/textView2"
+        android:id="@+id/txtDepartDate"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Từ"
-        android:textSize="16sp"
-        app:layout_constraintEnd_toEndOf="@id/txtFrom"
-        app:layout_constraintStart_toStartOf="@+id/txtFrom"
-        app:layout_constraintTop_toBottomOf="@+id/textView" />
+        android:text="TextView"
+        app:layout_constraintBottom_toTopOf="@+id/txtDepartTime"
+        app:layout_constraintEnd_toEndOf="@+id/txtDepartTime"
+        app:layout_constraintStart_toStartOf="@+id/txtDepartTime" />
 
     <TextView
-        android:id="@+id/txtFrom"
+        android:id="@+id/txtDepartTime"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
         android:layout_marginEnd="16dp"
         android:text="TextView"
-        android:textSize="16sp"
+        android:textSize="18sp"
         android:textStyle="bold"
         app:layout_constraintEnd_toStartOf="@+id/imageView10"
-        app:layout_constraintTop_toBottomOf="@+id/textView2" />
+        app:layout_constraintTop_toBottomOf="@+id/txtAirline" />
+
+    <TextView
+        android:id="@+id/txtArrivalDate"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="TextView"
+        app:layout_constraintBottom_toTopOf="@+id/txtArrivalTime"
+        app:layout_constraintEnd_toEndOf="@+id/txtArrivalTime"
+        app:layout_constraintStart_toStartOf="@+id/txtArrivalTime" />
 
     <ImageView
         android:id="@+id/imageView10"
-        android:layout_width="wrap_content"
+        android:layout_width="130dp"
         android:layout_height="wrap_content"
-        app:layout_constraintBottom_toBottomOf="@+id/txtFrom"
+        app:layout_constraintBottom_toBottomOf="@+id/txtDepartTime"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="@+id/txtFrom"
+        app:layout_constraintTop_toTopOf="@+id/txtDepartTime"
         app:srcCompat="@drawable/line_airple_blue" />
 
     <TextView
-        android:id="@+id/textView3"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Đến"
-        android:textSize="16sp"
-        app:layout_constraintEnd_toEndOf="@+id/txtTo"
-        app:layout_constraintStart_toStartOf="@+id/txtTo"
-        app:layout_constraintTop_toBottomOf="@+id/textView" />
-
-    <TextView
-        android:id="@+id/txtTo"
+        android:id="@+id/txtArrivalTime"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
@@ -80,17 +79,26 @@
         android:textSize="16sp"
         android:textStyle="bold"
         app:layout_constraintStart_toEndOf="@+id/imageView10"
-        app:layout_constraintTop_toBottomOf="@+id/textView3" />
+        app:layout_constraintTop_toTopOf="@+id/txtDepartTime" />
+
+    <TextView
+        android:id="@+id/txtDuration"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="TextView"
+        android:textColor="@color/blue"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/imageView10" />
 
     <ImageView
         android:id="@+id/imageView11"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
         android:scaleType="fitXY"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/imageView10"
+        app:layout_constraintTop_toBottomOf="@+id/txtDuration"
         app:srcCompat="@drawable/dash_line" />
 
     <ImageView
@@ -98,35 +106,33 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
-        android:layout_marginTop="8dp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/imageView11"
         app:srcCompat="@drawable/seat_blue" />
 
     <TextView
-        android:id="@+id/textView4"
+        android:id="@+id/txtClassSeat"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
         android:text="Class"
         android:textStyle="bold"
-        android:textSize="16sp"
         app:layout_constraintBottom_toBottomOf="@+id/imageView12"
         app:layout_constraintStart_toEndOf="@+id/imageView12"
         app:layout_constraintTop_toTopOf="@+id/imageView12" />
 
     <TextView
-        android:id="@+id/textView5"
+        android:id="@+id/txtPrice"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginEnd="16dp"
         android:text="TextView"
         android:textColor="@color/blue"
-        android:textSize="20sp"
+        android:textSize="16sp"
         android:textStyle="bold"
-        app:layout_constraintBottom_toBottomOf="@+id/textView4"
+        app:layout_constraintBottom_toBottomOf="@+id/txtClassSeat"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="@+id/textView4" />
+        app:layout_constraintTop_toTopOf="@+id/txtClassSeat" />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

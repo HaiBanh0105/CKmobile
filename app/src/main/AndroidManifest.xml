@@ -24,6 +24,9 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.Banking">
         <activity
+            android:name=".Activity.FlightConfirmation"
+            android:exported="false" />
+        <activity
             android:name=".Activity.ChooseFilghtSeat"
             android:exported="false" />
         <activity

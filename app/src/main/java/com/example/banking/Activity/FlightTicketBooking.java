@@ -1,5 +1,6 @@
 package com.example.banking.Activity;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.AdapterView;
@@ -37,7 +38,6 @@ public class FlightTicketBooking extends AppCompatActivity {
     private final SimpleDateFormat vnDateFormat =
             new SimpleDateFormat("dd/MM/yyyy", new Locale("vi", "VN"));
 
-
     // Passenger
     private int adult = 1;
     private int child = 0;
@@ -47,6 +47,7 @@ public class FlightTicketBooking extends AppCompatActivity {
     private final List<FlightLocation> locations = new ArrayList<>();
     private FlightLocation fromLocation;
     private FlightLocation toLocation;
+    private String selectedClassSeat;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -69,18 +70,75 @@ public class FlightTicketBooking extends AppCompatActivity {
         initSearch();
         initRadioGroup();
         initCalendarPicker();
+        initClassSeat();
         binding.btnBack.setOnClickListener(v -> finish());
+        binding.btnSearchFlight.setOnClickListener(v -> {
+
+            // 1️⃣ Kiểm tra location
+            if (fromLocation == null || toLocation == null) {
+                toast("Vui lòng chọn điểm đi và điểm đến");
+                return;
+            }
+
+            if (fromLocation.getCode().equals(toLocation.getCode())) {
+                toast("Điểm đi và điểm đến không được trùng nhau");
+                return;
+            }
+
+            // 2️⃣ Kiểm tra ngày đi
+            if (binding.departureDate.getText().toString().equals("--/--/----")) {
+                toast("Vui lòng chọn ngày khởi hành");
+                return;
+            }
+
+            // 3️⃣ Nếu khứ hồi → kiểm tra ngày về
+            if (binding.radioRoundTrip.isChecked()
+                    && binding.returnDate.getText().toString().equals("--/--/----")) {
+                toast("Vui lòng chọn ngày trở về");
+                return;
+            }
+
+            Intent intent = new Intent(this, SearchFlight.class);
+
+            intent.putExtra("FROM_LOCATION", fromLocation);
+            intent.putExtra("TO_LOCATION", toLocation);
+
+            intent.putExtra("ADULT", adult);
+            intent.putExtra("CHILD", child);
+            intent.putExtra("INFANT", infant);
+
+            intent.putExtra("DEPART_DATE",
+                    binding.departureDate.getText().toString());
+
+            intent.putExtra("IS_ROUND_TRIP",
+                    binding.radioRoundTrip.isChecked());
+
+            if (binding.radioRoundTrip.isChecked()) {
+                intent.putExtra("RETURN_DATE",
+                        binding.returnDate.getText().toString());
+            }
+            intent.putExtra("CLASS_SEAT", selectedClassSeat);
+
+            intent.putExtra("DEPART_TS", departCalendar.getTimeInMillis());
+
+            if (binding.radioRoundTrip.isChecked()) {
+                intent.putExtra("RETURN_TS", returnCalendar.getTimeInMillis());
+            }
+            startActivity(intent);
+        });
+
+
     }
 
     private void initCalendarPicker() {
 
         // Ngày khởi hành
-        binding.departureDate.setOnClickListener(v -> {
+        binding.linearDepDate.setOnClickListener(v -> {
             showDatePicker(true);
         });
 
         // Ngày trở về
-        binding.returnDate.setOnClickListener(v -> {
+        binding.linearArrivalDate.setOnClickListener(v -> {
             if (!binding.radioRoundTrip.isChecked()) return;
             showDatePicker(false);
         });
@@ -150,6 +208,49 @@ public class FlightTicketBooking extends AppCompatActivity {
             }
         });
     }
+
+    private void initClassSeat() {
+        // 🔹 ĐANG LOAD (giữ lại cho đồng bộ UI)
+        binding.classSpinner.setEnabled(false);
+        binding.classProgress.setVisibility(View.VISIBLE);
+
+        // Dữ liệu cố định
+        List<String> classSeats = new ArrayList<>();
+        classSeats.add("ECONOMY");
+        classSeats.add("BUSINESS");
+
+        setupClassSeatSpinner(classSeats);
+
+        // 🔹 LOAD XONG
+        binding.classProgress.setVisibility(View.GONE);
+        binding.classSpinner.setEnabled(true);
+    }
+
+    private void setupClassSeatSpinner(List<String> classSeats) {
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(
+                this,
+                android.R.layout.simple_spinner_item,
+                classSeats
+        );
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+
+        binding.classSpinner.setAdapter(adapter);
+
+        // Mặc định chọn Economy
+        binding.classSpinner.setSelection(0);
+        selectedClassSeat = classSeats.get(0);
+
+        binding.classSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int pos, long id) {
+                selectedClassSeat = classSeats.get(pos);
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {}
+        });
+    }
+
 
     private void disableReturnDate() {
         binding.returnDate.setEnabled(false);

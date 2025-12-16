@@ -1,6 +1,6 @@
 package com.example.banking.model;
-
-public class FlightLocation {
+import java.io.Serializable;
+public class FlightLocation implements Serializable {
     private String code;
     private String city;
     private String airport;

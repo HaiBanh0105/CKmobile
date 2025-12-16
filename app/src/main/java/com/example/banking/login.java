@@ -65,6 +65,7 @@ public class login extends AppCompatActivity {
                                 SessionManager.getInstance().setUserName(name);
                                 SessionManager.getInstance().setPinNumber(pin);
                                 SessionManager.getInstance().setEmail(email);
+                                SessionManager.getInstance().setPhone(phone);
 
                                 Toast.makeText(this, "Xin chào " + name, Toast.LENGTH_SHORT).show();
 

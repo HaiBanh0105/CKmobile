@@ -1,100 +1,75 @@
 package com.example.banking.model;
 
 import com.google.firebase.Timestamp;
+import java.io.Serializable;
+import java.util.Map;
 
-public class Flight {
-    private String flightId;
+public class Flight implements Serializable {
+
+    private String id;
     private String flightNumber;
     private String origin;
     private String destination;
     private Timestamp departureTime;
     private Timestamp arrivalTime;
-
-    private double price;
-    private int availableSeats;
     private String airline;
     private String logoUrl;
 
-    public Flight() {
+    // Tất cả hạng ghế
+    private Map<String, Map<String, Integer>> seatClass;
+
+    // Hạng ghế đang được chọn (Economy / Business ...)
+    private String selectedSeatClassKey;
+
+    public Flight() {}
+
+    // ===== GET / SET =====
+
+    public Map<String, Map<String, Integer>> getSeatClass() {
+        return seatClass;
     }
 
-    public String getFlightId() {
-        return flightId;
+    public void setSeatClass(Map<String, Map<String, Integer>> seatClass) {
+        this.seatClass = seatClass;
     }
 
-    public void setFlightId(String flightId) {
-        this.flightId = flightId;
+    public String getSelectedSeatClassKey() {
+        return selectedSeatClassKey;
     }
 
-    public String getFlightNumber() {
-        return flightNumber;
+    public void setSelectedSeatClassKey(String selectedSeatClassKey) {
+        this.selectedSeatClassKey = selectedSeatClassKey;
     }
 
-    public void setFlightNumber(String flightNumber) {
-        this.flightNumber = flightNumber;
+    // 👉 Lấy thông tin hạng ghế đang chọn
+    public Map<String, Integer> getSelectedSeatClass() {
+        if (seatClass == null || selectedSeatClassKey == null) return null;
+        return seatClass.get(selectedSeatClassKey);
     }
 
-    public String getOrigin() {
-        return origin;
-    }
+    // ===== Các field khác =====
 
-    public void setOrigin(String origin) {
-        this.origin = origin;
-    }
+    public String getId() { return id; }
+    public void setId(String id) { this.id = id; }
 
-    public String getDestination() {
-        return destination;
-    }
+    public String getFlightNumber() { return flightNumber; }
+    public void setFlightNumber(String flightNumber) { this.flightNumber = flightNumber; }
 
-    public void setDestination(String destination) {
-        this.destination = destination;
-    }
+    public String getOrigin() { return origin; }
+    public void setOrigin(String origin) { this.origin = origin; }
 
-    public Timestamp getDepartureTime() {
-        return departureTime;
-    }
+    public String getDestination() { return destination; }
+    public void setDestination(String destination) { this.destination = destination; }
 
-    public void setDepartureTime(Timestamp departureTime) {
-        this.departureTime = departureTime;
-    }
+    public Timestamp getDepartureTime() { return departureTime; }
+    public void setDepartureTime(Timestamp departureTime) { this.departureTime = departureTime; }
 
-    public Timestamp getArrivalTime() {
-        return arrivalTime;
-    }
+    public Timestamp getArrivalTime() { return arrivalTime; }
+    public void setArrivalTime(Timestamp arrivalTime) { this.arrivalTime = arrivalTime; }
 
-    public void setArrivalTime(Timestamp arrivalTime) {
-        this.arrivalTime = arrivalTime;
-    }
+    public String getAirline() { return airline; }
+    public void setAirline(String airline) { this.airline = airline; }
 
-    public double getPrice() {
-        return price;
-    }
-
-    public void setPrice(double price) {
-        this.price = price;
-    }
-
-    public int getAvailableSeats() {
-        return availableSeats;
-    }
-
-    public void setAvailableSeats(int availableSeats) {
-        this.availableSeats = availableSeats;
-    }
-
-    public String getAirline() {
-        return airline;
-    }
-
-    public void setAirline(String airline) {
-        this.airline = airline;
-    }
-
-    public String getLogoUrl() {
-        return logoUrl;
-    }
-
-    public void setLogoUrl(String logoUrl) {
-        this.logoUrl = logoUrl;
-    }
+    public String getLogoUrl() { return logoUrl; }
+    public void setLogoUrl(String logoUrl) { this.logoUrl = logoUrl; }
 }

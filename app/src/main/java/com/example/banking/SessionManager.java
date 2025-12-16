@@ -8,6 +8,7 @@ public class SessionManager {
 
     private String pin;
     private String email;
+    private String phone;
 
     private SessionManager() {}
 
@@ -29,4 +30,7 @@ public class SessionManager {
 
     public void setEmail(String email) { this.email = email; }
     public String getEmail() { return email; }
+
+    public void setPhone(String phone) { this.phone = phone; }
+    public String getPhone() { return phone; }
 }

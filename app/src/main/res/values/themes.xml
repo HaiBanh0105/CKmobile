@@ -7,7 +7,7 @@
         <item name="colorSecondary">@color/secondary</item>
         <item name="colorOnSecondary">@color/onSecondary</item>
         <item name="colorSurface">@color/surface</item>
-        <item name="colorOnSurface">@color/onSurface</item>
+        <item name="colorOnSurface">@color/black</item>
     </style>
 
     <style name="Theme.Banking" parent="Base.Theme.Banking" />

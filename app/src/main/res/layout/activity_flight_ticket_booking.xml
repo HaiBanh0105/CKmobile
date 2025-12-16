@@ -11,8 +11,8 @@
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/constraintLayout"
         android:layout_width="match_parent"
-        android:layout_height="120dp"
-        android:background="@drawable/blue_bottom_radius_bg"
+        android:layout_height="60dp"
+        android:background="@color/blue"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
@@ -21,6 +21,7 @@
             android:id="@+id/imageView2"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:scaleType="fitXY"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
@@ -29,14 +30,25 @@
 
         <ImageView
             android:id="@+id/btnBack"
-            android:layout_width="50dp"
-            android:layout_height="50dp"
+            android:layout_width="42dp"
+            android:layout_height="42dp"
             android:layout_marginStart="12dp"
-            android:layout_marginTop="12dp"
+            app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             app:srcCompat="@drawable/back" />
 
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Đặt vé máy bay"
+            android:textColor="@color/surface"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 
 
@@ -55,7 +67,6 @@
         app:layout_constraintTop_toBottomOf="@+id/constraintLayout"
         android:padding="12dp"
         >
-
 
         <RadioGroup
             android:layout_width="match_parent"
@@ -427,14 +438,15 @@
                     android:textStyle="bold"
                     android:typeface="monospace"
                     />
+
                 <LinearLayout
+                    android:id="@+id/linearDepDate"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:background="@drawable/rounded_gray_bg"
-                    android:padding="8dp"
                     android:layout_gravity="center"
+                    android:background="@drawable/rounded_gray_bg"
                     android:gravity="center"
-                    >
+                    android:padding="8dp">
 
                     <ImageView
                         android:id="@+id/imageView7"
@@ -447,9 +459,8 @@
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
-                        android:text="---"
-                        android:textAlignment="center"
-                         />
+                        android:text="--/--/----"
+                        android:textAlignment="center" />
                 </LinearLayout>
 
             </LinearLayout>
@@ -470,17 +481,18 @@
                     android:textStyle="bold"
                     android:typeface="monospace"
                     />
+
                 <LinearLayout
+                    android:id="@+id/linearArrivalDate"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:background="@drawable/rounded_gray_bg"
-                    android:padding="8dp"
                     android:layout_gravity="center"
+                    android:background="@drawable/rounded_gray_bg"
                     android:gravity="center"
-                    >
+                    android:padding="8dp">
 
                     <ImageView
-                        android:id="@+id/imageView8"
+                        android:id="@+id/imgSeatClass"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         app:srcCompat="@drawable/calendar_ic" />
@@ -490,12 +502,58 @@
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
-                        android:text="---"
-                        android:textAlignment="center"
-                         />
+                        android:text="--/--/----"
+                        android:textAlignment="center" />
                 </LinearLayout>
             </LinearLayout>
         </LinearLayout>
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:fontFamily="monospace"
+            android:text="Hạng"
+            android:textStyle="bold"
+            android:layout_marginTop="8dp"
+            android:typeface="monospace" />
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:background="@drawable/rounded_gray_bg"
+            android:padding="8dp">
+
+            <ImageView
+                android:id="@+id/imageView9"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:srcCompat="@drawable/seat_black_ic" />
+
+            <Spinner
+                android:id="@+id/classSpinner"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:minHeight="40dp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toEndOf="@+id/imageView9"
+                app:layout_constraintTop_toTopOf="parent" />
+            <ProgressBar
+                android:id="@+id/classProgress"
+                style="?android:attr/progressBarStyleSmall"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:indeterminateTint="#a2abb2"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="@+id/classSpinner"
+                app:layout_constraintTop_toTopOf="parent" />
+        </androidx.constraintlayout.widget.ConstraintLayout>
 
         <androidx.appcompat.widget.AppCompatButton
             android:id="@+id/btnSearchFlight"
