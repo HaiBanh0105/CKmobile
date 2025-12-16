@@ -17,16 +17,18 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.ListenerRegistration;
 import com.google.firebase.firestore.Query;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
 public class HomeFragment extends Fragment {
 
-    private TextView tvaccountNumber, tvbalance;
+    private TextView tvaccountNumber, tvbalance, tvWelcome;
 
     private ImageView btnToggleBalance, btnTransfer;
 
@@ -35,11 +37,14 @@ public class HomeFragment extends Fragment {
     private Double currentBalance; // lưu số dư hiện tại
     String userId = SessionManager.getInstance().getUserId();
 
+    String name = SessionManager.getInstance().getUserName();
     String accountNumber;
 
     RecyclerView rvRecentTransactions;
     TransactionAdapter adapter;
     List<Transaction> transactionList = new ArrayList<>();
+
+    private ListenerRegistration registration;
 
     @Nullable
     @Override
@@ -50,6 +55,7 @@ public class HomeFragment extends Fragment {
 
         tvaccountNumber = root.findViewById(R.id.tvAccountNumber);
         tvbalance = root.findViewById(R.id.tvBalanceAmount);
+        tvWelcome = root.findViewById(R.id.tvWelcome);
         btnToggleBalance = root.findViewById(R.id.btnToggleBalance);
         btnTransfer = root.findViewById(R.id.btnTransfer);
         rvRecentTransactions = root.findViewById(R.id.rvRecentTransactions);
@@ -60,19 +66,10 @@ public class HomeFragment extends Fragment {
         loadCheckingInfor(userId);
         loadTransactions();
 
+        tvWelcome.setText("Xin chào, "+ name);
+
         // Xử lý sự kiện click ẩn hiện số dư
         btnToggleBalance.setOnClickListener(v -> {
-
-//            // Đăng ký listener realtime sau khi đã gán tvbalance
-//            FirebaseFirestore db = FirebaseFirestore.getInstance();
-//            db.collection("Accounts")
-//                    .document(accountNumber)
-//                    .addSnapshotListener((snapshot, e) -> {
-//                        if (snapshot != null && snapshot.exists()) {
-//                            Double newBalance = snapshot.getDouble("balance");
-//                            currentBalance = newBalance;
-//                        }
-//                    });
 
             if (isBalanceVisible) {
                 // Ẩn số dư
@@ -98,28 +95,22 @@ public class HomeFragment extends Fragment {
 
     private void loadCheckingInfor(String userId) {
         FirestoreHelper helper = new FirestoreHelper();
-        helper.loadCheckingInfor(userId, new FirestoreHelper.AccountCallback() {
+        registration = helper.loadCheckingInfor(userId, new FirestoreHelper.AccountCallback() {
             @Override
             public void onSuccess(String number, Double balance){
                 tvaccountNumber.setText("Số tài khoản: " + number);
-                tvbalance.setText("********* VND");
-                isBalanceVisible = false;
+//                tvbalance.setText("********* VND");
+//                isBalanceVisible = false;
+                if (isBalanceVisible) {
+                    // Ẩn số dư
+                    tvbalance.setText("********* VND");
+                    btnToggleBalance.setImageResource(R.drawable.ic_visibility_off); // icon hiện
+                } else {
+                    tvbalance.setText(String.format("%,.0f VND", balance));
+                    btnToggleBalance.setImageResource(R.drawable.ic_visibility); // icon ẩn
+                }
                 currentBalance = balance;
                 accountNumber = number;
-
-                // Đăng ký listener realtime balance
-                FirebaseFirestore db = FirebaseFirestore.getInstance();
-                db.collection("Accounts")
-                        .document(accountNumber)
-                        .addSnapshotListener((snapshot, e) -> {
-                            if (snapshot != null && snapshot.exists()) {
-                                Double newBalance = snapshot.getDouble("balance");
-                                currentBalance = newBalance;
-                                if (isBalanceVisible) {
-                                    tvbalance.setText(String.format("%,.0f VND", newBalance));
-                                }
-                            }
-                        });
             }
 
             @Override
@@ -133,7 +124,7 @@ public class HomeFragment extends Fragment {
     private void loadTransactions() {
         FirebaseFirestore db = FirebaseFirestore.getInstance();
         db.collection("Transactions")
-                .whereEqualTo("sender_id", userId)
+                .whereEqualTo("user_id", userId)
                 .orderBy("create_at", Query.Direction.DESCENDING)
                 .limit(10)
                 .addSnapshotListener((queryDocumentSnapshots, e) -> {
@@ -143,11 +134,22 @@ public class HomeFragment extends Fragment {
                     }
                     transactionList.clear();
                     for (DocumentSnapshot doc : queryDocumentSnapshots) {
-                        String name = doc.getString("receiver_name");
-                        String date = new SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
-                                .format(doc.getDate("create_at"));
+                        String type = doc.getString("type");
+                        String name;
+
+                        if ("received".equalsIgnoreCase(type)){
+                            name = doc.getString("sender_name");
+                        }
+                        else{
+                            name = doc.getString("receiver_name");
+                        }
+
+                        Date createdAt = doc.getDate("create_at");
+                        String date = createdAt != null
+                                ? new SimpleDateFormat("dd/MM/yyyy", Locale.getDefault()).format(createdAt)
+                                : "Đang xử lý...";
                         double amount = doc.getDouble("amount");
-                        transactionList.add(new Transaction(name, date, amount));
+                        transactionList.add(new Transaction(name, date, amount,type));
                     }
                     adapter.notifyDataSetChanged();
                 });
@@ -159,6 +161,14 @@ public class HomeFragment extends Fragment {
         super.onResume();
         loadCheckingInfor(userId);
 
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        if (registration != null) {
+            registration.remove(); // hủy listener khi view bị hủy
+        }
     }
 
 }

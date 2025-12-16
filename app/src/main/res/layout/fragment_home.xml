@@ -20,7 +20,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textAppearance="@style/TextAppearance.MaterialComponents.Headline6"
-            tools:text="Chào, Nguyễn Văn A"
+            tools:text="Chào, "
             android:layout_marginBottom="16dp"/>
 
         <com.google.android.material.card.MaterialCardView
@@ -40,12 +40,12 @@
                     android:id="@+id/tvAccountNumber"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Số tài khoản: 1234 5678 9999"
+                    android:text="Số tài khoản: "
                     android:textAppearance="@style/TextAppearance.MaterialComponents.Body1"
                     android:textStyle="bold"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent"
-                    tools:text="Số tài khoản: 1234 5678 9999" />
+                    tools:text="Số tài khoản: " />
 
                 <!-- Số dư tài khoản chính -->
                 <TextView
@@ -67,7 +67,7 @@
                     android:textStyle="bold"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toBottomOf="@id/tvBalanceLabel"
-                    tools:text="10.500.000 VND" />
+                    tools:text="000.000.000 VND" />
 
                 <ImageView
                     android:id="@+id/btnToggleBalance"

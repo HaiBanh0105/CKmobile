@@ -24,6 +24,9 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.Banking">
         <activity
+            android:name=".top_up"
+            android:exported="false" />
+        <activity
             android:name=".Activity.FlightConfirmation"
             android:exported="false" />
         <activity
@@ -34,6 +37,9 @@
             android:exported="false" />
         <activity
             android:name=".Activity.FlightTicketBooking"
+            android:exported="false" />
+        <activity
+            android:name=".change_pin"
             android:exported="false" />
 
         <meta-data

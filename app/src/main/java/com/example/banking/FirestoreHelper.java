@@ -5,6 +5,7 @@ import android.widget.Toast;
 
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.ListenerRegistration;
 
 public class FirestoreHelper {
     private FirebaseFirestore db;
@@ -16,7 +17,7 @@ public class FirestoreHelper {
     // Định nghĩa interface callback để trả dữ liệu về
     // Callback cho Customer
     public interface CustomerCallback {
-        void onSuccess(String name, String phone, String email, String address, String id);
+        void onSuccess(String name, String phone, String email, String address, String id, String avatarUrl);
         void onFailure(String errorMessage);
     }
 
@@ -35,8 +36,9 @@ public class FirestoreHelper {
                         String email = documentSnapshot.getString("email");
                         String address = documentSnapshot.getString("address");
                         String id = documentSnapshot.getString("user_id");
+                        String avatarUrl = documentSnapshot.getString("avatar");
 
-                        callback.onSuccess(name, phone, email, address, id);
+                        callback.onSuccess(name, phone, email, address, id,avatarUrl);
                     } else {
                         callback.onFailure("Không tìm thấy khách hàng!");
                     }
@@ -46,14 +48,17 @@ public class FirestoreHelper {
                 });
     }
 
-    public void loadCheckingInfor(String userId, AccountCallback callback) {
-        db.collection("Accounts")
+    public ListenerRegistration loadCheckingInfor(String userId, AccountCallback callback) {
+        return db.collection("Accounts")
                 .whereEqualTo("user_id", userId)
                 .whereEqualTo("account_type", "checking")
-                .get()
-                .addOnSuccessListener(querySnapshot -> {
-                    if (!querySnapshot.isEmpty()) {
-                        // Lấy document đầu tiên (giả sử mỗi user chỉ có 1 checking account)
+                .addSnapshotListener((querySnapshot, e) -> {
+                    if (e != null) {
+                        callback.onFailure("Lỗi realtime: " + e.getMessage());
+                        return;
+                    }
+
+                    if (querySnapshot != null && !querySnapshot.isEmpty()) {
                         DocumentSnapshot doc = querySnapshot.getDocuments().get(0);
 
                         String number = doc.getString("account_number");
@@ -63,11 +68,9 @@ public class FirestoreHelper {
                     } else {
                         callback.onFailure("Không tìm thấy tài khoản checking!");
                     }
-                })
-                .addOnFailureListener(e -> {
-                    callback.onFailure("Lỗi tải dữ liệu: " + e.getMessage());
                 });
     }
+
 
     // Hàm thay đổi balance theo user_id
     public void changeCheckingBalanceByUserId(Context context, String userId, double amountChange) {

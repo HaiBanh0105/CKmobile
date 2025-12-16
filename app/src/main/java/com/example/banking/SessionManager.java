@@ -9,6 +9,7 @@ public class SessionManager {
     private String pin;
     private String email;
     private String phone;
+    private String avatarUrl;
 
     private SessionManager() {}
 
@@ -33,4 +34,7 @@ public class SessionManager {
 
     public void setPhone(String phone) { this.phone = phone; }
     public String getPhone() { return phone; }
+
+    public void setAvatarUrl(String avatarUrl) { this.avatarUrl = avatarUrl; }
+    public String getAvatarUrl() { return avatarUrl; }
 }

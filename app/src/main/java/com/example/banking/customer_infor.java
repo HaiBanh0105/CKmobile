@@ -124,15 +124,21 @@ public class customer_infor extends AppCompatActivity {
             return;
         }
 
-        // 1. Tạo mật khẩu ngẫu nhiên
+        // Tạo mật khẩu ngẫu nhiên
         String rawPassword = generateRandomPassword();
-
-        // 2. Mã hóa mật khẩu bằng SHA-256
+        // Mã hóa mật khẩu bằng SHA-256
         String hashedPassword = hashPassword(rawPassword);
+
+        //Khởi tạo mã pin ngẫu nhiên
+        String rawPin = generateRandomPin();
 
 
         final List<Float> faceEmbedding;
         try {
+            if (faceImagePath == null || faceImagePath.trim().isEmpty()) {
+                Toast.makeText(this, "Vui lòng quét ảnh khuôn mặt", Toast.LENGTH_SHORT).show();
+                return;
+            }
 
             File file = new File(faceImagePath);
             if (!file.exists()) {
@@ -155,7 +161,8 @@ public class customer_infor extends AppCompatActivity {
                 "Tài khoản của bạn đã được tạo thành công.\n" +
                 "Tên đăng nhập: " + phone + "\n" +
                 "Mật khẩu của bạn là: " + rawPassword + "\n\n" +
-                "Vui lòng đổi mật khẩu sau khi đăng nhập lần đầu.\n" +
+                "Mã pin của bạn là: " + rawPin + "\n\n" +
+                "Vui lòng đổi mật khẩu và mã pin sau khi đăng nhập lần đầu tiên.\n" +
                 "Trân trọng,\nNgân hàng ABC.";
 
         if (name.isEmpty() || phone.isEmpty() || idCard.isEmpty() || email.isEmpty() || address.isEmpty()) {
@@ -183,12 +190,14 @@ public class customer_infor extends AppCompatActivity {
                 customer.put("address", address);
                 customer.put("password", hashedPassword);
                 customer.put("avatar", "");
+                customer.put("pin", rawPin);
 
-                customer.put("faceEmbedding", faceEmbedding);
+//                customer.put("faceEmbedding", faceEmbedding);
+
 
                 db.collection("Users")
                         .document(idCard)
-                        .set(customer)
+                        .set(customer )
                         .addOnSuccessListener(aVoid -> {
                             Toast.makeText(getApplicationContext(), "Thêm khách hàng thành công", Toast.LENGTH_SHORT).show();
                             createDefaultCheckingAccount(idCard);
@@ -197,6 +206,15 @@ public class customer_infor extends AppCompatActivity {
                         .addOnFailureListener(e -> {
                             Toast.makeText(getApplicationContext(), "Lỗi: " + e.getMessage(), Toast.LENGTH_SHORT).show();
                         });
+
+                Map<String, Object> faceID = new HashMap<>();
+                faceID.put("user_id", idCard);
+                faceID.put("faceEmbedding", faceEmbedding);
+                faceID.put("time", FieldValue.serverTimestamp());
+
+                db.collection("faceId")
+                        .document(idCard)
+                        .set(faceID);
             }
             @Override
             public void onFailure(String error) {
@@ -243,9 +261,19 @@ public class customer_infor extends AppCompatActivity {
         return sb.toString();
     }
 
+    private String generateRandomPin() {
+        String chars = "0123456789";
+        StringBuilder sb = new StringBuilder();
+        Random random = new Random();
+        for (int i = 0; i < 6; i++) {
+            sb.append(chars.charAt(random.nextInt(chars.length())));
+        }
+        return sb.toString();
+    }
+
     //Tạo mã tự động
     private String generateAccountId(String type) {
-        String branchCode = "7010";      // mã chi nhánh
+        String branchCode = "1010";      // mã chi nhánh
 
         // Sinh 6 số ngẫu nhiên
         int randomNumber = (int)(Math.random() * 1000000);
@@ -280,7 +308,7 @@ public class customer_infor extends AppCompatActivity {
 
         helper.loadCustomerInfor(userId, new FirestoreHelper.CustomerCallback() {
             @Override
-            public void onSuccess(String name, String phone, String email, String address, String id) {
+            public void onSuccess(String name, String phone, String email, String address, String id, String avatarUrl) {
                 edtFullName.setText(name);
                 edtPhoneNumber.setText(phone);
                 edtEmail.setText(email);
