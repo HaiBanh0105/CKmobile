@@ -5,11 +5,11 @@
     <color name="secondary">#03DAC6</color>
     <color name="onSecondary">#000000</color>
     <color name="surface">#FFFFFF</color>
-    <color name="black">#000000</color>
     <color name="dividerColor">#DDDDDD</color>
     <color name="blue">#0d68f3</color>
     <color name="gray">#dddee0</color>
     <color name="black">#000000</color>
     <color name="white">#FFFFFF</color>
+    <color name="grey">#989797</color>
 
 </resources>

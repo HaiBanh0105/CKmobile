@@ -11,6 +11,7 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
 import com.example.banking.Activity.FlightTicketBooking;
+import com.example.banking.Activity.MovieTicketBooking;
 import com.example.banking.databinding.FragmentUtilitiesBinding;
 
 public class UtilitiesFragment extends Fragment {
@@ -31,7 +32,14 @@ public class UtilitiesFragment extends Fragment {
         binding.btnFlightBooking.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                handleBookingClick();
+                handleFlightBookingClick();
+            }
+        });
+
+        binding.btnMovieBooking.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                handleMovieBookingClick();
             }
         });
 
@@ -45,8 +53,13 @@ public class UtilitiesFragment extends Fragment {
         return rootView;
     }
 
-    private void handleBookingClick() {
+    private void handleFlightBookingClick() {
         Intent intent = new Intent(getActivity(), FlightTicketBooking.class);
+        startActivity(intent);
+    }
+
+    private void handleMovieBookingClick() {
+        Intent intent = new Intent(getActivity(), MovieTicketBooking.class);
         startActivity(intent);
     }
 

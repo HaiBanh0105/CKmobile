@@ -24,6 +24,9 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.Banking">
         <activity
+            android:name=".Activity.MovieTicketBooking"
+            android:exported="false" />
+        <activity
             android:name=".top_up"
             android:exported="false" />
         <activity

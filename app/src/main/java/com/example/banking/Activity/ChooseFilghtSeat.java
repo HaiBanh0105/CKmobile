@@ -23,5 +23,4 @@ public class ChooseFilghtSeat extends AppCompatActivity {
         });
     }
 
-
 }
