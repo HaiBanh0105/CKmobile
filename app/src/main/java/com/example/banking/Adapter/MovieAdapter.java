@@ -1,6 +1,7 @@
 package com.example.banking.Adapter;
 
 import android.content.Context;
+import android.content.Intent;
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
 
@@ -8,6 +9,7 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
+import com.example.banking.Activity.MovieBookingDetail;
 import com.example.banking.R;
 import com.example.banking.databinding.ViewholderMovieBinding;
 import com.example.banking.model.Movie;
@@ -75,10 +77,9 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.MovieViewHol
 
         // 🎟 Đặt vé
         holder.binding.btnBook.setOnClickListener(v -> {
-            // TODO: chuyển sang màn chọn rạp / suất chiếu
-            // Intent intent = new Intent(context, CinemaSelectActivity.class);
-            // intent.putExtra("movie", movie);
-            // context.startActivity(intent);
+             Intent intent = new Intent(context, MovieBookingDetail.class);
+             intent.putExtra("movie", movie);
+             context.startActivity(intent);
         });
     }
 

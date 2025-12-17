@@ -5,6 +5,16 @@ import java.io.Serializable;
 import java.util.List;
 
 public class Movie implements Serializable {
+    @SerializedName("MovieId")
+    private String movieId;
+
+    public String getMovieId() {
+        return movieId;
+    }
+
+    public void setMovieId(String movieId) {
+        this.movieId = movieId;
+    }
 
     @SerializedName("Title")
     private String title;
