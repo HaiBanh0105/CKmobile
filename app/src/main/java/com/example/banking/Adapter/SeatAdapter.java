@@ -5,6 +5,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.banking.R;
@@ -12,55 +13,60 @@ import com.example.banking.model.Seat;
 
 import java.util.List;
 
-public class SeatAdapter extends RecyclerView.Adapter<SeatAdapter.Holder> {
+public class SeatAdapter extends RecyclerView.Adapter<SeatAdapter.SeatViewHolder> {
 
-    private List<Seat> seats;
+    private List<Seat> seatList;
+    private OnSeatClickListener listener;
 
-    public SeatAdapter(List<Seat> seats) {
-        this.seats = seats;
+    public interface OnSeatClickListener {
+        void onSeatClick(int position);
     }
 
+    public SeatAdapter(List<Seat> seatList, OnSeatClickListener listener) {
+        this.seatList = seatList;
+        this.listener = listener;
+    }
+
+    @NonNull
     @Override
-    public Holder onCreateViewHolder(ViewGroup parent, int viewType) {
-        View v = LayoutInflater.from(parent.getContext())
+    public SeatViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+        View view = LayoutInflater.from(parent.getContext())
                 .inflate(R.layout.item_seat, parent, false);
-        return new Holder(v);
+        return new SeatViewHolder(view);
     }
 
     @Override
-    public void onBindViewHolder(Holder h, int i) {
-        Seat seat = seats.get(i);
-        h.txt.setText(seat.id);
+    public void onBindViewHolder(@NonNull SeatViewHolder holder, int position) {
+        Seat seat = seatList.get(position);
 
-        if (seat.booked) {
-            h.txt.setBackgroundResource(R.drawable.unavailable_seat);
-            h.txt.setEnabled(false);
-        } else if (seat.selected) {
-            h.txt.setBackgroundResource(R.drawable.selected_seat);
-            h.txt.setEnabled(true);
+        holder.txtSeat.setText(seat.getId());
+
+        if (seat.isBooked()) {
+            holder.txtSeat.setBackgroundResource(R.drawable.unavailable_seat);
+        } else if (seat.isSelected()) {
+            holder.txtSeat.setBackgroundResource(R.drawable.selected_seat);
         } else {
-            h.txt.setBackgroundResource(R.drawable.available_seat);
-            h.txt.setEnabled(true);
+            holder.txtSeat.setBackgroundResource(R.drawable.available_seat);
         }
 
-        h.txt.setOnClickListener(v -> {
-            if (seat.booked) return;
-            seat.selected = !seat.selected;
-            notifyItemChanged(i);
+        holder.itemView.setOnClickListener(v -> {
+            if (!seat.isBooked()) {
+                listener.onSeatClick(position);
+            }
         });
     }
 
     @Override
     public int getItemCount() {
-        return seats.size();
+        return seatList.size();
     }
 
-    static class Holder extends RecyclerView.ViewHolder {
-        TextView txt;
-        Holder(View v) {
-            super(v);
-            txt = v.findViewById(R.id.txtSeat);
+    static class SeatViewHolder extends RecyclerView.ViewHolder {
+        TextView txtSeat;
+
+        public SeatViewHolder(@NonNull View itemView) {
+            super(itemView);
+            txtSeat = itemView.findViewById(R.id.txtSeat);
         }
     }
 }
-

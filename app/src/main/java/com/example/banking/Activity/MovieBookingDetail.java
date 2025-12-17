@@ -7,6 +7,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewOutlineProvider;
 import android.widget.ScrollView;
+import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
@@ -70,6 +71,7 @@ public class MovieBookingDetail extends AppCompatActivity {
         setupDateRecyclerView();
 
         binding.btnBack.setOnClickListener(v -> finish());
+        initBtnChooseSeat();
     }
 
     private void setMovieData() {
@@ -122,7 +124,7 @@ public class MovieBookingDetail extends AppCompatActivity {
             DateAdapter.notifyDataSetChanged();
 
             // Cập nhật txtDate
-            ShowtimeDate selectedDate = dateList.get(position);
+            selectedDate = dateList.get(position);
             binding.txtDate.setText("Ngày chiếu: " + selectedDate.getFullDate());
 
             // Load showtimes nếu đã chọn cinema
@@ -236,6 +238,7 @@ public class MovieBookingDetail extends AppCompatActivity {
                         String time = doc.getString("time");
                         timeItems.add(new ShowtimeTime(time));
                     }
+                    selectedTime = null;
 
                     if (timeItems.isEmpty()) {
                         binding.rvTime.setVisibility(View.GONE);
@@ -278,4 +281,28 @@ public class MovieBookingDetail extends AppCompatActivity {
                 binding.scrollView.smoothScrollTo(0, target.getTop())
         );
     }
+
+    public void initBtnChooseSeat() {
+        binding.btnChooseSeat.setOnClickListener(v -> {
+
+            if (selectedCinema == null || selectedDate == null || selectedTime == null) {
+                Toast.makeText(this, "Vui lòng chọn rạp, ngày và giờ chiếu", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            Intent intent = new Intent(
+                    MovieBookingDetail.this,
+                    ChooseMovieSeat.class
+            );
+
+            // Truyền dữ liệu sang màn chọn ghế
+            intent.putExtra("movie", movie);
+            intent.putExtra("cinema", selectedCinema);
+            intent.putExtra("date", selectedDate.getFullDate());
+            intent.putExtra("time", selectedTime.getTime());
+
+            startActivity(intent);
+        });
+    }
+
 }

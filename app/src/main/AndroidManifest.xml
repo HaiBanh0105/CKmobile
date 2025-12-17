@@ -36,7 +36,7 @@
             android:name=".Activity.FlightConfirmation"
             android:exported="false" />
         <activity
-            android:name=".Activity.ChooseFilghtSeat"
+            android:name=".Activity.ChooseMovieSeat"
             android:exported="false" />
         <activity
             android:name=".Activity.SearchFlight"
