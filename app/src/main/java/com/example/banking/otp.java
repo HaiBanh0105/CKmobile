@@ -81,9 +81,6 @@ public class otp extends AppCompatActivity {
                 if("pin".equals(type)){
                     confirmPIN();
                 }
-                else if(amount < 2000000 && "transfer".equals(type)){
-                    confirmPIN();
-                }
                 else{
                     confirmOTP();
                 }

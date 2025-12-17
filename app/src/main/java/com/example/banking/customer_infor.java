@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
+import android.view.View;
 import android.widget.EditText;
 import android.widget.Toast;
 
@@ -17,6 +18,7 @@ import androidx.core.view.WindowInsetsCompat;
 
 import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.button.MaterialButton;
+import com.google.android.material.textfield.TextInputLayout;
 import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 
@@ -36,11 +38,14 @@ public class customer_infor extends AppCompatActivity {
     private MaterialButton btnEkycScan, btnSave;
 
     private MaterialToolbar toolbar;
-    private String faceImagePath; // lưu đường dẫn ảnh khuôn mặt
+    private String faceImagePath, customer_ID;
+
+    private String old_name, old_phone, old_email, old_address;
 
     private ActivityResultLauncher<Intent> ekycLauncher;
 
     String userId = SessionManager.getInstance().getUserId();
+    FirebaseFirestore db = FirebaseFirestore.getInstance();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -62,25 +67,29 @@ public class customer_infor extends AppCompatActivity {
         toolbar = findViewById(R.id.toolbar);
 
         String role = getIntent().getStringExtra("role");
-        String customer_ID = getIntent().getStringExtra("user_id");
+        customer_ID = getIntent().getStringExtra("user_id");
 
         //Đăng ký tài khoản
         if("customer_register".equalsIgnoreCase(role)){
             toolbar.setTitle("Đăng ký tài khoản");
         }
-        //Nhân viên sửa
-        else if(customer_ID != null && !customer_ID.isEmpty()){
-            toolbar.setTitle("Thông tin khách hàng");
-            btnSave.setText("Cập nhật thông tin");
-            loadCustomerInfor(customer_ID);
-        }
-        //Khách hàng tự sửa
-        else{
-            toolbar.setTitle("Thông tin tài khoản");
-            btnSave.setText("Cập nhật thông tin");
-            loadCustomerInfor(userId);
-        }
+        else {
+            TextInputLayout tilIdCard = findViewById(R.id.tilIdCard);
+            tilIdCard.setVisibility(View.GONE);
 
+            //Nhân viên sửa
+            if (customer_ID != null && !customer_ID.isEmpty()) {
+                toolbar.setTitle("Thông tin khách hàng");
+                btnSave.setText("Cập nhật thông tin");
+                loadCustomerInfor(customer_ID);
+            }
+            //Khách hàng tự sửa
+            else {
+                toolbar.setTitle("Thông tin tài khoản");
+                btnSave.setText("Cập nhật thông tin");
+                loadCustomerInfor(userId);
+            }
+        }
         // Đăng ký nhận kết quả từ EkycActivity
         ekycLauncher = registerForActivityResult(
                 new ActivityResultContracts.StartActivityForResult(),
@@ -93,6 +102,7 @@ public class customer_infor extends AppCompatActivity {
 
         btnEkycScan.setOnClickListener(v -> {
             Intent intent = new Intent(this, ekyc.class);
+            intent.putExtra("type","create");
             ekycLauncher.launch(intent);
         });
 
@@ -105,7 +115,7 @@ public class customer_infor extends AppCompatActivity {
                 RegiterCustomer();
             }
             else{
-//                UpdateCustomer();
+                UpdateCustomer();
             }
         });
     }
@@ -179,8 +189,6 @@ public class customer_infor extends AppCompatActivity {
         EmailService.sendEmail(this, email, subject, emailBody, new EmailService.EmailCallback() {
             @Override
             public void onSuccess() {
-                // Chỉ tạo tài khoản khi gửi mail thành công
-                FirebaseFirestore db = FirebaseFirestore.getInstance();
                 Map<String, Object> customer = new HashMap<>();
                 customer.put("user_id", idCard);
                 customer.put("name", name);
@@ -191,9 +199,6 @@ public class customer_infor extends AppCompatActivity {
                 customer.put("password", hashedPassword);
                 customer.put("avatar", "");
                 customer.put("pin", rawPin);
-
-//                customer.put("faceEmbedding", faceEmbedding);
-
 
                 db.collection("Users")
                         .document(idCard)
@@ -222,6 +227,68 @@ public class customer_infor extends AppCompatActivity {
             }
         });
 
+    }
+
+    private  void UpdateCustomer(){
+        String name = edtFullName.getText().toString().trim();
+        String phone = edtPhoneNumber.getText().toString().trim();
+        String email = edtEmail.getText().toString().trim();
+        String address = edtAddress.getText().toString().trim();
+        Boolean isUpdate = false;
+
+        if(!name.equalsIgnoreCase(old_name) || !phone.equalsIgnoreCase(old_phone) ||
+            !email.equalsIgnoreCase(old_email) || !address.equalsIgnoreCase(old_address)){
+            isUpdate = true;
+        }
+        String Id_update;
+        if(customer_ID != null && !customer_ID.isEmpty()){
+            Id_update = customer_ID;
+        }
+        else{
+            Id_update = userId;
+        }
+
+        if (isUpdate){
+            Map<String, Object> updates = new HashMap<>();
+            updates.put("name", name);
+            updates.put("phone", phone);
+            updates.put("email", email);
+            updates.put("address", address);
+
+            db.collection("Users").document(Id_update)
+                    .update(updates) .addOnSuccessListener(aVoid ->
+                            Toast.makeText(this, "Cập nhật thông tin thành công", Toast.LENGTH_SHORT).show())
+                    .addOnFailureListener(e ->
+                            Toast.makeText(this, "Lỗi cập nhật: " + e.getMessage(), Toast.LENGTH_SHORT).show());
+
+            finish();
+        }
+        else if(faceImagePath != null && !faceImagePath.trim().isEmpty()){
+            Toast.makeText(this, "Cập nhật sinh trắc học thành công", Toast.LENGTH_SHORT).show();
+            finish();
+        }
+        else{
+            Toast.makeText(this, "Không có thông tin thay đổi", Toast.LENGTH_SHORT).show();
+        }
+
+        if (faceImagePath != null && !faceImagePath.trim().isEmpty()) {
+            //Update faceID
+            final List<Float> faceEmbedding;
+            try {
+                faceEmbedding = extractFaceEmbedding(this, faceImagePath);
+            }
+            catch (IOException e) {
+                e.printStackTrace();
+                Toast.makeText(this, "Lỗi xử lý ảnh: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                return; // dừng lại nếu không tạo được embedding
+            }
+            Map<String, Object> faceID_update = new HashMap<>();
+            faceID_update.put("faceEmbedding", faceEmbedding);
+            faceID_update.put("time", FieldValue.serverTimestamp());
+
+            db.collection("faceId").document(Id_update)
+                    .update(faceID_update);
+        }
     }
 
 
@@ -314,6 +381,11 @@ public class customer_infor extends AppCompatActivity {
                 edtEmail.setText(email);
                 edtAddress.setText(address);
                 edtIdCard.setText(id);
+
+                old_name = name;
+                old_phone = phone;
+                old_email = email;
+                old_address = address;
             }
 
             @Override
@@ -338,14 +410,18 @@ public class customer_infor extends AppCompatActivity {
             throw new IOException("Không thể trích xuất embedding từ ảnh");
         }
 
-        List<Float> embedding = new ArrayList<>(embeddingArray.length);
-        for (float v : embeddingArray) {
-            embedding.add(v);
-        }
-        return embedding;
+        return normalizeEmbedding(embeddingArray);
     }
 
+    //chuẩn hóa vector
+    private List<Float> normalizeEmbedding(float[] embeddingArray) {
+        double norm = 0.0;
+        for (float v : embeddingArray) norm += v * v;
+        norm = Math.sqrt(norm);
 
-
+        List<Float> normalized = new ArrayList<>(embeddingArray.length);
+        for (float v : embeddingArray) normalized.add((float)(v / norm));
+        return normalized;
+    }
 
 }

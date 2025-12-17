@@ -78,6 +78,9 @@ public class transfer_confirm extends AppCompatActivity {
                                 setResult(RESULT_OK, resultIntent);
                                 finish();
                             }
+                            else{
+
+                            }
                         }
                     }
                 }
@@ -99,11 +102,19 @@ public class transfer_confirm extends AppCompatActivity {
 
         // Xử lý nút xác nhận
         btnConfirm.setOnClickListener(v -> {
-            Intent intent = new Intent(transfer_confirm.this, otp.class);
-            intent.putExtra("email",email);
-            intent.putExtra("type","transfer");
-            intent.putExtra("amount",amount);
-            launcher.launch(intent);
+            double amountDb = Double.parseDouble(amount);
+            if(amountDb > 2000000){
+                Intent intent = new Intent(transfer_confirm.this, ekyc.class);
+                intent.putExtra("type","confirm");
+                launcher.launch(intent);
+            }
+            else {
+                Intent intent = new Intent(transfer_confirm.this, otp.class);
+                intent.putExtra("email", email);
+                intent.putExtra("type", "transfer");
+                intent.putExtra("amount", amount);
+                launcher.launch(intent);
+            }
         });
 
 
