@@ -27,6 +27,9 @@
             android:name=".Activity.MovieBookingDetail"
             android:exported="false" />
         <activity
+            android:name=".bill_payment"
+            android:exported="false" />
+        <activity
             android:name=".Activity.MovieTicketBooking"
             android:exported="false" />
         <activity
