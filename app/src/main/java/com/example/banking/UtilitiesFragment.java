@@ -50,7 +50,21 @@ public class UtilitiesFragment extends Fragment {
             }
         });
 
+        binding.btnElectric.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                handleBillPaymentClick();
+            }
+        });
+
+
+
         return rootView;
+    }
+
+    private void handleBillPaymentClick() {
+        Intent intent = new Intent(getActivity(), bill_payment.class);
+        startActivity(intent);
     }
 
     private void handleFlightBookingClick() {

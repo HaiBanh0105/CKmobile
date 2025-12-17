@@ -10,6 +10,7 @@
     <color name="gray">#dddee0</color>
     <color name="black">#000000</color>
     <color name="white">#FFFFFF</color>
-    <color name="grey">#989797</color>
-
+    <color name="grey">#F0F0F0</color>
+    <color name="teal_200">#80CBC4</color>
+    <color name="highlight">#E0F7FA</color>
 </resources>

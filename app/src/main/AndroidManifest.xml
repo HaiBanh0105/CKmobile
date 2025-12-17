@@ -24,6 +24,9 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.Banking">
         <activity
+            android:name=".bill_payment"
+            android:exported="false" />
+        <activity
             android:name=".Activity.MovieTicketBooking"
             android:exported="false" />
         <activity

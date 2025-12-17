@@ -30,7 +30,7 @@ public class HomeFragment extends Fragment {
 
     private TextView tvaccountNumber, tvbalance, tvWelcome;
 
-    private ImageView btnToggleBalance, btnTransfer;
+    private ImageView btnToggleBalance, btnTransfer, btnTopUp, btnSavings;
 
     private boolean isBalanceVisible = false;
 
@@ -57,6 +57,8 @@ public class HomeFragment extends Fragment {
         tvbalance = root.findViewById(R.id.tvBalanceAmount);
         tvWelcome = root.findViewById(R.id.tvWelcome);
         btnToggleBalance = root.findViewById(R.id.btnToggleBalance);
+        btnTopUp = root.findViewById(R.id.btnTopUp);
+        btnSavings = root.findViewById(R.id.btnSavings);
         btnTransfer = root.findViewById(R.id.btnTransfer);
         rvRecentTransactions = root.findViewById(R.id.rvRecentTransactions);
         rvRecentTransactions.setLayoutManager(new LinearLayoutManager(requireContext()));
@@ -90,6 +92,15 @@ public class HomeFragment extends Fragment {
             startActivity(intent);
         });
 
+        btnSavings.setOnClickListener(v -> {
+            Intent intent = new Intent(requireContext(), open_savings.class);
+            startActivity(intent);
+        });
+
+        btnTopUp.setOnClickListener(v -> {
+            Intent intent = new Intent(requireContext(), top_up.class);
+            startActivity(intent);
+        });
         return root;
     }
 
@@ -99,15 +110,11 @@ public class HomeFragment extends Fragment {
             @Override
             public void onSuccess(String number, Double balance){
                 tvaccountNumber.setText("Số tài khoản: " + number);
-//                tvbalance.setText("********* VND");
-//                isBalanceVisible = false;
-                if (isBalanceVisible) {
+                if (!isBalanceVisible) {
                     // Ẩn số dư
                     tvbalance.setText("********* VND");
-                    btnToggleBalance.setImageResource(R.drawable.ic_visibility_off); // icon hiện
                 } else {
                     tvbalance.setText(String.format("%,.0f VND", balance));
-                    btnToggleBalance.setImageResource(R.drawable.ic_visibility); // icon ẩn
                 }
                 currentBalance = balance;
                 accountNumber = number;

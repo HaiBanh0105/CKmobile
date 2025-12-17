@@ -42,7 +42,7 @@ public class customer_infor extends AppCompatActivity {
 
     private String old_name, old_phone, old_email, old_address;
 
-    private ActivityResultLauncher<Intent> ekycLauncher;
+    private ActivityResultLauncher<Intent> ekycLauncher, updateUser_Launcher;
 
     String userId = SessionManager.getInstance().getUserId();
     FirebaseFirestore db = FirebaseFirestore.getInstance();
@@ -100,6 +100,14 @@ public class customer_infor extends AppCompatActivity {
                     }
                 });
 
+//        updateUser_Launcher = registerForActivityResult(
+//                new ActivityResultContracts.StartActivityForResult(),
+//                result -> {
+//                    if (result.getResultCode() == RESULT_OK && result.getData() != null) {
+//                        UpdateCustomer();
+//                    }
+//                });
+
         btnEkycScan.setOnClickListener(v -> {
             Intent intent = new Intent(this, ekyc.class);
             intent.putExtra("type","create");
@@ -115,7 +123,7 @@ public class customer_infor extends AppCompatActivity {
                 RegiterCustomer();
             }
             else{
-                UpdateCustomer();
+
             }
         });
     }
