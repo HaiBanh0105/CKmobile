@@ -10,5 +10,9 @@
         <item name="colorOnSurface">@color/black</item>
     </style>
 
+    <style name="CircleImage" parent="">
+        <item name="cornerSize">50%</item>
+    </style>
+
     <style name="Theme.Banking" parent="Base.Theme.Banking" />
 </resources>
