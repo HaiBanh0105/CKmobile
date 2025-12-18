@@ -12,7 +12,16 @@ public class ServiceBooking {
     private Double totalAmount;
     private String pnrCodeOrBookingRef;
     private Timestamp bookingTime;
+    private String transactionId;
     private Map<String, Object> serviceDetails; // Dùng Map để lưu chi tiết linh hoạt
+
+    public String getTransactionId() {
+        return transactionId;
+    }
+
+    public void setTransactionId(String transactionId) {
+        this.transactionId = transactionId;
+    }
 
     public ServiceBooking() {}
 

@@ -359,5 +359,7 @@
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintBottom_toBottomOf="parent" />
     </androidx.constraintlayout.widget.ConstraintLayout>
+    <include
+        layout="@layout/view_loading_overlay" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
