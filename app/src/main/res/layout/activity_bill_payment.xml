@@ -130,10 +130,10 @@
                         style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:hint="Mã khách hàng (VD: PE123...)">
+                        android:hint="Mã hóa đơn (VD: PE123...)">
 
                         <com.google.android.material.textfield.TextInputEditText
-                            android:id="@+id/edtCustomerCode"
+                            android:id="@+id/edtbillCode"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:inputType="textCapCharacters"
@@ -155,9 +155,9 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 app:cardCornerRadius="10dp"
-
+                android:visibility="gone"
                 android:layout_marginTop="8dp">
-                <!--                android:visibility="gone"-->
+
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -230,8 +230,8 @@
         android:textSize="16sp"
         android:textStyle="bold"
         android:backgroundTint="#00796B"
-
+        android:visibility="gone"
         app:layout_constraintBottom_toBottomOf="parent"/>
-    <!--        android:visibility="gone"-->
+
 
 </androidx.constraintlayout.widget.ConstraintLayout>

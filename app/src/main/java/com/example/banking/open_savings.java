@@ -38,7 +38,7 @@ public class open_savings extends AppCompatActivity {
 
     private TextView tvcheckingAmount,tvAppliedRate,tvEstimatedProfit,tvMaturityDate;
 
-    Double rate, profit;
+    Double rate, profit, Amount;
 
     Date maturityDate;
 
@@ -48,6 +48,8 @@ public class open_savings extends AppCompatActivity {
 
     String userId = SessionManager.getInstance().getUserId();
     String email = SessionManager.getInstance().getEmail();
+
+    int months = 0;
 
     private FirebaseFirestore db;
 
@@ -121,7 +123,7 @@ public class open_savings extends AppCompatActivity {
         amount.addTextChangedListener(new TextWatcher() {
             @Override
             public void afterTextChanged(Editable s) {
-                profit = rate/100 *  Double.parseDouble(amount.getText().toString().trim());
+                profit = (rate/100 *  Double.parseDouble(amount.getText().toString().trim()))/12 * months;
                 loadEstimatedProfit();
             }
 
@@ -140,6 +142,8 @@ public class open_savings extends AppCompatActivity {
             @Override
             public void afterTextChanged(Editable s) {
                 loadMaturityDate();
+                profit = (rate/100 *  Double.parseDouble(amount.getText().toString().trim()))/12 * months;
+                loadEstimatedProfit();
             }
 
             @Override
@@ -170,9 +174,8 @@ public class open_savings extends AppCompatActivity {
                     Toast.makeText(open_savings.this, "Tài khoản thanh toán không đủ, vui lòng nạp thêm tiền", Toast.LENGTH_SHORT).show();
                     return;
                 }
-                Intent intent = new Intent(open_savings.this, otp.class);
-                intent.putExtra("email",email);
-                intent.putExtra("type","saving");
+                Intent intent = new Intent(open_savings.this, ekyc.class);
+                intent.putExtra("type","confirm");
                 launcher.launch(intent);
             }
         });
@@ -227,7 +230,6 @@ public class open_savings extends AppCompatActivity {
             Calendar calendar = Calendar.getInstance();
 
             // Xác định số tháng từ kỳ hạn
-            int months = 0;
             if (termStr.contains("3 Tháng")) {
                 months = 3;
             } else if (termStr.contains("6 Tháng")) {
@@ -259,6 +261,7 @@ public class open_savings extends AppCompatActivity {
     }
 
 
+
     //Cập nhật lợi nhuận giao diện
     private void loadEstimatedProfit(){
         String formatProfit = String.format("%,.0f VND", profit);
@@ -275,14 +278,16 @@ public class open_savings extends AppCompatActivity {
         }
         // Xóa dấu phẩy hoặc chấm ngăn cách hàng nghìn
         String cleanAmount = rawAmount.replaceAll("[^\\d]", "");
-        double Amount = Double.parseDouble(cleanAmount);
+        Amount = Double.parseDouble(cleanAmount);
+        Calendar calendar = Calendar.getInstance();
+        calendar.add(Calendar.MONTH, 1); //hạn nhận là 1 tháng
 
 
         Map<String, Object> account = new HashMap<>();
         account.put("account_id", accountId);
         account.put("user_id", userId);
         account.put("account_type", "savings");
-        account.put("balance", Amount); // số dư mặc định = 0
+        account.put("balance", Amount);
         account.put("created_at", FieldValue.serverTimestamp());
         if(tvMaturityDate.getText() == "Không thời hạn"){
             account.put("maturity_date", "Không thời hạn");
@@ -290,6 +295,8 @@ public class open_savings extends AppCompatActivity {
             account.put("maturity_date", maturityDate);
             account.put("interest_rate", rate);
         }
+
+        account.put("period_day", calendar.getTime());
         account.put("status", "active");
 
         db.collection("Accounts").document(accountId).set(account)

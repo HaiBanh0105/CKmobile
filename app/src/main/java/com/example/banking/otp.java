@@ -71,20 +71,27 @@ public class otp extends AppCompatActivity {
             SendOtp();
         }
 
-
         tvResendOtp.setOnClickListener(v -> {
             SendOtp();
         });
 
         btnConfirmOtp.setOnClickListener(v -> {
-            String enteredOtp = pinView.getText().toString().trim();
+            if("transfer".equals(type)){
+                if(amount < 2000000){
+                    confirmPIN();
+                }
+                else{
+                    confirmOTP();
+                }
+            }
+            else{
                 if("pin".equals(type)){
                     confirmPIN();
                 }
                 else{
                     confirmOTP();
                 }
-
+            }
         });
     }
 

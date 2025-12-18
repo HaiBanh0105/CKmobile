@@ -2,7 +2,9 @@ package com.example.banking;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.widget.Button;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
@@ -14,12 +16,17 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
 
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
 
 public class saving_infor extends AppCompatActivity {
-    private TextView tvSavingsRate, tvSavingsProfit, tvMaturityDate;
+    private TextView tvSavingsRate, tvSavingsProfit, tvMaturityDate, tvPeriodDate;
+    double estProfit;
     String account_Id;
+    Date periodDate;
+
+    Button btnWithdraw;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -35,12 +42,27 @@ public class saving_infor extends AppCompatActivity {
         tvSavingsRate = findViewById(R.id.tvSavingsRate);
         tvSavingsProfit = findViewById(R.id.tvSavingsProfit);
         tvMaturityDate = findViewById(R.id.tvMaturityDate);
+        tvPeriodDate = findViewById(R.id.tvPeriodDate);
+        btnWithdraw = findViewById(R.id.btnWithdraw);
+
 
         // Nhận dữ liệu từ Intent
         Intent intent = getIntent();
         account_Id = intent.getStringExtra("account_id");
 
         loadSavingInfor(account_Id);
+
+        btnWithdraw.setOnClickListener(v -> {
+            Calendar calendar = Calendar.getInstance();
+            Date today = calendar.getTime();
+
+            if(today.before(periodDate)){
+                Toast.makeText(this, "Chưa đến hạn rút tiền!", Toast.LENGTH_SHORT).show();
+            }
+            else{
+
+            }
+        });
 
     }
 
@@ -53,7 +75,10 @@ public class saving_infor extends AppCompatActivity {
                         // Lấy dữ liệu từ document
                         Double balance = doc.getDouble("balance");
                         String maturityDate = doc.get("maturity_date") != null ? doc.get("maturity_date").toString() : "";
+                        periodDate = doc.getDate("period_day");
 
+                        SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy", Locale.getDefault());
+                        tvPeriodDate.setText(sdf.format(periodDate));
                         if ("Không thời hạn".equals(maturityDate)) {
                             // Hiển thị ngày đáo hạn
                             tvMaturityDate.setText(maturityDate);
@@ -70,7 +95,7 @@ public class saving_infor extends AppCompatActivity {
 
                                             // Tính lợi nhuận tạm tính
                                             if (balance != null && latestRate != null) {
-                                                double estProfit = balance * latestRate / 100;
+                                                estProfit = (balance * latestRate / 100) / 12;
                                                 tvSavingsProfit.setText(String.format("+ %,.0f VND", estProfit));
                                             }
                                         }
@@ -80,7 +105,6 @@ public class saving_infor extends AppCompatActivity {
                         } else {
                             Date date = doc.getDate("maturity_date");
                             if (date != null) {
-                                SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy", Locale.getDefault());
                                 tvMaturityDate.setText(sdf.format(date));
                             }
                             // Nếu có kỳ hạn: lấy rate từ document
@@ -88,7 +112,7 @@ public class saving_infor extends AppCompatActivity {
                             if (rate != null) {
                                 tvSavingsRate.setText(rate + "% / năm");
                                 if (balance != null) {
-                                    double estProfit = balance * rate / 100;
+                                    estProfit = (balance * rate / 100) / 12;
                                     tvSavingsProfit.setText(String.format("+ %,.0f VND", estProfit));
                                 }
                             }

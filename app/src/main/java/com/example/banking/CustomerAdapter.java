@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -39,7 +40,14 @@ public class CustomerAdapter extends RecyclerView.Adapter<CustomerAdapter.Custom
         holder.itemView.setOnClickListener(v -> {
             Context context = v.getContext();
             Intent intent = new Intent(context, customer_infor.class);
-            intent.putExtra("user_id", customer.getCustomerId());
+            intent.putExtra("customer_ID", customer.getCustomerId());
+            context.startActivity(intent);
+        });
+
+        holder.imgAddMortgage.setOnClickListener(v -> {
+            Context context = v.getContext();
+            Intent intent = new Intent(context, open_savings.class);
+            intent.putExtra("customer_ID", customer.getCustomerId());
             context.startActivity(intent);
         });
     }
@@ -51,11 +59,13 @@ public class CustomerAdapter extends RecyclerView.Adapter<CustomerAdapter.Custom
 
     public static class CustomerViewHolder extends RecyclerView.ViewHolder {
         TextView tvCustomerName, tvCustomerId;
+        ImageView imgAddMortgage;
 
         public CustomerViewHolder(@NonNull View itemView) {
             super(itemView);
             tvCustomerName = itemView.findViewById(R.id.tvCustomerName);
             tvCustomerId = itemView.findViewById(R.id.tvCustomerId);
+            imgAddMortgage = itemView.findViewById(R.id.imgAddMortgage);
         }
     }
 }
