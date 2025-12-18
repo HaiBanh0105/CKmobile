@@ -30,7 +30,7 @@ public class HomeFragment extends Fragment {
 
     private TextView tvaccountNumber, tvbalance, tvWelcome;
 
-    private ImageView btnToggleBalance, btnTransfer, btnTopUp, btnSavings;
+    private ImageView btnToggleBalance, btnTransfer, btnTopUp, btnSavings,btnPayBill;
 
     private boolean isBalanceVisible = false;
 
@@ -60,6 +60,7 @@ public class HomeFragment extends Fragment {
         btnTopUp = root.findViewById(R.id.btnTopUp);
         btnSavings = root.findViewById(R.id.btnSavings);
         btnTransfer = root.findViewById(R.id.btnTransfer);
+        btnPayBill = root.findViewById(R.id.btnPayBill);
         rvRecentTransactions = root.findViewById(R.id.rvRecentTransactions);
         rvRecentTransactions.setLayoutManager(new LinearLayoutManager(requireContext()));
         adapter = new TransactionAdapter(transactionList);
@@ -99,6 +100,10 @@ public class HomeFragment extends Fragment {
 
         btnTopUp.setOnClickListener(v -> {
             Intent intent = new Intent(requireContext(), top_up.class);
+            startActivity(intent);
+        });
+        btnPayBill.setOnClickListener(v -> {
+            Intent intent = new Intent(requireContext(), bill_payment.class);
             startActivity(intent);
         });
         return root;

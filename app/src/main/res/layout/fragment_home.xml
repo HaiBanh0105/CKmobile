@@ -145,7 +145,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="4dp"
-                        android:text="Thanh toán HĐ"/>
+                        android:text="Thanh toán"/>
                 </LinearLayout>
 
                 <LinearLayout
@@ -166,7 +166,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="4dp"
-                        android:text="Nạp tiền ĐT"/>
+                        android:text="Nạp tiền"/>
                 </LinearLayout>
 
                 <LinearLayout
