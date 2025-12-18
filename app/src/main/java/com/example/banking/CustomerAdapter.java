@@ -46,8 +46,9 @@ public class CustomerAdapter extends RecyclerView.Adapter<CustomerAdapter.Custom
 
         holder.imgAddMortgage.setOnClickListener(v -> {
             Context context = v.getContext();
-            Intent intent = new Intent(context, open_savings.class);
+            Intent intent = new Intent(context, open_mortgage.class);
             intent.putExtra("customer_ID", customer.getCustomerId());
+            intent.putExtra("email", customer.getEmail());
             context.startActivity(intent);
         });
     }

@@ -14,9 +14,6 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.banking.model.Customer;
-import com.example.banking.viewHolder.CustomerViewHolder;
-import com.firebase.ui.firestore.FirestoreRecyclerAdapter;
-import com.firebase.ui.firestore.FirestoreRecyclerOptions;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -76,7 +73,8 @@ public class staff_home extends Fragment {
                         // ánh xạ sang model Customer
                         Customer customer = new Customer(
                                 doc.getString("user_id"),   // hoặc doc.getId() nếu bạn dùng id document
-                                doc.getString("name")
+                                doc.getString("name"),
+                                doc.getString("email")
                         );
                         customerList.add(customer);
                     }

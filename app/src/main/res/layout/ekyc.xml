@@ -44,7 +44,7 @@
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Đảm bảo đủ ánh sáng và không đeo kính"
+        android:text="Giữ im trong 3s"
         android:textColor="#DDDDDD"
         android:textSize="14sp"
         android:shadowColor="#000000"
@@ -56,17 +56,17 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"/>
 
-    <com.google.android.material.button.MaterialButton
-        android:id="@+id/btnFinishEkyc"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:text="Hoàn tất xác minh"
-        android:padding="14dp"
-        android:layout_margin="24dp"
-        app:cornerRadius="24dp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
+<!--    <com.google.android.material.button.MaterialButton-->
+<!--        android:id="@+id/btnFinishEkyc"-->
+<!--        android:layout_width="0dp"-->
+<!--        android:layout_height="wrap_content"-->
+<!--        android:text="Hoàn tất xác minh"-->
+<!--        android:padding="14dp"-->
+<!--        android:layout_margin="24dp"-->
+<!--        app:cornerRadius="24dp"-->
+<!--        app:layout_constraintBottom_toBottomOf="parent"-->
+<!--        app:layout_constraintStart_toStartOf="parent"-->
+<!--        app:layout_constraintEnd_toEndOf="parent" />-->
 
     <ImageButton
         android:id="@+id/btnBack"

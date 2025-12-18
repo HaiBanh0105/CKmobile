@@ -24,6 +24,9 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.Banking">
         <activity
+            android:name=".open_mortgage"
+            android:exported="false" />
+        <activity
             android:name=".Activity.MovieBookingDetail"
             android:exported="false" />
         <activity

@@ -8,6 +8,7 @@ android {
     compileSdk = 36
     buildFeatures {
         viewBinding = true
+        mlModelBinding = true
     }
     defaultConfig {
         applicationId = "com.example.banking"
@@ -40,6 +41,7 @@ android {
             pickFirsts.add("META-INF/NOTICE.md")
         }
     }
+
 }
 
 dependencies {
