@@ -42,6 +42,8 @@ public class customer_infor extends AppCompatActivity {
 
     private String old_name, old_phone, old_email, old_address;
 
+    private String name, phone, email, address, idCard;
+
     private ActivityResultLauncher<Intent> ekycLauncher, updateUser_Launcher;
 
     String userId = SessionManager.getInstance().getUserId();
@@ -67,7 +69,7 @@ public class customer_infor extends AppCompatActivity {
         toolbar = findViewById(R.id.toolbar);
 
         String role = getIntent().getStringExtra("role");
-        customer_ID = getIntent().getStringExtra("user_id");
+        customer_ID = getIntent().getStringExtra("customer_ID");
 
         //Đăng ký tài khoản
         if("customer_register".equalsIgnoreCase(role)){
@@ -80,13 +82,13 @@ public class customer_infor extends AppCompatActivity {
             //Nhân viên sửa
             if (customer_ID != null && !customer_ID.isEmpty()) {
                 toolbar.setTitle("Thông tin khách hàng");
-                btnSave.setText("Cập nhật thông tin");
+                btnSave.setText("Cập nhật thông tin khách hàng");
                 loadCustomerInfor(customer_ID);
             }
             //Khách hàng tự sửa
             else {
                 toolbar.setTitle("Thông tin tài khoản");
-                btnSave.setText("Cập nhật thông tin");
+                btnSave.setText("Cập nhật thông tin cá nhân");
                 loadCustomerInfor(userId);
             }
         }
@@ -100,13 +102,13 @@ public class customer_infor extends AppCompatActivity {
                     }
                 });
 
-//        updateUser_Launcher = registerForActivityResult(
-//                new ActivityResultContracts.StartActivityForResult(),
-//                result -> {
-//                    if (result.getResultCode() == RESULT_OK && result.getData() != null) {
-//                        UpdateCustomer();
-//                    }
-//                });
+        updateUser_Launcher = registerForActivityResult(
+                new ActivityResultContracts.StartActivityForResult(),
+                result -> {
+                    if (result.getResultCode() == RESULT_OK && result.getData() != null) {
+                        UpdateCustomer();
+                    }
+                });
 
         btnEkycScan.setOnClickListener(v -> {
             Intent intent = new Intent(this, ekyc.class);
@@ -123,17 +125,26 @@ public class customer_infor extends AppCompatActivity {
                 RegiterCustomer();
             }
             else{
-
+                Boolean isUpdate = isUpdate();
+                if(!isUpdate){
+                    Toast.makeText(this, "Không có thông tin thay đổi", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+                else{
+                    Intent intent = new Intent(customer_infor.this, otp.class);
+                    intent.putExtra("type", "pin");
+                    updateUser_Launcher.launch(intent);
+                }
             }
         });
     }
 
     private void RegiterCustomer() {
-        String name = edtFullName.getText().toString().trim();
-        String phone = edtPhoneNumber.getText().toString().trim();
-        String email = edtEmail.getText().toString().trim();
-        String address = edtAddress.getText().toString().trim();
-        String idCard = edtIdCard.getText().toString().trim();
+        name = edtFullName.getText().toString().trim();
+        phone = edtPhoneNumber.getText().toString().trim();
+        email = edtEmail.getText().toString().trim();
+        address = edtAddress.getText().toString().trim();
+        idCard = edtIdCard.getText().toString().trim();
 
 
         // Kiểm tra dữ liệu bắt buộc
@@ -238,16 +249,12 @@ public class customer_infor extends AppCompatActivity {
     }
 
     private  void UpdateCustomer(){
-        String name = edtFullName.getText().toString().trim();
-        String phone = edtPhoneNumber.getText().toString().trim();
-        String email = edtEmail.getText().toString().trim();
-        String address = edtAddress.getText().toString().trim();
-        Boolean isUpdate = false;
+        name = edtFullName.getText().toString().trim();
+        phone = edtPhoneNumber.getText().toString().trim();
+        email = edtEmail.getText().toString().trim();
+        address = edtAddress.getText().toString().trim();
+        idCard = edtIdCard.getText().toString().trim();
 
-        if(!name.equalsIgnoreCase(old_name) || !phone.equalsIgnoreCase(old_phone) ||
-            !email.equalsIgnoreCase(old_email) || !address.equalsIgnoreCase(old_address)){
-            isUpdate = true;
-        }
         String Id_update;
         if(customer_ID != null && !customer_ID.isEmpty()){
             Id_update = customer_ID;
@@ -255,7 +262,7 @@ public class customer_infor extends AppCompatActivity {
         else{
             Id_update = userId;
         }
-
+        Boolean isUpdate = isUpdate();
         if (isUpdate){
             Map<String, Object> updates = new HashMap<>();
             updates.put("name", name);
@@ -299,6 +306,19 @@ public class customer_infor extends AppCompatActivity {
         }
     }
 
+    private Boolean isUpdate(){
+        name = edtFullName.getText().toString().trim();
+        phone = edtPhoneNumber.getText().toString().trim();
+        email = edtEmail.getText().toString().trim();
+        address = edtAddress.getText().toString().trim();
+        idCard = edtIdCard.getText().toString().trim();
+
+        if(!name.equalsIgnoreCase(old_name) || !phone.equalsIgnoreCase(old_phone) ||
+                !email.equalsIgnoreCase(old_email) || !address.equalsIgnoreCase(old_address)){
+            return true;
+        }
+        return  false;
+    }
 
     //Tạo tài khoản checking
     private void createDefaultCheckingAccount(String userId) {
