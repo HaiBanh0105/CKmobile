@@ -18,8 +18,10 @@ import androidx.core.view.WindowInsetsCompat;
 import com.example.banking.R;
 import com.example.banking.SessionManager;
 import com.example.banking.databinding.ActivityFlightConfirmationBinding;
+import com.example.banking.model.AccountTransaction;
 import com.example.banking.model.Flight;
 import com.example.banking.model.Passenger;
+import com.example.banking.model.ServiceBooking;
 import com.example.banking.util.SimpleTextWatcher;
 import com.google.android.material.datepicker.MaterialDatePicker;
 import com.google.android.material.textfield.TextInputEditText;
@@ -30,10 +32,12 @@ import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 
-public class FlightConfirmation extends AppCompatActivity {
+public class FlightConfirmation extends BaseSecureActivity {
 
     private ActivityFlightConfirmationBinding binding;
     private FirebaseFirestore db;
@@ -51,6 +55,7 @@ public class FlightConfirmation extends AppCompatActivity {
 
         binding = ActivityFlightConfirmationBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
+        initLoading(binding.getRoot());
 
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
@@ -134,11 +139,88 @@ public class FlightConfirmation extends AppCompatActivity {
                     return;
                 }
             }
+            String phone = binding.edtPhone.getText().toString().trim();
+            String email = binding.edtEmail.getText().toString().trim();
 
-            // 👉 passengerList đã đầy đủ
-            toast("Dữ liệu hợp lệ, sẵn sàng thanh toán");
+            if (phone.isEmpty() || email.isEmpty()) {
+                toast("Vui lòng nhập đầy đủ SĐT và Email");
+                return;
+            }
+            showLoading(true);
+            checkBalanceAndProceed(calcTotalPrice());
         });
     }
+
+    private void checkBalanceAndProceed(double totalAmount) {
+        String userId = SessionManager.getInstance().getUserId();
+
+        db.collection("Accounts")
+                .whereEqualTo("user_id", userId)
+                .whereEqualTo("account_type", "checking")
+                .limit(1)
+                .get()
+                .addOnSuccessListener(snapshot -> {
+                    if (snapshot.isEmpty()) {
+                        toast("Không tìm thấy tài khoản thanh toán");
+                        return;
+                    }
+
+                    Double balance = snapshot.getDocuments()
+                            .get(0)
+                            .getDouble("balance");
+
+                    if (balance == null || balance < totalAmount) {
+                        toast("Số dư không đủ để thanh toán");
+                        return;
+                    }
+                    createPendingTransaction(totalAmount);
+                })
+                .addOnFailureListener(e -> {
+                            showLoading(false);
+                            toast("Lỗi kiểm tra số dư");
+                        }
+                );
+    }
+
+    private void createPendingTransaction(double totalAmount) {
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        String userId = SessionManager.getInstance().getUserId();
+
+        String transactionId = db.collection("AccountTransactions").document().getId();
+
+        AccountTransaction tx = new AccountTransaction();
+        tx.setTransactionId(transactionId);
+        tx.setUserId(userId);
+        tx.setType("SERVICE_PAYMENT");
+        tx.setCategory("FLIGHT");
+        tx.setAmount(totalAmount);
+        tx.setReceiverName(selectedFlight.getAirline());
+        tx.setReceiverAccountNumber(null);
+        tx.setReceiverBankName(null);
+        tx.setDescription("Thanh toán vé máy bay "+ selectedFlight.getOrigin() +" - "+ selectedFlight.getDestination());
+        tx.setTimestamp(Timestamp.now());
+        tx.setStatus("PENDING");
+
+        // 🔐 rule bảo mật – không cần truyền intent
+        tx.setBiometricRequired(totalAmount >= 5_000_000);
+
+        db.collection("AccountTransactions")
+                .document(transactionId)
+                .set(tx)
+                .addOnSuccessListener(unused -> {
+                    createServiceBooking(transactionId, totalAmount);
+                    showLoading(false);
+                    Intent intent = new Intent(this, AccountTransactionActivity.class);
+                    intent.putExtra("TRANSACTION_ID", transactionId);
+                    startActivity(intent);
+                })
+                .addOnFailureListener(e -> {
+                            showLoading(false);
+                            Toast.makeText(this, "Lỗi tạo giao dịch", Toast.LENGTH_SHORT).show();
+                        }
+                );
+    }
+
 
     // ================= PASSENGERS =================
     private void addPassengers() {
@@ -248,4 +330,39 @@ public class FlightConfirmation extends AppCompatActivity {
             binding.txtInfantPrice.setVisibility(View.GONE);
         }
     }
+
+    private void createServiceBooking(String transactionId, double totalAmount) {
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        String bookingId = db.collection("ServiceBookings").document().getId();
+
+        ServiceBooking booking = new ServiceBooking();
+        booking.setBookingId(bookingId);
+        booking.setUserId(SessionManager.getInstance().getUserId());
+        booking.setServiceType("FLIGHT");
+        booking.setStatus("PENDING_PAYMENT");
+        booking.setTotalAmount(totalAmount);
+        booking.setBookingTime(Timestamp.now());
+        booking.setTransactionId(transactionId);
+
+        // 🎫 booking ref tạm (sau khi thanh toán mới có PNR thật)
+        booking.setPnrCodeOrBookingRef("TMP-" + bookingId.substring(0, 6));
+
+        // 🔹 Chi tiết flight + passengers
+        Map<String, Object> details = new HashMap<>();
+        details.put("flightId", selectedFlight.getId());
+        details.put("flightNumber", selectedFlight.getFlightNumber());
+        details.put("airline", selectedFlight.getAirline());
+        details.put("seatClass", selectedFlight.getSelectedSeatClassKey());
+        details.put("adult", adult);
+        details.put("child", child);
+        details.put("infant", infant);
+        details.put("passengers", passengerList);
+
+        booking.setServiceDetails(details);
+
+        db.collection("ServiceBookings")
+                .document(bookingId)
+                .set(booking);
+    }
+
 }

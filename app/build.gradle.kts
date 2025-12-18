@@ -4,6 +4,9 @@ plugins {
 }
 
 android {
+    androidResources {
+        noCompress += "tflite"
+    }
     namespace = "com.example.banking"
     compileSdk = 36
     buildFeatures {

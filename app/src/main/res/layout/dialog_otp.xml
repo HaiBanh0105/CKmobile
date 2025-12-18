@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="20dp"
+    android:background="@drawable/rounded_lg_white_bg"
+    android:gravity="center">
+
+    <TextView
+        android:id="@+id/tvOtpTitle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Xác thực OTP"
+        android:textSize="18sp"
+        android:textStyle="bold"
+        android:textColor="#2D3436" />
+
+    <TextView
+        android:id="@+id/tvMessage"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Mã đã được gửi đến email của bạn"
+        android:textSize="14sp"
+        android:layout_marginTop="8dp"
+        android:textColor="#636E72"
+        android:gravity="center" />
+
+    <LinearLayout
+        android:id="@+id/layoutOtpInputs"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="24dp"
+        android:orientation="horizontal"
+        android:weightSum="6"
+        android:gravity="center">
+
+        <!-- layout_width="0dp" và layout_weight="1" sẽ ép 6 ô chia đều màn hình -->
+        <EditText android:id="@+id/otp1" style="@style/OtpStyle" android:layout_weight="1" android:layout_width="0dp" android:contentDescription="Mã OTP số 1" />
+        <EditText android:id="@+id/otp2" style="@style/OtpStyle" android:layout_weight="1" android:layout_width="0dp" android:contentDescription="Mã OTP số 2" />
+        <EditText android:id="@+id/otp3" style="@style/OtpStyle" android:layout_weight="1" android:layout_width="0dp" android:contentDescription="Mã OTP số 3" />
+        <EditText android:id="@+id/otp4" style="@style/OtpStyle" android:layout_weight="1" android:layout_width="0dp" android:contentDescription="Mã OTP số 4" />
+        <EditText android:id="@+id/otp5" style="@style/OtpStyle" android:layout_weight="1" android:layout_width="0dp" android:contentDescription="Mã OTP số 5" />
+        <EditText android:id="@+id/otp6" style="@style/OtpStyle" android:layout_weight="1" android:layout_width="0dp" android:contentDescription="Mã OTP số 6" />
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/btnResend"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="24dp"
+        android:text="Gửi lại mã (60s)"
+        android:textColor="#2980B9"
+        android:textStyle="bold"
+        android:padding="10dp"
+        android:clickable="true"
+        android:focusable="true"
+        android:background="?attr/selectableItemBackground" />
+</LinearLayout>

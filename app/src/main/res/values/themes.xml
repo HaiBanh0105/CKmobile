@@ -14,5 +14,23 @@
         <item name="cornerSize">50%</item>
     </style>
 
+    <!-- Style cho ô nhập OTP -->
+    <style name="OtpStyle">
+        <!-- Chiều rộng đặt là 0dp vì đã dùng layout_weight ở file XML -->
+        <item name="android:layout_width">0dp</item>
+        <item name="android:layout_height">56dp</item>
+        <item name="android:layout_margin">4dp</item>
+        <item name="android:background">@drawable/bg_otp_box</item>
+        <item name="android:gravity">center</item>
+        <item name="android:inputType">number</item>
+        <item name="android:maxLength">6</item>
+        <item name="android:textColor">#2D3436</item>
+        <item name="android:textSize">22sp</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:maxLines">1</item>
+        <item name="android:hint"></item>
+    </style>
+
+
     <style name="Theme.Banking" parent="Base.Theme.Banking" />
 </resources>
