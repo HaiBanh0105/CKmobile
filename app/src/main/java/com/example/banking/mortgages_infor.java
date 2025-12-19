@@ -2,6 +2,8 @@ package com.example.banking;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
@@ -9,8 +11,16 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
+import com.google.firebase.firestore.FirebaseFirestore;
+
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Locale;
+
 public class mortgages_infor extends AppCompatActivity {
     private String account_id;
+
+    private TextView tvMortgageRate, tvMortgagePrincipal, tvNextDueDate,  tvMonthlyPayment;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -26,63 +36,36 @@ public class mortgages_infor extends AppCompatActivity {
         Intent getIntent = getIntent();
         account_id = getIntent.getStringExtra("account_id");
 
+        tvMortgageRate = findViewById(R.id.tvMortgageRate);
+        tvMortgagePrincipal = findViewById(R.id.tvMortgagePrincipal);
+        tvNextDueDate = findViewById(R.id.tvNextDueDate);
+        tvMonthlyPayment = findViewById(R.id.tvMonthlyPayment);
+
+        loadMortgageInfor(account_id);
+
     }
 
-//    private void loadMortgageInfor(String accountId) {
-//        FirebaseFirestore db = FirebaseFirestore.getInstance();
-//
-//        db.collection("Accounts").document(accountId).get()
-//                .addOnSuccessListener(doc -> {
-//                    if (doc.exists()) {
-//                        // Lấy dữ liệu từ document
-//                        Double balance = doc.getDouble("balance");
-//                        String maturityDate = doc.get("maturity_date") != null ? doc.get("maturity_date").toString() : "";
-//                        periodDate = doc.getDate("period_day");
-//
-//                        SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy", Locale.getDefault());
-//                        tvPeriodDate.setText(sdf.format(periodDate));
-//                        if ("Không thời hạn".equals(maturityDate)) {
-//                            // Hiển thị ngày đáo hạn
-//                            tvMaturityDate.setText(maturityDate);
-//                            // Truy vấn InterestRates để lấy rate mới nhất
-//                            db.collection("InterestRates")
-//                                    .whereEqualTo("interest_type", "savings")
-//                                    .orderBy("created_at", Query.Direction.DESCENDING)
-//                                    .limit(1)
-//                                    .get()
-//                                    .addOnSuccessListener(querySnapshots -> {
-//                                        if (!querySnapshots.isEmpty()) {
-//                                            Double latestRate = querySnapshots.getDocuments().get(0).getDouble("interest_rate");
-//                                            tvSavingsRate.setText(latestRate + "% / năm");
-//
-//                                            // Tính lợi nhuận tạm tính
-//                                            if (balance != null && latestRate != null) {
-//                                                estProfit = (balance * latestRate / 100) / 12;
-//                                                tvSavingsProfit.setText(String.format("+ %,.0f VND", estProfit));
-//                                            }
-//                                        }
-//                                    })
-//                                    .addOnFailureListener(e ->
-//                                            tvSavingsRate.setText("Lỗi lấy lãi suất: " + e.getMessage()));
-//                        } else {
-//                            Date date = doc.getDate("maturity_date");
-//                            if (date != null) {
-//                                tvMaturityDate.setText(sdf.format(date));
-//                            }
-//                            // Nếu có kỳ hạn: lấy rate từ document
-//                            Double rate = doc.getDouble("interest_rate");
-//                            if (rate != null) {
-//                                tvSavingsRate.setText(rate + "% / năm");
-//                                if (balance != null) {
-//                                    estProfit = (balance * rate / 100) / 12;
-//                                    tvSavingsProfit.setText(String.format("+ %,.0f VND", estProfit));
-//                                }
-//                            }
-//                        }
-//
-//                    }
-//                })
-//                .addOnFailureListener(e ->
-//                        tvSavingsRate.setText("Lỗi tải dữ liệu: " + e.getMessage()));
-//    }
+    private void loadMortgageInfor(String accountId) {
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+
+        db.collection("Accounts").document(accountId).get()
+                .addOnSuccessListener(doc -> {
+                    if (doc.exists()) {
+                        // Lấy dữ liệu từ document
+                        SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy", Locale.getDefault());
+                        Double remaining_debt = doc.getDouble("remaining_debt");
+                        Double monthlyPayment = doc.getDouble("monthlyPayment");
+                        Double interest_rate = doc.getDouble("interest_rate");
+                        Date period_day = doc.getDate("period_day");
+
+
+                        tvMortgageRate.setText(interest_rate + "% / năm");
+                        tvMortgagePrincipal.setText(String.format("%,.0f VND", remaining_debt));
+                        tvNextDueDate.setText(sdf.format(period_day));
+                        tvMonthlyPayment.setText(String.format("%,.0f VND", monthlyPayment));
+                    }
+                })
+                .addOnFailureListener(e ->
+                        Toast.makeText(this, "Lỗi tải dữ liệu: " + e.getMessage(), Toast.LENGTH_SHORT).show());
+    }
 }
