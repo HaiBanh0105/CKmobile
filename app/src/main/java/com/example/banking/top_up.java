@@ -1,11 +1,15 @@
 package com.example.banking;
 
 import android.content.Intent;
+import android.database.Cursor;
+import android.net.Uri;
 import android.os.Bundle;
+import android.provider.ContactsContract;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -26,6 +30,7 @@ import java.util.List;
 
 public class top_up extends AppCompatActivity {
     private TextInputEditText edtPhone;
+    ImageView btnPickContact;
     private TextView tvCarrier,tvBalance;
     private Button btnContinue;
 
@@ -34,6 +39,9 @@ public class top_up extends AppCompatActivity {
 
     String phone;
     String userId = SessionManager.getInstance().getUserId();
+
+    String User_phone = SessionManager.getInstance().getPhone();
+
 
     String email = SessionManager.getInstance().getEmail();
     double currentBalance, selectedAmount = 0;
@@ -55,6 +63,7 @@ public class top_up extends AppCompatActivity {
         tvCarrier = findViewById(R.id.tvCarrier);
         btnContinue = findViewById(R.id.btnContinue);
         tvBalance = findViewById(R.id.tvBalance);
+        btnPickContact = findViewById(R.id.btnPickContact);
 
         loadCheckingInfor(userId);
 
@@ -91,7 +100,11 @@ public class top_up extends AppCompatActivity {
 
         btnContinue.setOnClickListener(v -> {
             String phone = edtPhone.getText().toString();
-            if (phone.length() < 9) {
+            if(phone.isEmpty()){
+                edtPhone.setText(User_phone);
+                return;
+            }
+            else if (phone.length() < 9) {
                 Toast.makeText(this, "Vui lòng nhập số điện thoại hợp lệ", Toast.LENGTH_SHORT).show();
                 return;
             }
@@ -110,6 +123,11 @@ public class top_up extends AppCompatActivity {
             intent.putExtra("type","pin");
             launcher.launch(intent);
 
+        });
+
+        btnPickContact.setOnClickListener(v -> {
+            Intent intent = new Intent(Intent.ACTION_PICK, android.provider.ContactsContract.CommonDataKinds.Phone.CONTENT_URI);
+            startActivityForResult(intent, 200);
         });
     }
 
@@ -185,6 +203,26 @@ public class top_up extends AppCompatActivity {
             }
         });
     }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if (requestCode == 200 && resultCode == RESULT_OK) {
+            Uri contactUri = data.getData();
+            String[] projection = {ContactsContract.CommonDataKinds.Phone.NUMBER};
+
+            Cursor cursor = getContentResolver().query(contactUri, projection, null, null, null);
+            if (cursor != null && cursor.moveToFirst()) {
+                int numberIndex = cursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER);
+                String phoneNumber = cursor.getString(numberIndex);
+                cursor.close();
+
+                edtPhone.setText(phoneNumber);
+            }
+        }
+    }
+
 
     @Override
     protected void onStop() {
