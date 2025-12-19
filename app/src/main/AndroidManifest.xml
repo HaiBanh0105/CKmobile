@@ -111,7 +111,7 @@
             android:name=".transfer_confirm"
             android:exported="false" />
         <activity
-            android:name=".transfer"
+            android:name=".Activity.transfer"
             android:exported="false" />
         <activity
             android:name=".MainActivity"

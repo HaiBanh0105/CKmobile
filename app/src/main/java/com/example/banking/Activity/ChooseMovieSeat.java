@@ -211,7 +211,7 @@ public class ChooseMovieSeat extends BaseSecureActivity {
         AccountTransaction tx = new AccountTransaction();
         tx.setTransactionId(transactionId);
         tx.setUserId(userId);
-        tx.setType("SERVICE_PAYMENT");
+        tx.setType("SERVICE");
         tx.setCategory("MOVIE");
         tx.setAmount(totalAmount);
         tx.setReceiverName(cinema.getName());

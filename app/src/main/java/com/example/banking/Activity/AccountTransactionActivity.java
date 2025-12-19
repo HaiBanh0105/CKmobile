@@ -9,12 +9,11 @@ import android.widget.Toast;
 import androidx.activity.EdgeToEdge;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
-import com.example.banking.Account;
+import com.example.banking.model.Account;
 import com.example.banking.Fragment.OtpDialogFragment;
 import com.example.banking.R; // Ensure R is imported correctly
 import com.example.banking.SessionManager;
@@ -31,6 +30,8 @@ import com.google.firebase.firestore.FirebaseFirestoreException;
 import java.text.NumberFormat;
 import java.util.Locale;
 
+import javax.annotation.Nullable;
+
 public class AccountTransactionActivity extends BaseSecureActivity  {
 
     private ActivityAccountTransactionBinding binding;
@@ -45,9 +46,7 @@ public class AccountTransactionActivity extends BaseSecureActivity  {
         GO_HOME
     }
     private ConfirmAction confirmAction = ConfirmAction.CONFIRM;
-
-
-    private boolean isSecurityLaunched = false; // Cờ tránh gọi luồng bảo mật nhiều lần
+    private final String userId = SessionManager.getInstance().getUserId();
 
     private ActivityResultLauncher<Intent> ekycLauncher;
 
@@ -90,13 +89,31 @@ public class AccountTransactionActivity extends BaseSecureActivity  {
                         if (data != null) {
                             String value = data.getStringExtra("result_key");
                             if(value.equalsIgnoreCase("OK")){
-                                showOtpDialog(); // Sau eKYC là đến bước OTP
+                                db.collection("Users")
+                                        .document(userId)
+                                        .update(
+                                                "pin_fail_count", 0,
+                                                "otp_fail_count", 0,
+                                                "ekyc_required", false
+                                        )
+                                        .addOnSuccessListener(aVoid -> {
+                                            // Reset thành công, tiếp tục bước OTP
+                                            showLoading(false);
+                                            showOtpDialog();
+                                        })
+                                        .addOnFailureListener(e -> {
+                                            Toast.makeText(this, "Không thể reset số lần thất bại", Toast.LENGTH_SHORT).show();
+                                            // Vẫn show OTP để user thử tiếp
+                                            showLoading(false);
+                                            showOtpDialog();
+                                        });
                             } else {
                                 failTransaction("Xác thực khuôn mặt thất bại hoặc bị hủy");
                             }
                         }
                     } else {
-                        failTransaction("Xác thực khuôn mặt thất bại hoặc bị hủy");
+                        showLoading(false);
+                        Toast.makeText(this, "Xác thực khuôn mặt thất bại", Toast.LENGTH_SHORT).show();
                     }
                 });
     }
@@ -221,7 +238,8 @@ public class AccountTransactionActivity extends BaseSecureActivity  {
         if (type == null) return "Giao dịch";
         switch (type) {
             case "TRANSFER": return "Chuyển khoản";
-            case "PAYMENT": return "Thanh toán";
+            case "SERVICE": return "Thanh toán dịch vụ";
+            case "BILL": return "Thanh toán hoá đơn";
             default: return "Giao dịch";
         }
     }
@@ -229,14 +247,39 @@ public class AccountTransactionActivity extends BaseSecureActivity  {
     // ================= SECURITY FLOW =================
     private void handleSecurity() {
         showLoading(true);
-        if (Boolean.TRUE.equals(transaction.getBiometricRequired())) {
-            Intent intent = new Intent(this, ekyc.class);
-            intent.putExtra("type","confirm");
-            ekycLauncher.launch(intent);
-        } else {
-            showLoading(false);
-            showOtpDialog();
-        }
+
+        db.collection("Users") // ⚠️ dùng users (chữ thường)
+                .document(userId)
+                .get()
+                .addOnSuccessListener(doc -> {
+
+                    boolean ekycRequired = doc.getBoolean("ekyc_required") != null
+                            && doc.getBoolean("ekyc_required");
+
+                    // 🔒 Nếu bị đánh dấu eKYC → BẮT BUỘC eKYC
+                    if (ekycRequired) {
+                        launchEkyc();
+                        return;
+                    }
+
+                    // 🔐 Nếu transaction yêu cầu biometric
+                    if (Boolean.TRUE.equals(transaction.getBiometricRequired())) {
+                        launchEkyc();
+                    } else {
+                        showLoading(false);
+                        showOtpDialog();
+                    }
+                })
+                .addOnFailureListener(e -> {
+                    showLoading(false);
+                    Toast.makeText(this, "Không kiểm tra được bảo mật", Toast.LENGTH_SHORT).show();
+                });
+    }
+
+    private void launchEkyc() {
+        Intent intent = new Intent(this, ekyc.class);
+        intent.putExtra("type","confirm");
+        ekycLauncher.launch(intent);
     }
 
     private void showOtpDialog() {
@@ -252,6 +295,7 @@ public class AccountTransactionActivity extends BaseSecureActivity  {
             @Override
             public void onOtpFailed() {
                 // Không cần gọi failTransaction ở đây để user có thể bấm "Xác nhận" lại để thử lại
+                showLoading(false);
                 Toast.makeText(AccountTransactionActivity.this, "Xác thực không thành công", Toast.LENGTH_SHORT).show();
             }
         });
@@ -263,69 +307,185 @@ public class AccountTransactionActivity extends BaseSecureActivity  {
 
     // ================= ATOMIC FINALIZE (Firestore Transaction) =================
     private void finalizeTransactionAtomic() {
-        String userId = SessionManager.getInstance().getUserId();
-        String accountType = "checking"; // Nghiệp vụ mặc định trừ tiền từ tài khoản vãng lai
+        showLoading(true);
 
-        // 1️⃣ Tìm tài khoản tương ứng với user_id và account_type
+        String userId = SessionManager.getInstance().getUserId();
+        String accountType = "checking";
+
+        // 1️⃣ Lấy tài khoản người gửi
         db.collection("Accounts")
                 .whereEqualTo("user_id", userId)
                 .whereEqualTo("account_type", accountType)
+                .limit(1)
                 .get()
-                .addOnSuccessListener(querySnapshot -> {
-                    if (querySnapshot.isEmpty()) {
-                        failTransaction("Không tìm thấy tài khoản thanh toán.");
+                .addOnSuccessListener(senderSnap -> {
+
+                    if (senderSnap.isEmpty()) {
+                        failTransaction("Không tìm thấy tài khoản thanh toán");
                         return;
                     }
 
-                    // Lấy DocumentReference của tài khoản tìm thấy
-                    DocumentSnapshot accountDoc = querySnapshot.getDocuments().get(0);
-                    DocumentReference accountRef = accountDoc.getReference();
-                    DocumentReference txRef = db.collection("AccountTransactions").document(transactionId);
+                    DocumentReference senderAccountRef =
+                            senderSnap.getDocuments().get(0).getReference();
 
-                    // 2️⃣ Bắt đầu Transaction nguyên tử
-                    db.runTransaction(t -> {
-                        // Load object Account trực tiếp trong transaction để đảm bảo dữ liệu mới nhất
-                        Account accountObj = t.get(accountRef).toObject(Account.class);
+                    // 2️⃣ Nếu có receiverAccountNumber → query trước (NGOÀI transaction)
+                    if (transaction.getReceiverAccountNumber() != null
+                            && !transaction.getReceiverAccountNumber().isEmpty()) {
 
-                        if (accountObj == null || accountObj.getBalance() == null) {
-                            throw new FirebaseFirestoreException("Dữ liệu tài khoản lỗi",
-                                    FirebaseFirestoreException.Code.ABORTED);
-                        }
+                        db.collection("Accounts")
+                                .whereEqualTo(
+                                        "account_number",
+                                        transaction.getReceiverAccountNumber()
+                                )
+                                .limit(1)
+                                .get()
+                                .addOnSuccessListener(receiverSnap -> {
 
-                        double balanceInDb = accountObj.getBalance();
-                        double amount = transaction.getAmount();
+                                    if (receiverSnap.isEmpty()) {
+                                        failTransaction("Không tìm thấy tài khoản người nhận");
+                                        return;
+                                    }
 
-                        // Kiểm tra số dư
-                        if (balanceInDb < amount) {
-                            throw new FirebaseFirestoreException("Số dư tài khoản không đủ",
-                                    FirebaseFirestoreException.Code.ABORTED);
-                        }
+                                    DocumentReference receiverAccountRef =
+                                            receiverSnap.getDocuments().get(0).getReference();
 
-                        double newBalance = balanceInDb - amount;
-
-                        // Thực hiện cập nhật đồng thời (Atomic Update)
-                        t.update(accountRef, "balance", newBalance);
-                        t.update(txRef,
-                                "status", "SUCCESS",
-                                "balanceBefore", balanceInDb,
-                                "balanceAfter", newBalance,
-                                "timestamp", Timestamp.now()
-                        );
-
-                        return newBalance;
-
-                    }).addOnSuccessListener(newBalance -> {
-                        showLoading(false);
-                        updateServiceBookingSuccess();
-                    }).addOnFailureListener(e -> {
-                        showLoading(false);
-                        failTransaction(e.getMessage());
-                    });
-
+                                    // 👉 Chạy transaction có receiver
+                                    runAtomicTransaction(senderAccountRef, receiverAccountRef);
+                                })
+                                .addOnFailureListener(e ->
+                                        failTransaction("Lỗi tra cứu tài khoản người nhận"));
+                    } else {
+                        // 👉 Không có receiver → chỉ trừ tiền
+                        runAtomicTransaction(senderAccountRef, null);
+                    }
                 })
-                .addOnFailureListener(e -> failTransaction("Lỗi kết nối hệ thống: " + e.getMessage()));
+                .addOnFailureListener(e ->
+                        failTransaction("Lỗi kết nối hệ thống"));
     }
 
+    private void runAtomicTransaction(
+            DocumentReference senderAccountRef,
+            @Nullable DocumentReference receiverAccountRef
+    ) {
+        DocumentReference txRef =
+                db.collection("AccountTransactions").document(transactionId);
+
+        db.runTransaction(t -> {
+
+            // ===== 1️⃣ READ TẤT CẢ (BẮT BUỘC TRƯỚC) =====
+            Account sender = t.get(senderAccountRef).toObject(Account.class);
+            if (sender == null || sender.getBalance() == null) {
+                throw new FirebaseFirestoreException(
+                        "Dữ liệu người gửi lỗi",
+                        FirebaseFirestoreException.Code.ABORTED
+                );
+            }
+
+            Account receiver = null;
+            if (receiverAccountRef != null) {
+                receiver = t.get(receiverAccountRef).toObject(Account.class);
+                if (receiver == null || receiver.getBalance() == null) {
+                    throw new FirebaseFirestoreException(
+                            "Dữ liệu người nhận lỗi",
+                            FirebaseFirestoreException.Code.ABORTED
+                    );
+                }
+            }
+
+            // ===== 2️⃣ TÍNH TOÁN =====
+            double amount = transaction.getAmount();
+            double senderBalance = sender.getBalance();
+
+            if (senderBalance < amount) {
+                throw new FirebaseFirestoreException(
+                        "Số dư không đủ",
+                        FirebaseFirestoreException.Code.ABORTED
+                );
+            }
+
+            double senderNewBalance = senderBalance - amount;
+
+            // ===== 3️⃣ WRITE (SAU KHI READ XONG) =====
+            t.update(senderAccountRef, "balance", senderNewBalance);
+
+            if (receiverAccountRef != null) {
+                double receiverNewBalance = receiver.getBalance() + amount;
+                t.update(receiverAccountRef, "balance", receiverNewBalance);
+            }
+
+            t.update(
+                    txRef,
+                    "status", "SUCCESS",
+                    "balanceBefore", senderBalance,
+                    "balanceAfter", senderNewBalance,
+                    "timestamp", Timestamp.now()
+            );
+
+            return null;
+
+        }).addOnSuccessListener(r -> {
+            showLoading(false);
+            handlePostTransactionSuccess();
+        }).addOnFailureListener(e -> {
+            showLoading(false);
+            failTransaction(e.getMessage());
+        });
+    }
+
+
+    private void handlePostTransactionSuccess() {
+        if (transaction == null || transaction.getType() == null) return;
+
+        switch (transaction.getType()) {
+            case "SERVICE":
+                updateServiceBookingSuccess();
+                break;
+
+            case "BILL":
+                updateBillPaymentSuccess();
+                break;
+
+            case "TRANSFER":
+                // Không cần xử lý thêm
+                break;
+        }
+    }
+
+    private void updateServiceBookingSuccess() {
+        db.collection("ServiceBookings")
+                .whereEqualTo("transactionId", transactionId)
+                .limit(1)
+                .get()
+                .addOnSuccessListener(snapshot -> {
+                    if (snapshot.isEmpty()) return;
+
+                    snapshot.getDocuments()
+                            .get(0)
+                            .getReference()
+                            .update(
+                                    "status", "SUCCESS",
+                                    "bookingTime", Timestamp.now()
+                            );
+                });
+    }
+
+    private void updateBillPaymentSuccess() {
+        db.collection("Bills")
+                .whereEqualTo("transactionId", transactionId)
+                .limit(1)
+                .get()
+                .addOnSuccessListener(snapshot -> {
+                    if (snapshot.isEmpty()) return;
+
+                    snapshot.getDocuments()
+                            .get(0)
+                            .getReference()
+                            .update(
+                                    "status", "PAID",
+                                    "paidAt", Timestamp.now()
+                            );
+                });
+    }
 
     // ================= FAIL TRANSACTION =================
     private void failTransaction(String reason) {
@@ -347,7 +507,7 @@ public class AccountTransactionActivity extends BaseSecureActivity  {
                     break;
 
                 case RETRY:
-                    recreate();
+                    finish();
                     break;
 
                 case GO_HOME:
@@ -367,31 +527,5 @@ public class AccountTransactionActivity extends BaseSecureActivity  {
         intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
         startActivity(intent);
         finish();
-    }
-
-    private void updateServiceBookingSuccess() {
-        if (transaction == null || transaction.getCategory() == null) return;
-
-        // Chỉ xử lý cho các giao dịch booking/service
-        if (!"FLIGHT".equals(transaction.getCategory())
-                && !"HOTEL".equals(transaction.getCategory())
-                && !"MOVIE".equals(transaction.getCategory())) {
-            return;
-        }
-
-        db.collection("ServiceBookings")
-                .whereEqualTo("transactionId", transactionId)
-                .limit(1)
-                .get()
-                .addOnSuccessListener(snapshot -> {
-                    if (snapshot.isEmpty()) return;
-
-                    DocumentReference bookingRef = snapshot.getDocuments().get(0).getReference();
-
-                    bookingRef.update(
-                            "status", "SUCCESS",
-                            "bookingTime", Timestamp.now()
-                    );
-                });
     }
 }

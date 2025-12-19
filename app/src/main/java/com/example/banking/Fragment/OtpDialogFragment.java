@@ -7,6 +7,7 @@ import android.text.Editable;
 import android.text.InputFilter;
 import android.text.InputType;
 import android.text.TextWatcher;
+import android.text.method.PasswordTransformationMethod;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -22,7 +23,11 @@ import com.example.banking.EmailService;
 import com.example.banking.R;
 import com.example.banking.SessionManager;
 
+import java.util.Map;
 import java.util.Random;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FieldValue;
 
 public class OtpDialogFragment extends DialogFragment {
 
@@ -42,16 +47,21 @@ public class OtpDialogFragment extends DialogFragment {
 
     private final String savedPin = SessionManager.getInstance().getPinNumber();
     private final String userEmail = SessionManager.getInstance().getEmail();
+    private final String userId = SessionManager.getInstance().getUserId();
 
     public OtpDialogFragment(OtpCallback callback) {
         this.callback = callback;
     }
+
+    private FirebaseFirestore db;
 
     @NonNull
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         AlertDialog.Builder builder = new AlertDialog.Builder(requireContext());
         View view = LayoutInflater.from(getContext()).inflate(R.layout.dialog_otp, null);
+
+        db = FirebaseFirestore.getInstance();
 
         tvOtpTitle = view.findViewById(R.id.tvOtpTitle);
         tvMessage = view.findViewById(R.id.tvMessage);
@@ -102,18 +112,22 @@ public class OtpDialogFragment extends DialogFragment {
         for (int i = 0; i < 6; i++) {
             final int index = i;
 
-            otpFields[i].setInputType(
-                    InputType.TYPE_CLASS_NUMBER | InputType.TYPE_NUMBER_VARIATION_PASSWORD
-            );
+            otpFields[i].setInputType(InputType.TYPE_CLASS_NUMBER | InputType.TYPE_NUMBER_VARIATION_PASSWORD);
+            otpFields[i].setTransformationMethod(PasswordTransformationMethod.getInstance());
 
-            // 🔒 CHỈ CHO PHÉP SỐ (0–9), CHẶN CHỮ / DẤU . / KÝ TỰ ĐẶC BIỆT
             otpFields[i].setFilters(new InputFilter[]{
                     (source, start, end, dest, dstart, dend) -> {
+                        if (isInternalStop) return null;
+
+                        // Chỉ cho phép số
                         for (int j = start; j < end; j++) {
-                            if (!Character.isDigit(source.charAt(j))) {
-                                return "";
-                            }
+                            if (!Character.isDigit(source.charAt(j))) return "";
                         }
+
+                        // Chặn nhập thêm nếu tổng 6 ký tự
+                        String totalInput = getCurrentOtpInput();
+                        if (totalInput.length() >= 6) return "";
+
                         return null;
                     }
             });
@@ -125,15 +139,25 @@ public class OtpDialogFragment extends DialogFragment {
                 public void onTextChanged(CharSequence s, int start, int before, int count) {
                     if (isInternalStop) return;
 
-                    // XỬ LÝ PASTE 6 SỐ
+                    String totalInput = getCurrentOtpInput();
+
+                    // Xử lý paste >=6 số
                     if (s.length() > 1) {
-                        String pasted = s.toString();
+                        String pasted = s.toString().replaceAll("\\D", "");
                         if (pasted.length() >= 6) {
                             fillOtpFields(pasted.substring(0, 6));
+                            return;
                         }
                     }
-                    // CHUYỂN FOCUS
-                    else if (s.length() == 1 && index < 5) {
+
+                    // Nếu tổng >=6 thì chặn các ô còn lại
+                    if (totalInput.length() > 6) {
+                        fillOtpFields(totalInput.substring(0, 6));
+                        return;
+                    }
+
+                    // Chuyển focus nếu nhập 1 ký tự
+                    if (s.length() == 1 && index < 5) {
                         otpFields[index + 1].requestFocus();
                     }
                 }
@@ -141,11 +165,9 @@ public class OtpDialogFragment extends DialogFragment {
                 @Override public void afterTextChanged(Editable s) {}
             });
 
-            // BACKSPACE → LÙI FOCUS
+            // BACKSPACE → lùi focus
             otpFields[i].setOnKeyListener((v, keyCode, event) -> {
-                if (keyCode == KeyEvent.KEYCODE_DEL
-                        && event.getAction() == KeyEvent.ACTION_DOWN) {
-
+                if (keyCode == KeyEvent.KEYCODE_DEL && event.getAction() == KeyEvent.ACTION_DOWN) {
                     if (otpFields[index].getText().length() == 0 && index > 0) {
                         otpFields[index - 1].requestFocus();
                         otpFields[index - 1].setText("");
@@ -157,20 +179,25 @@ public class OtpDialogFragment extends DialogFragment {
         }
     }
 
+    // Lấy chuỗi OTP tổng thể
+    private String getCurrentOtpInput() {
+        StringBuilder sb = new StringBuilder();
+        for (EditText et : otpFields) sb.append(et.getText().toString());
+        return sb.toString();
+    }
+
     private void fillOtpFields(String text) {
         isInternalStop = true;
         char[] chars = text.toCharArray();
         for (int i = 0; i < 6; i++) {
             otpFields[i].setText(String.valueOf(chars[i]));
         }
-        otpFields[5].requestFocus();
+        otpFields[5].requestFocus(); // focus cuối cùng
         isInternalStop = false;
     }
 
     private void handleVerification() {
-        StringBuilder sb = new StringBuilder();
-        for (EditText et : otpFields) sb.append(et.getText().toString());
-        String input = sb.toString();
+        String input = getCurrentOtpInput();
 
         if (input.length() < 6) {
             Toast.makeText(getContext(), "Vui lòng nhập đủ 6 số", Toast.LENGTH_SHORT).show();
@@ -186,15 +213,27 @@ public class OtpDialogFragment extends DialogFragment {
                 clearFields();
                 sendOtpEmail();
                 startResendTimer();
+                db.collection("Users")
+                        .document(userId)
+                        .update(
+                                "pin_fail_count", 0
+                        );
             } else {
+                increaseFailCount("pin");
                 Toast.makeText(getContext(), "PIN không đúng!", Toast.LENGTH_SHORT).show();
                 clearFields();
             }
         } else {
             if (input.equals(currentOtp)) {
+                db.collection("Users")
+                        .document(userId)
+                        .update(
+                                "otp_fail_count", 0
+                        );
                 callback.onOtpSuccess();
                 dismiss();
             } else {
+                increaseFailCount("otp");
                 Toast.makeText(getContext(), "OTP sai!", Toast.LENGTH_SHORT).show();
             }
         }
@@ -233,4 +272,42 @@ public class OtpDialogFragment extends DialogFragment {
         otpFields[0].requestFocus();
         isInternalStop = false;
     }
+
+    private void increaseFailCount(String type) {
+        db.runTransaction(transaction -> {
+            DocumentSnapshot doc = transaction.get(
+                    db.collection("Users").document(userId)
+            );
+
+            long otpFail = doc.getLong("otp_fail_count") == null ? 0 : doc.getLong("otp_fail_count");
+            long pinFail = doc.getLong("pin_fail_count") == null ? 0 : doc.getLong("pin_fail_count");
+
+            if ("otp".equals(type)) otpFail++;
+            if ("pin".equals(type)) pinFail++;
+
+            boolean ekycRequired = otpFail >= 3 || pinFail >= 3;
+
+            transaction.update(doc.getReference(),
+                    "otp_fail_count", otpFail,
+                    "pin_fail_count", pinFail,
+                    "ekyc_required", ekycRequired,
+                    "last_security_violation", FieldValue.serverTimestamp()
+            );
+
+            return ekycRequired;
+        }).addOnSuccessListener(ekycRequired -> {
+            if (ekycRequired) forceEkyc();
+        });
+    }
+
+    private void forceEkyc() {
+        Toast.makeText(getContext(),
+                "Bạn đã nhập sai quá nhiều lần. Vui lòng xác minh eKYC.",
+                Toast.LENGTH_LONG).show();
+
+        callback.onOtpFailed();
+        dismiss();
+    }
+
+
 }
