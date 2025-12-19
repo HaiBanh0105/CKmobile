@@ -33,7 +33,7 @@ public class open_mortgage extends AppCompatActivity {
     private TextView tvMonthlyPayment, tvInterestRate;
     private Spinner spinnerPurpose;
     private Button btnSubmit;
-    Double rate;
+    Double rate, monthlyPayment;
     private FirebaseFirestore db;
 
     String customer_ID, customer_email;
@@ -148,7 +148,7 @@ public class open_mortgage extends AppCompatActivity {
             // Tính toán
             int months = years * 12;
             double monthlyRate = annualRate / 12.0;
-            double monthlyPayment = (loanAmount * monthlyRate) / (1 - Math.pow(1 + monthlyRate, -months));
+            monthlyPayment = (loanAmount * monthlyRate) / (1 - Math.pow(1 + monthlyRate, -months));
             // Hiển thị kết quả
             tvMonthlyPayment.setText(String.format("%,.0f VND", monthlyPayment));
         } catch (Exception e) {
@@ -194,6 +194,8 @@ public class open_mortgage extends AppCompatActivity {
         account.put("account_type", "mortgages");
         account.put("purpose", selectedPurpose);
         account.put("balance", Amount);
+        account.put("remaining_debt", Amount);
+        account.put("monthlyPayment", monthlyPayment);
         account.put("created_at", FieldValue.serverTimestamp());
 
         account.put("maturity_years", Integer.parseInt(edtYears.getText().toString()));

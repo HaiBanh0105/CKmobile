@@ -33,15 +33,22 @@ public class AccountAdapter extends RecyclerView.Adapter<AccountAdapter.AccountV
     @Override
     public void onBindViewHolder(@NonNull AccountViewHolder holder, int position) {
         Account account = accountList.get(position);
-        holder.tvAccountName.setText(account.getAccount_type().equals("checking") ? "Tài khoản thanh toán" : "Tài khoản tiết kiệm");
+        holder.tvAccountName.setText(account.getAccount_type().equals("savings") ? "Tài khoản tiết kiệm" : "Tài khoản vay vốn");
         holder.tvAccountNumber.setText(account.getAccount_id());
         holder.tvAccountBalance.setText(String.format("%,.0f VND", account.getBalance()));
 
         holder.itemView.setOnClickListener(v -> {
             Context context = v.getContext();
-            Intent intent = new Intent(context, saving_infor.class);
-            intent.putExtra("account_id", account.getAccount_id());
-            context.startActivity(intent);
+            if(account.getAccount_type().equals("savings")) {
+                Intent intent = new Intent(context, saving_infor.class);
+                intent.putExtra("account_id", account.getAccount_id());
+                context.startActivity(intent);
+            }
+            else{
+                Intent intent = new Intent(context, mortgages_infor.class);
+                intent.putExtra("account_id", account.getAccount_id());
+                context.startActivity(intent);
+            }
         });
     }
 
