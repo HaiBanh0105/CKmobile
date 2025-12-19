@@ -191,7 +191,7 @@ public class FlightConfirmation extends BaseSecureActivity {
         AccountTransaction tx = new AccountTransaction();
         tx.setTransactionId(transactionId);
         tx.setUserId(userId);
-        tx.setType("SERVICE_PAYMENT");
+        tx.setType("SERVICE");
         tx.setCategory("FLIGHT");
         tx.setAmount(totalAmount);
         tx.setReceiverName(selectedFlight.getAirline());
