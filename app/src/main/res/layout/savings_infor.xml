@@ -137,9 +137,9 @@
             android:id="@+id/btnWithdraw"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Rút tiền"
             android:layout_marginTop="16dp"
-            android:backgroundTint="#0d68f3"/>
+            android:backgroundTint="#0d68f3"
+            android:text="Rút tiền" />
 
     </LinearLayout>
 </com.google.android.material.card.MaterialCardView>

@@ -19,7 +19,9 @@ import com.google.firebase.firestore.ListenerRegistration;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Locale;
+import java.util.Map;
 
 public class mortgages_infor extends AppCompatActivity {
     private String account_id;
@@ -107,9 +109,10 @@ public class mortgages_infor extends AppCompatActivity {
                         // Kiểm tra tháng hiện tại đã thanh toán chưa
                         String currentMonth = new SimpleDateFormat("yyyy-MM", Locale.getDefault()).format(new Date());
 
-                        db.collection("Payments")
+                        db.collection("Transactions")
                                 .whereEqualTo("account_id", accountId)
-                                .whereEqualTo("paid_month", currentMonth)
+                                .whereEqualTo("transaction_month", currentMonth)
+                                .whereEqualTo("type", "pay_mortgage")
                                 .get()
                                 .addOnSuccessListener(query -> {
                                     if (!query.isEmpty()) {
@@ -124,6 +127,7 @@ public class mortgages_infor extends AppCompatActivity {
                                 })
                                 .addOnFailureListener(e ->
                                         Toast.makeText(this, "Lỗi kiểm tra thanh toán: " + e.getMessage(), Toast.LENGTH_SHORT).show());
+
                     }
                 })
                 .addOnFailureListener(e ->
@@ -156,7 +160,7 @@ public class mortgages_infor extends AppCompatActivity {
                                             "period_day", nextPeriod)
                                     .addOnSuccessListener(aVoid -> {
                                         // Lưu lịch sử thanh toán
-                                        savePaymentHistory(account_id, monthlyPayment);
+                                        saveMortgagePayment(account_id, monthlyPayment);
 
                                         // Cập nhật UI
                                         tvMortgagePrincipal.setText(String.format("%,.0f VND", newRemainingDebt));
@@ -173,23 +177,23 @@ public class mortgages_infor extends AppCompatActivity {
     }
 
 
-    private void savePaymentHistory(String accountId, Double amountPaid) {
+    private void saveMortgagePayment(String accountId, double amount) {
         FirebaseFirestore db = FirebaseFirestore.getInstance();
 
-        java.util.Map<String, Object> payment = new java.util.HashMap<>();
-        payment.put("account_id", accountId);
-        payment.put("amount_paid", amountPaid);
-        payment.put("paid_at", new Date());
-        String paidMonth = new SimpleDateFormat("yyyy-MM", Locale.getDefault()).format(new Date());
-        payment.put("paid_month", paidMonth);
+        String month = new SimpleDateFormat("yyyy-MM", Locale.getDefault()).format(new Date());
 
+        Map<String, Object> record = new HashMap<>();
+        record.put("account_id", accountId);
+        record.put("user_id", userId);
+        record.put("type", "pay_mortgage");
+        record.put("amount", amount);
+        record.put("transaction_month", month);
+        record.put("transaction_date", new Date());
+        record.put("note", "Thanh toán khoản vay tháng " + month);
 
-        db.collection("Payments_history").add(payment)
-                .addOnSuccessListener(ref ->
-                        Toast.makeText(this, "Đã lưu lịch sử thanh toán", Toast.LENGTH_SHORT).show())
-                .addOnFailureListener(e ->
-                        Toast.makeText(this, "Lỗi lưu lịch sử: " + e.getMessage(), Toast.LENGTH_SHORT).show());
+        db.collection("Transactions").add(record);
     }
+
 
     private void loadCheckingInfor(String userId) {
         FirestoreHelper helper = new FirestoreHelper();
@@ -205,6 +209,8 @@ public class mortgages_infor extends AppCompatActivity {
             }
         });
     }
+
+
 
     @Override
     protected void onStop() {
