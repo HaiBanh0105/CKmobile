@@ -12,6 +12,8 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.example.banking.Activity.transfer;
 import com.example.banking.databinding.FragmentHomeBinding;
 import com.example.banking.model.AccountTransaction;
@@ -64,6 +66,17 @@ public class HomeFragment extends Fragment {
         binding.tvUserEmail.setText(SessionManager.getInstance().getEmail());
         binding.tvWelcome.setText("Xin chào, " + name);
         binding.tvBalanceAmount.setText("********* VND");
+        String avatarUrl = SessionManager.getInstance().getAvatarUrl();
+
+        if (!avatarUrl.isEmpty()) {
+            Glide.with(requireContext())
+                    .load(avatarUrl)
+                    .placeholder(R.drawable.men)
+                    .diskCacheStrategy(DiskCacheStrategy.ALL)
+                    .skipMemoryCache(false)
+                    .centerCrop()
+                    .into(binding.imgAvatar);
+        }
         ClickEffectUtil.apply(binding.btnTransfer);
         ClickEffectUtil.apply(binding.btnMovieTicket);
         ClickEffectUtil.apply(binding.btnFlightTicket);
@@ -141,6 +154,7 @@ public class HomeFragment extends Fragment {
 
         db.collection("AccountTransactions")
                 .whereEqualTo("userId", userId)
+                .whereEqualTo("status", "SUCCESS")
                 .orderBy("timestamp", Query.Direction.DESCENDING)
                 .limit(10)
                 .addSnapshotListener((snapshots, e) -> {
@@ -174,7 +188,6 @@ public class HomeFragment extends Fragment {
                     adapter.notifyDataSetChanged();
                 });
     }
-
 
     @Override
     public void onResume() {

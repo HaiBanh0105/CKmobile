@@ -197,7 +197,7 @@ public class transfer extends BaseSecureActivity {
         AccountTransaction transaction = new AccountTransaction();
         transaction.setTransactionId(transactionId);
         transaction.setUserId(SessionManager.getInstance().getUserId());
-        transaction.setType("TRANSFER");
+        transaction.setType("TRANSFER_OUT");
         transaction.setAmount(amount);
         transaction.setDescription(binding.edtContent.getText().toString());
         transaction.setTimestamp(Timestamp.now());

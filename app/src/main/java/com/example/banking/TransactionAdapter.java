@@ -97,7 +97,6 @@ public class TransactionAdapter
     private boolean isIncome(String type) {
         if (type == null) return false;
 
-        return type.equalsIgnoreCase("RECEIVE")
-                || type.equalsIgnoreCase("TOPUP");
+        return type.equalsIgnoreCase("TRANSFER_IN");
     }
 }

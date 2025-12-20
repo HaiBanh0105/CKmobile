@@ -84,8 +84,6 @@ public class mortgages_infor extends AppCompatActivity {
                 Launcher.launch(intent);
             }
         });
-
-
     }
 
     private void loadMortgageInfor(String accountId) {
@@ -175,7 +173,6 @@ public class mortgages_infor extends AppCompatActivity {
                     }
                 });
     }
-
 
     private void saveMortgagePayment(String accountId, double amount) {
         FirebaseFirestore db = FirebaseFirestore.getInstance();
