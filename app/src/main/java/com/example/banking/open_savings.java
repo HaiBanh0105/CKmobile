@@ -47,16 +47,17 @@ public class open_savings extends AppCompatActivity {
     private AutoCompleteTextView autoCompleteTerm;
 
     String userId = SessionManager.getInstance().getUserId();
-    String email = SessionManager.getInstance().getEmail();
 
     int months = 0;
 
     private FirebaseFirestore db;
 
+    String ID, customer_email;
     MaterialButton btnOpen;
 
     private ActivityResultLauncher<Intent> launcher;
 
+    Intent getIntent;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -69,6 +70,15 @@ public class open_savings extends AppCompatActivity {
             return insets;
         });
 
+        getIntent = getIntent();
+        //Có intent thì là nhân viên tạo
+        if(getIntent.hasExtra("customer_ID")) {
+            ID = getIntent.getStringExtra("customer_ID");
+            customer_email = getIntent.getStringExtra("email");
+        }
+        else{
+            ID = userId;
+        }
         // Khởi tạo launcher
         launcher = registerForActivityResult(
                 new ActivityResultContracts.StartActivityForResult(),
@@ -78,7 +88,7 @@ public class open_savings extends AppCompatActivity {
                         if (data != null) {
                             String value = data.getStringExtra("result_key");
                             if(value.equalsIgnoreCase("OK")){
-                                OpenSaving(userId);
+                                OpenSaving(ID);
                             }
                         }
                     }
@@ -96,7 +106,7 @@ public class open_savings extends AppCompatActivity {
         btnOpen = findViewById(R.id.btnConfirmOpen);
         amount = findViewById(R.id.edtAmount);
 
-        loadCheckingInfor(userId);
+        loadCheckingInfor(ID);
         loadInterestRate();
         loadMaturityDate();
 
@@ -158,9 +168,14 @@ public class open_savings extends AppCompatActivity {
         });
 
         btnOpen.setOnClickListener(new View.OnClickListener() {
+
             @Override
             public void onClick(View v) {
                 String rawAmount = amount.getText().toString().trim();
+                if (rawAmount.isEmpty()) {
+                    Toast.makeText(open_savings.this, "Vui lòng nhập số tiền", Toast.LENGTH_SHORT).show();
+                    return;
+                }
                 // Xóa dấu phẩy hoặc chấm ngăn cách hàng nghìn
                 String cleanAmount = rawAmount.replaceAll("[^\\d]", "");
                 double Amount = Double.parseDouble(cleanAmount);
@@ -174,9 +189,16 @@ public class open_savings extends AppCompatActivity {
                     Toast.makeText(open_savings.this, "Tài khoản thanh toán không đủ, vui lòng nạp thêm tiền", Toast.LENGTH_SHORT).show();
                     return;
                 }
-                Intent intent = new Intent(open_savings.this, ekyc.class);
-                intent.putExtra("type","confirm");
-                launcher.launch(intent);
+                if(getIntent.hasExtra("customer_ID")){
+                    Intent intent = new Intent(open_savings.this, otp.class);
+                    intent.putExtra("email", customer_email);
+                    launcher.launch(intent);
+                }
+                else {
+                    Intent intent = new Intent(open_savings.this, ekyc.class);
+                    intent.putExtra("type", "confirm");
+                    launcher.launch(intent);
+                }
             }
         });
     }

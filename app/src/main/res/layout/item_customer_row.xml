@@ -43,6 +43,13 @@
         android:id="@+id/imgAddMortgage"
         android:layout_width="40dp"
         android:layout_height="40dp"
-        android:src="@drawable/ic_addmortgage" />
+        android:src="@drawable/ic_open_mortgage"
+        android:layout_marginRight="10dp"/>
+
+    <ImageView
+        android:id="@+id/imgAddSaving"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:src="@drawable/ic_open_saving" />
 
 </LinearLayout>
