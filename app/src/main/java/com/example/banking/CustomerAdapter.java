@@ -51,6 +51,14 @@ public class CustomerAdapter extends RecyclerView.Adapter<CustomerAdapter.Custom
             intent.putExtra("email", customer.getEmail());
             context.startActivity(intent);
         });
+
+        holder.imgAddSaving.setOnClickListener(v -> {
+            Context context = v.getContext();
+            Intent intent = new Intent(context, open_savings.class);
+            intent.putExtra("customer_ID", customer.getCustomerId());
+            intent.putExtra("email", customer.getEmail());
+            context.startActivity(intent);
+        });
     }
 
     @Override
@@ -60,13 +68,14 @@ public class CustomerAdapter extends RecyclerView.Adapter<CustomerAdapter.Custom
 
     public static class CustomerViewHolder extends RecyclerView.ViewHolder {
         TextView tvCustomerName, tvCustomerId;
-        ImageView imgAddMortgage;
+        ImageView imgAddMortgage, imgAddSaving;
 
         public CustomerViewHolder(@NonNull View itemView) {
             super(itemView);
             tvCustomerName = itemView.findViewById(R.id.tvCustomerName);
             tvCustomerId = itemView.findViewById(R.id.tvCustomerId);
             imgAddMortgage = itemView.findViewById(R.id.imgAddMortgage);
+            imgAddSaving = itemView.findViewById(R.id.imgAddSaving);
         }
     }
 }

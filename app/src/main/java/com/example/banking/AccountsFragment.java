@@ -72,5 +72,9 @@ public class AccountsFragment extends Fragment {
                         Toast.makeText(getContext(), "Lỗi tải dữ liệu: " + e.getMessage(), Toast.LENGTH_SHORT).show());
     }
 
-
+    @Override
+    public void onResume() {
+        super.onResume();
+        loadAccounts();
+    }
 }

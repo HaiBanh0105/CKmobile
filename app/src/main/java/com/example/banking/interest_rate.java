@@ -2,8 +2,11 @@ package com.example.banking;
 
 import android.app.DatePickerDialog;
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
@@ -17,9 +20,12 @@ import com.google.android.material.button.MaterialButton;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.Query;
 
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 
 public class interest_rate extends AppCompatActivity {
@@ -29,6 +35,8 @@ public class interest_rate extends AppCompatActivity {
     private MaterialToolbar toolbar;
 
     private FirebaseFirestore db;
+
+    TextView tvCurrentRateValue, tvLastUpdated;
 
     TextInputEditText edtSavingsRate, edtMortgageRate;
     @Override
@@ -51,23 +59,44 @@ public class interest_rate extends AppCompatActivity {
         edtInterestRate = findViewById(R.id.edtInterestRate);
         edtEffectiveDate = findViewById(R.id.edtEffectiveDate);
         btnSaveConfig = findViewById(R.id.btnSaveConfig);
+        tvLastUpdated = findViewById(R.id.tvLastUpdated);
+        tvCurrentRateValue = findViewById(R.id.tvCurrentRateValue);
 
         // Toolbar back
         toolbar.setNavigationOnClickListener(v -> finish());
 
-        // 1. Dropdown loại lãi suất
         String[] productTypes = {"tiết kiệm", "vay vốn"};
         ArrayAdapter<String> productAdapter = new ArrayAdapter<>(
                 this, android.R.layout.simple_dropdown_item_1line, productTypes);
         autoCompleteProductType.setAdapter(productAdapter);
 
+        loadInterestRate("savings");
+        autoCompleteProductType.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void afterTextChanged(Editable s) {
+                String productType = autoCompleteProductType.getText().toString().trim();
+                if ("tiết kiệm".equalsIgnoreCase(productType)){
+                    loadInterestRate("savings");
+                }
+                else{
+                    loadInterestRate("mortgage");
+                }
+            }
+
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+
+            }
+        });
 
         // 3. DatePicker cho Ngày cập nhật
         edtEffectiveDate.setOnClickListener(v -> showDatePickerDialog(edtEffectiveDate));
 
-
-        // 5. Xử lý nút Lưu
-        // Xử lý nút Save
         btnSaveConfig.setOnClickListener(v -> saveInterestRate());
 
         toolbar = findViewById(R.id.toolbar);
@@ -137,4 +166,25 @@ public class interest_rate extends AppCompatActivity {
         );
         datePickerDialog.show();
     }
+
+    private void loadInterestRate(String type){
+        db.collection("InterestRates")
+                .whereEqualTo("interest_type", type)
+                .orderBy("created_at", Query.Direction.DESCENDING)
+                .limit(1)
+                .get()
+                .addOnSuccessListener(querySnapshots -> {
+                    if (!querySnapshots.isEmpty()) {
+                        Double latestRate = querySnapshots.getDocuments().get(0).getDouble("interest_rate");
+                        java.util.Date created_at = querySnapshots.getDocuments().get(0).getDate("created_at");
+                        tvCurrentRateValue.setText(String.format("%.1f", latestRate) + "% / năm");
+                        SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy", Locale.getDefault());
+                        tvLastUpdated.setText("Cập nhật lần cuối: "+sdf.format(created_at));
+
+                    }
+                })
+                .addOnFailureListener(e ->
+                        Toast.makeText(this, "Lỗi tải lãi suất " + e.getMessage(), Toast.LENGTH_SHORT).show());
+    }
+
 }
