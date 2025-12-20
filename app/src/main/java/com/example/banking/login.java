@@ -2,15 +2,14 @@ package com.example.banking;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.widget.Button;
-import android.widget.EditText;
-import android.widget.TextView;
+import android.view.View;
 import android.widget.Toast;
 
-import androidx.appcompat.app.AppCompatActivity;
+import androidx.annotation.Nullable;
 
-import com.google.android.material.button.MaterialButton;
-import com.google.android.material.textfield.TextInputEditText;
+import com.example.banking.Activity.BaseSecureActivity;
+import com.example.banking.databinding.LoginBinding;
+import com.example.banking.util.ClickEffectUtil;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -18,55 +17,62 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
-public class login extends AppCompatActivity {
+public class login extends BaseSecureActivity {
 
-    private EditText edtUsername, edtPassword;
-    private MaterialButton btnRegister;
-    private Button btnLogin;
-    private TextView tvForgotPassword;
+    private LoginBinding binding;
     private FirebaseAuth mAuth;
     private FirebaseFirestore db;
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.login);
 
-        // Ánh xạ view
-        edtUsername = findViewById(R.id.edtUsername);
-        edtPassword = findViewById(R.id.edtPassword);
-        btnLogin = findViewById(R.id.btnLogin);
-        btnRegister = findViewById(R.id.btnRegister);
-        tvForgotPassword = findViewById(R.id.tvForgotPassword);
-        btnRegister = findViewById(R.id.btnRegister);
+        // ViewBinding
+        binding = LoginBinding.inflate(getLayoutInflater());
+        setContentView(binding.getRoot());
+
+        // Loading (BaseSecureActivity)
+        initLoading(binding.getRoot());
 
         // Firebase
         mAuth = FirebaseAuth.getInstance();
         db = FirebaseFirestore.getInstance();
 
-        // Xử lý nút đăng nhập
-        btnLogin.setOnClickListener(v -> {
-            String phone = edtUsername.getText().toString().trim();
-            String password = edtPassword.getText().toString().trim();
+        // Hiệu ứng click
+        ClickEffectUtil.apply(binding.btnLogin);
+
+        // ===== ĐĂNG NHẬP =====
+        binding.btnLogin.setOnClickListener(v -> {
+            String phone = binding.edtUsername.getText().toString().trim();
+            String password = binding.edtPassword.getText().toString().trim();
+
+            if (phone.isEmpty() || password.isEmpty()) {
+                Toast.makeText(this, "Vui lòng nhập số điện thoại và mật khẩu", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
             String hashedInput = hashPassword(password);
 
+            showLoading(true);
             db.collection("Users")
                     .whereEqualTo("phone", phone)
+                    .limit(1)
                     .get()
                     .addOnSuccessListener(querySnapshot -> {
                         if (!querySnapshot.isEmpty()) {
                             DocumentSnapshot doc = querySnapshot.getDocuments().get(0);
+
                             String storedHash = doc.getString("password");
                             String name = doc.getString("name");
                             String pin = doc.getString("pin");
                             String role = doc.getString("role");
-                            String user_id = doc.getString("user_id");
+                            String userId = doc.getString("user_id");
                             String email = doc.getString("email");
                             String avatar = doc.getString("avatar");
 
-
                             if (hashedInput.equals(storedHash)) {
-                                SessionManager.getInstance().setUserId(user_id);
+
+                                SessionManager.getInstance().setUserId(userId);
                                 SessionManager.getInstance().setUserName(name);
                                 SessionManager.getInstance().setPinNumber(pin);
                                 SessionManager.getInstance().setEmail(email);
@@ -81,42 +87,30 @@ public class login extends AppCompatActivity {
                                     startActivity(new Intent(this, customer_main.class));
                                 }
                                 finish();
+
                             } else {
                                 Toast.makeText(this, "Sai mật khẩu", Toast.LENGTH_SHORT).show();
                             }
                         } else {
-                            Toast.makeText(this, "Không tìm thấy số điện thoại", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(this, "Số điện thoại không tồn tại", Toast.LENGTH_SHORT).show();
                         }
+                        showLoading(false);
                     })
                     .addOnFailureListener(e -> {
+                        showLoading(false);
                         Toast.makeText(this, "Lỗi: " + e.getMessage(), Toast.LENGTH_SHORT).show();
                     });
-
         });
 
-        // Xử lý nút mở tài khoản eKYC
-        btnRegister.setOnClickListener(v -> {
-//            startActivity(new Intent(this, customer_infor.class));
+        // ===== ĐĂNG KÝ (eKYC) =====
+        binding.btnRegister.setOnClickListener(v -> {
             Intent intent = new Intent(this, customer_infor.class);
-
-            // Gửi dữ liệu kèm theo
             intent.putExtra("role", "customer_register");
             startActivity(intent);
         });
-
-//        // Xử lý quên mật khẩu
-//        tvForgotPassword.setOnClickListener(v -> {
-//            String email = edtUsername.getText().toString().trim();
-//            if (email.isEmpty()) {
-//                Toast.makeText(this, "Nhập email để reset mật khẩu", Toast.LENGTH_SHORT).show();
-//            } else {
-//                mAuth.sendPasswordResetEmail(email)
-//                        .addOnSuccessListener(aVoid -> Toast.makeText(this, "Đã gửi email reset mật khẩu", Toast.LENGTH_SHORT).show())
-//                        .addOnFailureListener(e -> Toast.makeText(this, "Lỗi: " + e.getMessage(), Toast.LENGTH_SHORT).show());
-//            }
-//        });
     }
 
+    // ===== HASH PASSWORD =====
     private String hashPassword(String password) {
         try {
             MessageDigest digest = MessageDigest.getInstance("SHA-256");

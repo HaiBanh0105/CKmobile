@@ -104,7 +104,7 @@ public class customer_infor extends AppCompatActivity {
                 result -> {
                     if (result.getResultCode() == RESULT_OK && result.getData() != null) {
                         faceImagePath = result.getData().getStringExtra("faceImagePath");
-                        Toast.makeText(this, "Đã quét khuôn mặt", Toast.LENGTH_SHORT).show();
+                        btnEkycScan.setText("Đã quét khuôn mặt ✔");
                     }
                 });
 
@@ -144,9 +144,10 @@ public class customer_infor extends AppCompatActivity {
     private void checkDuplicateAndRegister() {
         String name = edtFullName.getText().toString().trim();
         String phone = edtPhoneNumber.getText().toString().trim();
+        String email = edtEmail.getText().toString().trim();
         String idCard = edtIdCard.getText().toString().trim();
 
-        if (name.isEmpty() || phone.isEmpty() || idCard.isEmpty()) {
+        if (name.isEmpty() || phone.isEmpty() || idCard.isEmpty() || email.isEmpty()) {
             Toast.makeText(this, "Vui lòng nhập đủ thông tin", Toast.LENGTH_SHORT).show();
             return;
         }
@@ -155,21 +156,34 @@ public class customer_infor extends AppCompatActivity {
         db.collection("Users").document(idCard).get().addOnSuccessListener(doc -> {
             if (doc.exists()) {
                 Toast.makeText(this, "CCCD đã tồn tại", Toast.LENGTH_SHORT).show();
-            } else {
-                // 2️⃣ Check SĐT
-                db.collection("Users")
-                        .whereEqualTo("phone", phone)
-                        .get()
-                        .addOnSuccessListener(qs -> {
-                            if (!qs.isEmpty()) {
-                                Toast.makeText(this, "Số điện thoại đã tồn tại", Toast.LENGTH_SHORT).show();
-                            } else {
-                                registerCustomer();
-                            }
-                        });
+                return;
             }
+
+            // 2️⃣ Check SĐT
+            db.collection("Users")
+                    .whereEqualTo("phone", phone)
+                    .get()
+                    .addOnSuccessListener(qsPhone -> {
+                        if (!qsPhone.isEmpty()) {
+                            Toast.makeText(this, "Số điện thoại đã tồn tại", Toast.LENGTH_SHORT).show();
+                            return;
+                        }
+
+                        // 3️⃣ Check EMAIL
+                        db.collection("Users")
+                                .whereEqualTo("email", email)
+                                .get()
+                                .addOnSuccessListener(qsEmail -> {
+                                    if (!qsEmail.isEmpty()) {
+                                        Toast.makeText(this, "Email đã tồn tại", Toast.LENGTH_SHORT).show();
+                                    } else {
+                                        registerCustomer();
+                                    }
+                                });
+                    });
         });
     }
+
 
     // ================= REGISTER =================
     private void registerCustomer() {

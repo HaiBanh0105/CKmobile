@@ -5,17 +5,17 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.banking.Activity.transfer;
+import com.example.banking.databinding.FragmentHomeBinding;
+import com.example.banking.model.AccountTransaction;
+import com.example.banking.util.ClickEffectUtil;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.ListenerRegistration;
@@ -29,141 +29,148 @@ import java.util.Locale;
 
 public class HomeFragment extends Fragment {
 
-    private TextView tvaccountNumber, tvbalance, tvWelcome;
-
-    private ImageView btnToggleBalance, btnTransfer, btnTopUp, btnSavings,btnPayBill;
+    private FragmentHomeBinding binding;
 
     private boolean isBalanceVisible = false;
+    private Double currentBalance;
 
-    private Double currentBalance; // lưu số dư hiện tại
-    String userId = SessionManager.getInstance().getUserId();
+    private final String userId = SessionManager.getInstance().getUserId();
+    private final String name = SessionManager.getInstance().getUserName();
 
-    String name = SessionManager.getInstance().getUserName();
-    String accountNumber;
+    private TransactionAdapter adapter;
+    private final List<AccountTransaction> transactionList = new ArrayList<>();
 
-    RecyclerView rvRecentTransactions;
-    TransactionAdapter adapter;
-    List<Transaction> transactionList = new ArrayList<>();
-
-    private ListenerRegistration registration;
+    private ListenerRegistration accountListener;
 
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater,
                              @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
-        View root = inflater.inflate(R.layout.fragment_home, container, false);
 
-        tvaccountNumber = root.findViewById(R.id.tvAccountNumber);
-        tvbalance = root.findViewById(R.id.tvBalanceAmount);
-        tvWelcome = root.findViewById(R.id.tvWelcome);
-        btnToggleBalance = root.findViewById(R.id.btnToggleBalance);
-        btnTopUp = root.findViewById(R.id.btnTopUp);
-        btnSavings = root.findViewById(R.id.btnSavings);
-        btnTransfer = root.findViewById(R.id.btnTransfer);
-        btnPayBill = root.findViewById(R.id.btnPayBill);
-        rvRecentTransactions = root.findViewById(R.id.rvRecentTransactions);
-        rvRecentTransactions.setLayoutManager(new LinearLayoutManager(requireContext()));
-        adapter = new TransactionAdapter(transactionList);
-        rvRecentTransactions.setAdapter(adapter);
+        binding = FragmentHomeBinding.inflate(inflater, container, false);
+
+        setupUI();
+        setupRecyclerView();
+        setupEvents();
 
         loadCheckingInfor(userId);
         loadTransactions();
 
-        tvWelcome.setText("Xin chào, "+ name);
+        return binding.getRoot();
+    }
 
-        // Xử lý sự kiện click ẩn hiện số dư
-        btnToggleBalance.setOnClickListener(v -> {
+    private void setupUI() {
+        binding.tvUserEmail.setText(SessionManager.getInstance().getEmail());
+        binding.tvWelcome.setText("Xin chào, " + name);
+        binding.tvBalanceAmount.setText("********* VND");
+        ClickEffectUtil.apply(binding.btnTransfer);
+        ClickEffectUtil.apply(binding.btnMovieTicket);
+        ClickEffectUtil.apply(binding.btnFlightTicket);
+        ClickEffectUtil.apply(binding.btnPayBill);
+        ClickEffectUtil.apply(binding.btnTopUp);
+        ClickEffectUtil.apply(binding.btnSavings);
+    }
 
+    private void setupRecyclerView() {
+        adapter = new TransactionAdapter(transactionList);
+        binding.rvRecentTransactions.setLayoutManager(new LinearLayoutManager(requireContext()));
+        binding.rvRecentTransactions.setAdapter(adapter);
+    }
+
+    private void setupEvents() {
+
+        ClickEffectUtil.apply(binding.btnTransfer);
+
+        // Ẩn / hiện số dư
+        binding.btnToggleBalance.setOnClickListener(v -> {
             if (isBalanceVisible) {
-                // Ẩn số dư
-                tvbalance.setText("********* VND");
-                btnToggleBalance.setImageResource(R.drawable.ic_visibility_off); // icon hiện
+                binding.tvBalanceAmount.setText("********* VND");
+                binding.btnToggleBalance.setImageResource(R.drawable.ic_visibility_off);
             } else {
-                // Hiện số dư
                 if (currentBalance != null) {
-                    tvbalance.setText(String.format("%,.0f VND", currentBalance));
+                    binding.tvBalanceAmount.setText(
+                            String.format("%,.0f VND", currentBalance)
+                    );
                 }
-                btnToggleBalance.setImageResource(R.drawable.ic_visibility); // icon ẩn
+                binding.btnToggleBalance.setImageResource(R.drawable.ic_visibility);
             }
             isBalanceVisible = !isBalanceVisible;
         });
 
-        btnTransfer.setOnClickListener(v -> {
-            Intent intent = new Intent(requireContext(), transfer.class);
-            startActivity(intent);
-        });
+        binding.btnTransfer.setOnClickListener(v ->
+                startActivity(new Intent(requireContext(), transfer.class)));
 
-        btnSavings.setOnClickListener(v -> {
-            Intent intent = new Intent(requireContext(), open_savings.class);
-            startActivity(intent);
-        });
+        binding.btnSavings.setOnClickListener(v ->
+                startActivity(new Intent(requireContext(), open_savings.class)));
 
-        btnTopUp.setOnClickListener(v -> {
-            Intent intent = new Intent(requireContext(), top_up.class);
-            startActivity(intent);
-        });
-        btnPayBill.setOnClickListener(v -> {
-            Intent intent = new Intent(requireContext(), bill_payment.class);
-            startActivity(intent);
-        });
-        return root;
+        binding.btnTopUp.setOnClickListener(v ->
+                startActivity(new Intent(requireContext(), top_up.class)));
+
+        binding.btnPayBill.setOnClickListener(v ->
+                startActivity(new Intent(requireContext(), bill_payment.class)));
     }
 
+    // Load thông tin tài khoản
     private void loadCheckingInfor(String userId) {
         FirestoreHelper helper = new FirestoreHelper();
-        registration = helper.loadCheckingInfor(userId, new FirestoreHelper.AccountCallback() {
-            @Override
-            public void onSuccess(String number, Double balance){
-                tvaccountNumber.setText("Số tài khoản: " + number);
-                if (!isBalanceVisible) {
-                    // Ẩn số dư
-                    tvbalance.setText("********* VND");
-                } else {
-                    tvbalance.setText(String.format("%,.0f VND", balance));
-                }
-                currentBalance = balance;
-                accountNumber = number;
-            }
+        accountListener = helper.loadCheckingInfor(userId,
+                new FirestoreHelper.AccountCallback() {
+                    @Override
+                    public void onSuccess(String number, Double balance) {
+                        binding.tvAccountNumber.setText("Số tài khoản: " + number);
+                        currentBalance = balance;
 
-            @Override
-            public void onFailure(String errorMessage) {
-                Toast.makeText(requireContext(), errorMessage, Toast.LENGTH_SHORT).show();
-            }
-        });
+                        if (isBalanceVisible) {
+                            binding.tvBalanceAmount.setText(
+                                    String.format("%,.0f VND", balance)
+                            );
+                        }
+                    }
+
+                    @Override
+                    public void onFailure(String errorMessage) {
+                        Toast.makeText(requireContext(), errorMessage, Toast.LENGTH_SHORT).show();
+                    }
+                });
     }
 
-
+    // Load giao dịch từ AccountTransactions
     private void loadTransactions() {
         FirebaseFirestore db = FirebaseFirestore.getInstance();
-        db.collection("Transactions")
-                .whereEqualTo("user_id", userId)
-                .orderBy("create_at", Query.Direction.DESCENDING)
+
+        db.collection("AccountTransactions")
+                .whereEqualTo("userId", userId)
+                .orderBy("timestamp", Query.Direction.DESCENDING)
                 .limit(10)
-                .addSnapshotListener((queryDocumentSnapshots, e) -> {
+                .addSnapshotListener((snapshots, e) -> {
+
                     if (e != null) {
-                        Toast.makeText(requireContext(), "Lỗi tải giao dịch: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                        Toast.makeText(
+                                requireContext(),
+                                "Lỗi tải giao dịch: " + e.getMessage(),
+                                Toast.LENGTH_SHORT
+                        ).show();
                         return;
                     }
+
                     transactionList.clear();
-                    for (DocumentSnapshot doc : queryDocumentSnapshots) {
-                        String type = doc.getString("type");
-                        String name;
 
-                        if ("received".equalsIgnoreCase(type)){
-                            name = doc.getString("sender_name");
-                        }
-                        else{
-                            name = doc.getString("receiver_name");
-                        }
+                    if (snapshots == null) return;
 
-                        Date createdAt = doc.getDate("create_at");
-                        String date = createdAt != null
-                                ? new SimpleDateFormat("dd/MM/yyyy", Locale.getDefault()).format(createdAt)
-                                : "Đang xử lý...";
-                        double amount = doc.getDouble("amount");
-                        transactionList.add(new Transaction(name, date, amount,type));
+                    for (DocumentSnapshot doc : snapshots) {
+
+                        AccountTransaction transaction =
+                                doc.toObject(AccountTransaction.class);
+
+                        if (transaction == null) continue;
+
+                        // Gán id nếu cần dùng về sau (detail)
+                        transaction.setTransactionId(doc.getId());
+
+                        transactionList.add(transaction);
                     }
+
                     adapter.notifyDataSetChanged();
                 });
     }
@@ -173,15 +180,14 @@ public class HomeFragment extends Fragment {
     public void onResume() {
         super.onResume();
         loadCheckingInfor(userId);
-
     }
 
     @Override
     public void onDestroyView() {
         super.onDestroyView();
-        if (registration != null) {
-            registration.remove(); // hủy listener khi view bị hủy
+        if (accountListener != null) {
+            accountListener.remove();
         }
+        binding = null; // tránh leak memory
     }
-
 }

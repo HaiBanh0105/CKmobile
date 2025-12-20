@@ -8,198 +8,376 @@
     android:layout_height="match_parent"
     android:fillViewport="true"
     tools:context=".HomeFragment">
-
-    <LinearLayout
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:padding="16dp">
+        android:layout_height="wrap_content" >
+        <ImageView
+            android:id="@+id/top_background"
+            android:layout_width="match_parent"
+            android:layout_height="180dp"
+            android:scaleType="fitXY"
+            android:src="@drawable/top_background"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
 
         <TextView
-            android:id="@+id/tvWelcome"
+            android:id="@+id/txtBankName"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textAppearance="@style/TextAppearance.MaterialComponents.Headline6"
-            tools:text="Chào, "
-            android:layout_marginBottom="16dp"/>
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="16dp"
+            android:text="West Bank"
+            android:textColor="@color/white"
+            android:textStyle="bold"
+            android:textSize="20sp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
 
-        <com.google.android.material.card.MaterialCardView
-            android:id="@+id/cardBalance"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            app:cardElevation="4dp"
-            app:cardCornerRadius="8dp">
-
-            <androidx.constraintlayout.widget.ConstraintLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:padding="16dp">
-
-                <!-- Số tài khoản + số -->
-                <TextView
-                    android:id="@+id/tvAccountNumber"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Số tài khoản: "
-                    android:textAppearance="@style/TextAppearance.MaterialComponents.Body1"
-                    android:textStyle="bold"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent"
-                    tools:text="Số tài khoản: " />
-
-                <!-- Số dư tài khoản chính -->
-                <TextView
-                    android:id="@+id/tvBalanceLabel"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="8dp"
-                    android:text="Số dư tài khoản chính"
-                    android:textAppearance="@style/TextAppearance.MaterialComponents.Caption"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@id/tvAccountNumber" />
-
-                <TextView
-                    android:id="@+id/tvBalanceAmount"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="8dp"
-                    android:textAppearance="@style/TextAppearance.MaterialComponents.Headline5"
-                    android:textStyle="bold"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@id/tvBalanceLabel"
-                    tools:text="000.000.000 VND" />
-
-                <ImageView
-                    android:id="@+id/btnToggleBalance"
-                    android:layout_width="30dp"
-                    android:layout_height="30dp"
-                    android:background="?attr/selectableItemBackgroundBorderless"
-                    android:contentDescription="Ẩn/hiện số dư"
-                    android:src="@drawable/ic_visibility_off"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintTop_toTopOf="parent"
-                    app:layout_constraintBottom_toBottomOf="parent" />
-
-            </androidx.constraintlayout.widget.ConstraintLayout>
-
-
-        </com.google.android.material.card.MaterialCardView>
-
-        <TextView
+        <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="24dp"
-            android:text="Lối tắt"
-            android:textAppearance="@style/TextAppearance.MaterialComponents.Subtitle1"
-            android:textStyle="bold"/>
+            android:layout_marginTop="16dp"
+            android:layout_marginEnd="16dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
 
-        <HorizontalScrollView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:scrollbars="none">
-
-            <LinearLayout
+            <ImageView
+                android:id="@+id/imgBell"
+                android:layout_marginRight="12dp"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:paddingTop="8dp"
-                android:paddingBottom="8dp">
+                android:layout_weight="1"
+                android:src="@drawable/ic_bell" />
+
+            <ImageView
+                android:id="@+id/imgLogout"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:src="@drawable/ic_logout_2" />
+        </LinearLayout>
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/layoutUserInfo"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="16dp"
+            android:layout_marginEnd="16dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/txtBankName">
+
+            <TextView
+                android:id="@+id/tvWelcome"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Chào Phan Nhựt Duy"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:textColor="@color/white"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <TextView
+                android:id="@+id/tvUserEmail"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="duyneon@gmail.com"
+                android:textColor="@color/white"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/tvWelcome" />
+
+            <ImageView
+                android:id="@+id/imageView17"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="5dp"
+                android:src="@drawable/men"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/constraintLayout2"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="24dp"
+            android:layout_marginTop="24dp"
+            android:layout_marginEnd="24dp"
+            android:background="@drawable/rounded_white_bg"
+            android:padding="16dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/layoutUserInfo">
+
+            <!-- Số tài khoản + số -->
+            <TextView
+                android:id="@+id/tvAccountNumber"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Số tài khoản: "
+                android:textAppearance="@style/TextAppearance.MaterialComponents.Body1"
+                android:textStyle="bold"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                tools:text="Số tài khoản: " />
+
+            <!-- Số dư tài khoản chính -->
+            <TextView
+                android:id="@+id/tvBalanceLabel"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:text="Số dư tài khoản chính"
+                android:textAppearance="@style/TextAppearance.MaterialComponents.Caption"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/tvAccountNumber" />
+
+            <TextView
+                android:id="@+id/tvBalanceAmount"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:textAppearance="@style/TextAppearance.MaterialComponents.Headline5"
+                android:textStyle="bold"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/tvBalanceLabel"
+                tools:text="000.000.000 VND" />
+
+            <ImageView
+                android:id="@+id/btnToggleBalance"
+                android:layout_width="30dp"
+                android:layout_height="30dp"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:contentDescription="Ẩn/hiện số dư"
+                android:src="@drawable/ic_visibility_off"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <LinearLayout
+            android:id="@+id/linearLayout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="16dp"
+            android:layout_marginEnd="16dp"
+            android:background="@drawable/rounded_white_bg"
+            android:gravity="center"
+            android:orientation="vertical"
+            android:padding="16dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/constraintLayout2">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_marginBottom="16dp"
+                android:gravity="center">
 
                 <LinearLayout
+                    android:id="@+id/btnTransfer"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:layout_marginRight="16dp"
+                    android:background="@drawable/rounded_light_orange_bg"
                     android:gravity="center_horizontal"
+                    android:minWidth="90dp"
                     android:orientation="vertical"
-                    android:minWidth="90dp">
+                    android:padding="8dp">
 
                     <ImageView
-                        android:id="@+id/btnTransfer"
-                        android:layout_width="56dp"
-                        android:layout_height="56dp"
+                        android:layout_width="46dp"
+                        android:layout_height="46dp"
                         android:background="@drawable/background_circle_icon"
-                        android:src="@drawable/ic_transfer"
-                        android:contentDescription="Chuyển tiền"/>
+                        android:contentDescription="Chuyển tiền"
+                        android:src="@drawable/ic_transfer" />
+
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="4dp"
-                        android:text="Chuyển tiền"/>
+                        android:text="Chuyển tiền" />
                 </LinearLayout>
 
                 <LinearLayout
+                    android:id="@+id/btnPayBill"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:layout_marginRight="16dp"
+                    android:background="@drawable/rounded_light_orange_bg"
                     android:gravity="center_horizontal"
+                    android:minWidth="90dp"
                     android:orientation="vertical"
-                    android:minWidth="90dp">
+                    android:padding="8dp">
 
                     <ImageView
-                        android:id="@+id/btnPayBill"
-                        android:layout_width="56dp"
-                        android:layout_height="56dp"
+                        android:layout_width="46dp"
+                        android:layout_height="46dp"
                         android:background="@drawable/background_circle_icon"
-                        android:src="@drawable/ic_bill_payment"
-                        android:contentDescription="Thanh toán hóa đơn"/>
+                        android:contentDescription="Thanh toán hóa đơn"
+                        android:src="@drawable/ic_bill_payment" />
+
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="4dp"
-                        android:text="Thanh toán"/>
+                        android:text="Thanh toán" />
                 </LinearLayout>
 
                 <LinearLayout
+                    android:id="@+id/btnTopUp"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:background="@drawable/rounded_light_orange_bg"
                     android:gravity="center_horizontal"
+                    android:minWidth="90dp"
                     android:orientation="vertical"
-                    android:minWidth="90dp">
+                    android:padding="8dp">
 
                     <ImageView
-                        android:id="@+id/btnTopUp"
-                        android:layout_width="56dp"
-                        android:layout_height="56dp"
+                        android:layout_width="46dp"
+                        android:layout_height="46dp"
                         android:background="@drawable/background_circle_icon"
-                        android:src="@drawable/ic_phone_topup"
-                        android:contentDescription="Nạp tiền điện thoại"/>
+                        android:contentDescription="Nạp tiền điện thoại"
+                        android:src="@drawable/ic_phone_topup" />
+
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="4dp"
-                        android:text="Nạp tiền"/>
+                        android:text="Nạp tiền" />
                 </LinearLayout>
-
-                <LinearLayout
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:gravity="center_horizontal"
-                    android:orientation="vertical"
-                    android:minWidth="90dp">
-
-                    <ImageView
-                        android:id="@+id/btnSavings"
-                        android:layout_width="56dp"
-                        android:layout_height="56dp"
-                        android:background="@drawable/background_circle_icon"
-                        android:src="@drawable/ic_savings"
-                        android:contentDescription="Tài khoản tiết kiệm"/>
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="4dp"
-                        android:text="Tiết kiệm"/>
-                </LinearLayout>
-
             </LinearLayout>
-        </HorizontalScrollView>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:gravity="center">
+
+                <LinearLayout
+                    android:id="@+id/btnSavings"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginRight="16dp"
+                    android:background="@drawable/rounded_light_orange_bg"
+                    android:gravity="center_horizontal"
+                    android:minWidth="90dp"
+                    android:orientation="vertical"
+                    android:padding="8dp">
+
+                    <ImageView
+                        android:layout_width="46dp"
+                        android:layout_height="46dp"
+                        android:background="@drawable/background_circle_icon"
+                        android:contentDescription="Tài khoản tiết kiệm"
+                        android:src="@drawable/ic_savings" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="4dp"
+                        android:text="Tiết kiệm" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/btnFlightTicket"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginRight="16dp"
+                    android:background="@drawable/rounded_light_orange_bg"
+                    android:gravity="center_horizontal"
+                    android:minWidth="90dp"
+                    android:orientation="vertical"
+                    android:padding="8dp">
+
+                    <ImageView
+                        android:layout_width="46dp"
+                        android:layout_height="46dp"
+                        android:background="@drawable/background_circle_icon"
+                        android:contentDescription="Vé máy bay"
+                        android:src="@drawable/ic_flight" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="4dp"
+                        android:text="Vé máy bay" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/btnMovieTicket"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/rounded_light_orange_bg"
+                    android:gravity="center_horizontal"
+                    android:minWidth="90dp"
+                    android:orientation="vertical"
+                    android:padding="8dp">
+
+                    <ImageView
+                        android:layout_width="46dp"
+                        android:layout_height="46dp"
+                        android:background="@drawable/background_circle_icon"
+                        android:contentDescription="Đặt vé xem phim"
+                        android:src="@drawable/ic_movie_ticket" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="4dp"
+                        android:text="Vé phim" />
+                </LinearLayout>
+            </LinearLayout>
+        </LinearLayout>
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/constraintLayout4"
+            android:layout_width="match_parent"
+            android:layout_height="100dp"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="16dp"
+            android:layout_marginEnd="16dp"
+            android:background="@drawable/gradient_primary_rounded_bg"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/linearLayout">
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
 
         <TextView
+            android:id="@+id/textView6"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="24dp"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="16dp"
             android:text="Giao dịch gần đây"
             android:textAppearance="@style/TextAppearance.MaterialComponents.Subtitle1"
-            android:textStyle="bold"/>
+            android:textStyle="bold"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/constraintLayout4" />
+
+        <TextView
+            android:id="@+id/tvViewMore"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="16dp"
+            android:text="Xem thêm"
+            android:textColor="@color/dark_blue"
+            app:layout_constraintBottom_toBottomOf="@+id/textView6"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="@+id/textView6" />
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/rvRecentTransactions"
@@ -207,8 +385,12 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
             android:nestedScrollingEnabled="false"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/textView6"
             tools:itemCount="5"
             tools:listitem="@layout/item_transaction_history" />
 
-    </LinearLayout>
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
 </androidx.core.widget.NestedScrollView>

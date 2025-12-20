@@ -227,7 +227,7 @@ public class ekyc extends AppCompatActivity {
                         double distance = euclideanDistance(newFaceEmbedding, oldEmbedding);
                         double cosine = cosineSimilarity(newFaceEmbedding, oldEmbedding);
 
-                        if (distance < 1.0 || cosine > 0.8) {
+                        if (distance < 1.2 && cosine > 0.75) {
                             Toast.makeText(this, "Khuôn mặt trùng khớp", Toast.LENGTH_SHORT).show();
                             Intent resultIntent = new Intent();
                             resultIntent.putExtra("result_key", "OK");

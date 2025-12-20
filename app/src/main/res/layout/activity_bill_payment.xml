@@ -233,5 +233,6 @@
         android:visibility="gone"
         app:layout_constraintBottom_toBottomOf="parent"/>
 
-
+    <include
+        layout="@layout/view_loading_overlay" />
 </androidx.constraintlayout.widget.ConstraintLayout>
