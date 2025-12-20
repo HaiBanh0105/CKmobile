@@ -1,21 +1,23 @@
 package com.example.banking;
 
-import android.content.Intent;
+import android.content.DialogInterface;
 import android.os.Bundle;
-import android.widget.Button;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
-import androidx.activity.result.ActivityResultLauncher;
-import androidx.activity.result.contract.ActivityResultContracts;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
+import com.example.banking.Activity.BaseSecureActivity;
+import com.example.banking.Fragment.OtpDialogFragment;
+import com.example.banking.databinding.SavingsInforBinding;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.Query;
+import com.google.firebase.firestore.Transaction;
 
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -23,194 +25,240 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
-public class saving_infor extends AppCompatActivity {
-    private TextView tvSavingsRate, tvSavingsProfit, tvMaturityDate, tvPeriodDate;
-    double estProfit;
-    String account_Id;
-    Date periodDate;
-    Button btnWithdraw;
-    String userId= SessionManager.getInstance().getUserId();
-    String email = SessionManager.getInstance().getEmail();
-    private ActivityResultLauncher<Intent> Launcher;
+public class saving_infor extends BaseSecureActivity {
+
+    private SavingsInforBinding binding;
+
+    private String savingsAccountNumber;
+    private String savingsDocId;
+    private String checkingDocId;
+    private String userId;
+
+    private double currentBalance = 0;
+    private double estProfit = 0;
+
+    private double interestRate = 0;   // lãi suất cam kết
+    private double appliedRate = 0;    // lãi suất áp dụng khi rút
+
+    private Date maturityDate;
+    private Date createdAt;            // ngày mở sổ
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         EdgeToEdge.enable(this);
-        setContentView(R.layout.savings_infor);
-        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.saving_infor), (v, insets) -> {
+
+        binding = SavingsInforBinding.inflate(getLayoutInflater());
+        setContentView(binding.getRoot());
+        initLoading(binding.getRoot());
+
+        ViewCompat.setOnApplyWindowInsetsListener(binding.savingInfor, (v, insets) -> {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
             return insets;
         });
 
-        Launcher = registerForActivityResult(
-                new ActivityResultContracts.StartActivityForResult(),
-                result -> {
-                    if (result.getResultCode() == RESULT_OK && result.getData() != null) {
-                        performWithdrawal();
-                        finish();
-                    }
-                }
-        );
+        userId = SessionManager.getInstance().getUserId();
+        savingsAccountNumber = getIntent().getStringExtra("account_number");
 
-        tvSavingsRate = findViewById(R.id.tvSavingsRate);
-        tvSavingsProfit = findViewById(R.id.tvSavingsProfit);
-        tvMaturityDate = findViewById(R.id.tvMaturityDate);
-        tvPeriodDate = findViewById(R.id.tvPeriodDate);
-        btnWithdraw = findViewById(R.id.btnWithdraw);
+        if (savingsAccountNumber == null) {
+            Toast.makeText(this, "Không tìm thấy tài khoản", Toast.LENGTH_SHORT).show();
+            finish();
+            return;
+        }
 
+        loadCheckingAccount();
+        loadSavingInfor();
 
-        // Nhận dữ liệu từ Intent
-        Intent getIntent = getIntent();
-        account_Id = getIntent.getStringExtra("account_id");
-
-        loadSavingInfor(account_Id);
-
-        btnWithdraw.setOnClickListener(v -> {
-            Calendar calendar = Calendar.getInstance();
-            Date today = calendar.getTime();
-
-            if(today.before(periodDate)){
-                Toast.makeText(this, "Chưa đến hạn rút tiền!", Toast.LENGTH_SHORT).show();
-                return;
-            }
-            else{
-                Intent intent = new Intent(saving_infor.this, otp.class);
-                intent.putExtra("email", email);
-                intent.putExtra("type", "transfer");
-                intent.putExtra("amount", String.valueOf(estProfit));
-                Launcher.launch(intent);
-            }
-        });
-
+        binding.toolbar.setNavigationOnClickListener(v -> finish());
+        binding.btnWithdraw.setOnClickListener(v -> handleWithdraw());
     }
 
-    private void performWithdrawal() {
-        FirebaseFirestore db = FirebaseFirestore.getInstance();
+    /* ================= LOAD DATA ================= */
 
-        //Cộng lãi vào tài khoản thanh toán
-        FirestoreHelper helper = new FirestoreHelper();
-        helper.changeCheckingBalanceByUserId(this, userId, estProfit);
-
-        // Cập nhật ngày kỳ hạn tiếp theo
-        Calendar next = Calendar.getInstance();
-        next.setTime(periodDate);
-        next.add(Calendar.MONTH, 1);
-        Date nextPeriod = next.getTime();
-
-        db.collection("Accounts").document(account_Id)
-                .update("period_day", nextPeriod)
-                .addOnSuccessListener(aVoid -> {
-                    SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy", Locale.getDefault());
-                    tvPeriodDate.setText(sdf.format(nextPeriod));
-                });
-
-
-        // 4. Thông báo và cập nhật UI
-        Toast.makeText(this, "Rút tiền thành công!", Toast.LENGTH_LONG).show();
-        btnWithdraw.setEnabled(false);
-        btnWithdraw.setText("Đã rút tháng này");
-    }
-
-
-    private void loadSavingInfor(String accountId) {
-        FirebaseFirestore db = FirebaseFirestore.getInstance();
-
-        // Sau khi hiển thị thông tin tài khoản
-        String currentMonth = new SimpleDateFormat("yyyy-MM", Locale.getDefault()).format(new Date());
-        db.collection("Transactions")
-                .whereEqualTo("account_id", accountId)
-                .whereEqualTo("transaction_month", currentMonth)
-                .whereEqualTo("type", "withdraw_savings")
+    private void loadCheckingAccount() {
+        FirebaseFirestore.getInstance()
+                .collection("Accounts")
+                .whereEqualTo("user_id", userId)
+                .whereEqualTo("account_type", "checking")
+                .limit(1)
                 .get()
                 .addOnSuccessListener(snapshot -> {
                     if (!snapshot.isEmpty()) {
-                        // Đã rút trong tháng này
-                        btnWithdraw.setEnabled(false);
-                        btnWithdraw.setText("Đã rút tháng này");
-                    } else {
-                        // Chưa rút
-                        btnWithdraw.setEnabled(true);
-                        btnWithdraw.setText("Rút tiền");
+                        checkingDocId = snapshot.getDocuments().get(0).getId();
                     }
-                })
-                .addOnFailureListener(e ->
-                        Toast.makeText(this, "Lỗi kiểm tra lịch sử rút: " + e.getMessage(), Toast.LENGTH_SHORT).show());
-
-        db.collection("Accounts").document(accountId).get()
-                .addOnSuccessListener(doc -> {
-                    if (doc.exists()) {
-                        // Lấy dữ liệu từ document
-                        Double balance = doc.getDouble("balance");
-                        String maturityDate = doc.get("maturity_date") != null ? doc.get("maturity_date").toString() : "";
-                        periodDate = doc.getDate("period_day");
-
-                        SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy", Locale.getDefault());
-                        tvPeriodDate.setText(sdf.format(periodDate));
-                        if ("Không thời hạn".equals(maturityDate)) {
-                            // Hiển thị ngày đáo hạn
-                            tvMaturityDate.setText(maturityDate);
-                            // Truy vấn InterestRates để lấy rate mới nhất
-                            db.collection("InterestRates")
-                                    .whereEqualTo("interest_type", "savings")
-                                    .orderBy("created_at", Query.Direction.DESCENDING)
-                                    .limit(1)
-                                    .get()
-                                    .addOnSuccessListener(querySnapshots -> {
-                                        if (!querySnapshots.isEmpty()) {
-                                            Double latestRate = querySnapshots.getDocuments().get(0).getDouble("interest_rate");
-                                            tvSavingsRate.setText(latestRate + "% / năm");
-
-                                            // Tính lợi nhuận tạm tính
-                                            if (balance != null && latestRate != null) {
-                                                estProfit = (balance * latestRate / 100) / 12;
-                                                tvSavingsProfit.setText(String.format("+ %,.0f VND", estProfit));
-                                            }
-                                        }
-                                    })
-                                    .addOnFailureListener(e ->
-                                            tvSavingsRate.setText("Lỗi lấy lãi suất: " + e.getMessage()));
-                        } else {
-                            Date date = doc.getDate("maturity_date");
-                            if (date != null) {
-                                tvMaturityDate.setText(sdf.format(date));
-                            }
-                            // Nếu có kỳ hạn: lấy rate từ document
-                            Double rate = doc.getDouble("interest_rate");
-                            if (rate != null) {
-                                tvSavingsRate.setText(rate + "% / năm");
-                                if (balance != null) {
-                                    estProfit = (balance * rate / 100) / 12;
-                                    tvSavingsProfit.setText(String.format("+ %,.0f VND", estProfit));
-                                }
-                            }
-                        }
-
-                    }
-                })
-                .addOnFailureListener(e ->
-                        tvSavingsRate.setText("Lỗi tải dữ liệu: " + e.getMessage()));
-
+                });
     }
 
-    private void saveWithdrawalRecord(String accountId, double amount) {
+    private void loadSavingInfor() {
+        FirebaseFirestore.getInstance()
+                .collection("Accounts")
+                .whereEqualTo("account_number", savingsAccountNumber)
+                .limit(1)
+                .get()
+                .addOnSuccessListener(snapshot -> {
+                    if (snapshot.isEmpty()) return;
+
+                    var doc = snapshot.getDocuments().get(0);
+                    savingsDocId = doc.getId();
+
+                    currentBalance = doc.getDouble("balance") != null
+                            ? doc.getDouble("balance") : 0;
+
+                    createdAt = doc.getDate("created_at");
+                    maturityDate = doc.getDate("maturity_date");
+
+                    Long months = doc.getLong("period_months");
+                    interestRate = doc.getDouble("interest_rate") != null
+                            ? doc.getDouble("interest_rate") : 0;
+
+                    binding.tvPeriod.setText(
+                            months == null || months == 0
+                                    ? "Không thời hạn"
+                                    : months + " tháng"
+                    );
+
+                    SimpleDateFormat sdf =
+                            new SimpleDateFormat("dd/MM/yyyy", Locale.getDefault());
+
+                    binding.tvMaturityDate.setText(
+                            maturityDate != null ? sdf.format(maturityDate) : "Không thời hạn"
+                    );
+
+                    binding.tvSavingsRate.setText(interestRate + "% / năm");
+
+                    if (months != null && months > 0) {
+                        estProfit = (currentBalance * interestRate / 100) / 12 * months;
+                        binding.tvSavingsProfit.setText(
+                                String.format("+ %,.0f VND", estProfit)
+                        );
+                    }
+                });
+    }
+
+    /* ================= WITHDRAW ================= */
+
+    private void handleWithdraw() {
+        Date today = Calendar.getInstance().getTime();
+
+        if (maturityDate != null && today.before(maturityDate)) {
+            new AlertDialog.Builder(this)
+                    .setTitle("Tất toán trước hạn")
+                    .setMessage(
+                            "Sổ chưa đến ngày đáo hạn (" +
+                                    new SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
+                                            .format(maturityDate) +
+                                    ").\n\nBạn sẽ chỉ hưởng lãi suất không kỳ hạn (0.1%)."
+                    )
+                    .setPositiveButton("Tiếp tục rút",
+                            (dialog, which) -> showOtpDialog())
+                    .setNegativeButton("Hủy", null)
+                    .show();
+        } else {
+            showOtpDialog();
+        }
+    }
+
+    private void showOtpDialog() {
+        if (checkingDocId == null) {
+            Toast.makeText(this, "Đang tải dữ liệu...", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        new OtpDialogFragment(new OtpDialogFragment.OtpCallback() {
+            @Override
+            public void onOtpSuccess() {
+                calculateFinalInterestRate();
+                performWithdrawalAtomic();
+            }
+
+            @Override
+            public void onOtpFailed() {
+                Toast.makeText(saving_infor.this,
+                        "Xác thực OTP thất bại",
+                        Toast.LENGTH_SHORT).show();
+            }
+        }).show(getSupportFragmentManager(), "OTP_DIALOG");
+    }
+
+    /* ================= INTEREST ================= */
+
+    private void calculateFinalInterestRate() {
+        Date today = Calendar.getInstance().getTime();
+
+        if (maturityDate != null && today.before(maturityDate)) {
+            appliedRate = 0.1; // rút trước hạn
+        } else {
+            appliedRate = interestRate; // đúng / sau hạn
+        }
+    }
+
+    /* ================= TRANSACTION ================= */
+
+    private void performWithdrawalAtomic() {
         FirebaseFirestore db = FirebaseFirestore.getInstance();
+        showLoading(true);
+        DocumentReference checkingRef =
+                db.collection("Accounts").document(checkingDocId);
+        DocumentReference savingsRef =
+                db.collection("Accounts").document(savingsDocId);
 
-        String month = new SimpleDateFormat("yyyy-MM", Locale.getDefault()).format(new Date());
+        db.runTransaction((Transaction.Function<Void>) transaction -> {
 
-        Map<String, Object> record = new HashMap<>();
-        record.put("account_id", accountId);
-        record.put("user_id", userId);
-        record.put("type", "withdraw_savings");
-        record.put("amount", amount);
-        record.put("transaction_month", month);
-        record.put("transaction_date", new Date());
-        record.put("note", "Rút lãi tiết kiệm tháng "+ month);
+            Double checkingBal =
+                    transaction.get(checkingRef).getDouble("balance");
 
-        db.collection("Transactions").add(record);
+            if (checkingBal == null) checkingBal = 0.0;
+
+            Date withdrawDate = Calendar.getInstance().getTime();
+            long days =
+                    TimeUnit.DAYS.convert(
+                            withdrawDate.getTime() - createdAt.getTime(),
+                            TimeUnit.MILLISECONDS
+                    );
+
+            double actualProfit =
+                    (currentBalance * appliedRate * days) / 365 / 100;
+
+            double totalAmount = currentBalance + actualProfit;
+
+            transaction.update(checkingRef,
+                    "balance", checkingBal + totalAmount);
+
+            transaction.delete(savingsRef);
+
+            String txnId =
+                    db.collection("AccountTransactions").document().getId();
+
+            Map<String, Object> txn = new HashMap<>();
+            txn.put("transactionId", txnId);
+            txn.put("userId", userId);
+            txn.put("type", "WITHDRAW_SAVINGS");
+            txn.put("amount", totalAmount);
+            txn.put("status", "SUCCESS");
+            txn.put("timestamp", FieldValue.serverTimestamp());
+            txn.put("description",
+                    "Tất toán tiết kiệm " + savingsAccountNumber);
+
+            transaction.set(
+                    db.collection("AccountTransactions").document(txnId),
+                    txn
+            );
+
+            return null;
+        }).addOnSuccessListener(v -> {
+            showLoading(false);
+            Toast.makeText(this,
+                    "Rút tiền thành công",
+                    Toast.LENGTH_LONG).show();
+            finish();
+        }).addOnFailureListener(e -> {
+            showLoading(false);
+            Toast.makeText(this,
+                    "Lỗi: " + e.getMessage(),
+                    Toast.LENGTH_SHORT).show();
+        });
     }
-
-
 }

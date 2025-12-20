@@ -1,30 +1,25 @@
 package com.example.banking;
 
-import android.content.Intent;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
-import android.view.View;
 import android.widget.ArrayAdapter;
-import android.widget.AutoCompleteTextView;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
-import androidx.activity.result.ActivityResultLauncher;
-import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
-import com.google.android.material.appbar.MaterialToolbar;
-import com.google.android.material.button.MaterialButton;
-import com.google.android.material.textfield.TextInputEditText;
+import com.example.banking.Activity.BaseSecureActivity;
+import com.example.banking.Fragment.OtpDialogFragment;
+import com.example.banking.databinding.OpenSavingsBinding;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
+import com.google.firebase.firestore.Transaction;
 
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -32,316 +27,312 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
+import java.util.UUID;
 
-public class open_savings extends AppCompatActivity {
-    private MaterialToolbar toolbar;
+public class open_savings extends BaseSecureActivity {
 
-    private TextView tvcheckingAmount,tvAppliedRate,tvEstimatedProfit,tvMaturityDate;
-
-    Double rate, profit, Amount;
-
-    Date maturityDate;
-
-    private TextInputEditText amount;
-
-    private AutoCompleteTextView autoCompleteTerm;
-
-    String userId = SessionManager.getInstance().getUserId();
-
-    int months = 0;
-
+    private OpenSavingsBinding binding;
     private FirebaseFirestore db;
 
-    String ID, customer_email;
-    MaterialButton btnOpen;
+    private double rate = 0;
+    private double profit = 0;
+    private int months = 6;
+    private Date maturityDate;
 
-    private ActivityResultLauncher<Intent> launcher;
-
-    Intent getIntent;
+    private final String userId = SessionManager.getInstance().getUserId();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         EdgeToEdge.enable(this);
-        setContentView(R.layout.open_savings);
-        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.openSaving), (v, insets) -> {
+
+        binding = OpenSavingsBinding.inflate(getLayoutInflater());
+        setContentView(binding.getRoot());
+        initLoading(binding.getRoot());
+
+        ViewCompat.setOnApplyWindowInsetsListener(binding.openSaving, (v, insets) -> {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
             return insets;
         });
 
-        getIntent = getIntent();
-        //Có intent thì là nhân viên tạo
-        if(getIntent.hasExtra("customer_ID")) {
-            ID = getIntent.getStringExtra("customer_ID");
-            customer_email = getIntent.getStringExtra("email");
-        }
-        else{
-            ID = userId;
-        }
-        // Khởi tạo launcher
-        launcher = registerForActivityResult(
-                new ActivityResultContracts.StartActivityForResult(),
-                result -> {
-                    if (result.getResultCode() == RESULT_OK) {
-                        Intent data = result.getData();
-                        if (data != null) {
-                            String value = data.getStringExtra("result_key");
-                            if(value.equalsIgnoreCase("OK")){
-                                OpenSaving(ID);
-                            }
-                        }
-                    }
-                }
-        );
-
         db = FirebaseFirestore.getInstance();
 
-        toolbar = findViewById(R.id.toolbar);
-        autoCompleteTerm = findViewById(R.id.autoCompleteTerm);
-        tvcheckingAmount = findViewById(R.id.tvSourceBalance);
-        tvAppliedRate = findViewById(R.id.tvAppliedRate);
-        tvEstimatedProfit = findViewById(R.id.tvEstimatedProfit);
-        tvMaturityDate = findViewById(R.id.tvMaturityDate);
-        btnOpen = findViewById(R.id.btnConfirmOpen);
-        amount = findViewById(R.id.edtAmount);
-
-        loadCheckingInfor(ID);
+        setupToolbar();
+        setupTermDropdown();
+        loadCheckingInfo();
         loadInterestRate();
-        loadMaturityDate();
+        setupListeners();
+    }
 
-        //Nút trở về
-        toolbar.setNavigationOnClickListener(v -> {
-            onBackPressed();
-        });
+    // ================= UI SETUP =================
 
-        // Danh sách kỳ hạn
-        String[] terms = new String[]{"3 Tháng","6 Tháng", "12 Tháng", "24 Tháng", "Không thời hạn"};
+    private void setupToolbar() {
+        binding.toolbar.setNavigationOnClickListener(v -> finish());
+    }
 
-        // Adapter cho AutoCompleteTextView
+    private void setupTermDropdown() {
+        String[] terms = {"3 Tháng", "6 Tháng", "12 Tháng", "24 Tháng", "Không thời hạn"};
         ArrayAdapter<String> adapter = new ArrayAdapter<>(
                 this,
                 android.R.layout.simple_dropdown_item_1line,
                 terms
         );
-        autoCompleteTerm.setAdapter(adapter);
-
-        // Đặt giá trị mặc định
-        autoCompleteTerm.setText(terms[0], false);
-        String currentValue = autoCompleteTerm.getText().toString();
-
-        amount.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void afterTextChanged(Editable s) {
-                profit = (rate/100 *  Double.parseDouble(amount.getText().toString().trim()))/12 * months;
-                loadEstimatedProfit();
-            }
-
-            @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-
-            }
-
-            @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
-
-            }
-        });
-
-        autoCompleteTerm.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void afterTextChanged(Editable s) {
-                loadMaturityDate();
-                profit = (rate/100 *  Double.parseDouble(amount.getText().toString().trim()))/12 * months;
-                loadEstimatedProfit();
-            }
-
-            @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-
-            }
-
-            @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
-
-            }
-        });
-
-        btnOpen.setOnClickListener(new View.OnClickListener() {
-
-            @Override
-            public void onClick(View v) {
-                String rawAmount = amount.getText().toString().trim();
-                if (rawAmount.isEmpty()) {
-                    Toast.makeText(open_savings.this, "Vui lòng nhập số tiền", Toast.LENGTH_SHORT).show();
-                    return;
-                }
-                // Xóa dấu phẩy hoặc chấm ngăn cách hàng nghìn
-                String cleanAmount = rawAmount.replaceAll("[^\\d]", "");
-                double Amount = Double.parseDouble(cleanAmount);
-
-                String rawChecking = tvcheckingAmount.getText().toString().trim();
-                String cleanChecking = rawChecking.replaceAll("[^\\d]", "");
-                double checkingAmount = Double.parseDouble(cleanChecking);
-
-
-                if(Amount > checkingAmount){
-                    Toast.makeText(open_savings.this, "Tài khoản thanh toán không đủ, vui lòng nạp thêm tiền", Toast.LENGTH_SHORT).show();
-                    return;
-                }
-                if(getIntent.hasExtra("customer_ID")){
-                    Intent intent = new Intent(open_savings.this, otp.class);
-                    intent.putExtra("email", customer_email);
-                    launcher.launch(intent);
-                }
-                else {
-                    Intent intent = new Intent(open_savings.this, ekyc.class);
-                    intent.putExtra("type", "confirm");
-                    launcher.launch(intent);
-                }
-            }
-        });
+        binding.autoCompleteTerm.setAdapter(adapter);
+        binding.autoCompleteTerm.setText("6 Tháng", false);
+        updateMaturityDate();
     }
 
-    //Cập nhật tiền thanh toán giao diện
-    private void loadCheckingInfor(String userId) {
-        FirestoreHelper helper = new FirestoreHelper();
-        helper.loadCheckingInfor(userId, new FirestoreHelper.AccountCallback() {
-            @Override
-            public void onSuccess(String number, Double balance){
-                tvcheckingAmount.setText(String.format("%,.0f VND", balance));
-            }
+    private void setupListeners() {
 
+        binding.edtAmount.addTextChangedListener(new TextWatcher() {
+            @Override public void beforeTextChanged(CharSequence s, int st, int c, int a) {}
+            @Override public void onTextChanged(CharSequence s, int st, int b, int c) {}
             @Override
-            public void onFailure(String errorMessage) {
-                Toast.makeText(open_savings.this, errorMessage, Toast.LENGTH_SHORT).show();
+            public void afterTextChanged(Editable s) {
+                calculateProfit();
             }
         });
+
+        binding.autoCompleteTerm.addTextChangedListener(new TextWatcher() {
+            @Override public void beforeTextChanged(CharSequence s, int st, int c, int a) {}
+            @Override public void onTextChanged(CharSequence s, int st, int b, int c) {}
+            @Override
+            public void afterTextChanged(Editable s) {
+                updateMaturityDate();
+                calculateProfit();
+            }
+        });
+
+        binding.btnConfirmOpen.setOnClickListener(v -> openOtpDialog());
     }
 
-    //Cập nhật lãi suất giao diện
-    private void loadInterestRate(){
-        db.collection("InterestRates")
-                .whereEqualTo("interest_type", "savings") // lọc theo loại lãi suất
-                .orderBy("created_at", Query.Direction.DESCENDING) // sắp xếp mới nhất
-                .limit(1) // chỉ lấy 1 bản ghi
+    // ================= LOAD DATA =================
+
+    private void loadCheckingInfo() {
+        db.collection("Accounts")
+                .whereEqualTo("user_id", userId)
+                .whereEqualTo("account_type", "checking")
+                .limit(1)
                 .get()
-                .addOnSuccessListener(queryDocumentSnapshots -> {
-                    if (!queryDocumentSnapshots.isEmpty()) {
-                        DocumentSnapshot doc = queryDocumentSnapshots.getDocuments().get(0);
-                        Double latestRate = doc.getDouble("interest_rate");
-                        rate = latestRate;
-                        tvAppliedRate.setText(latestRate.toString() + "% / năm");
-
-                    } else {
-                        Toast.makeText(this, "Chưa có dữ liệu lãi suất savings", Toast.LENGTH_SHORT).show();
+                .addOnSuccessListener(snapshot -> {
+                    if (!snapshot.isEmpty()) {
+                        Double balance = snapshot.getDocuments().get(0).getDouble("balance");
+                        binding.tvSourceBalance.setText(
+                                String.format("%,.0f VND", balance)
+                        );
                     }
-                })
-                .addOnFailureListener(e ->
-                        Toast.makeText(this, "Lỗi khi truy vấn: " + e.getMessage(), Toast.LENGTH_SHORT).show());
-
-    }
-
-    //Cập nhật ngày đáo hạn giao diện
-    private void loadMaturityDate() {
-        // Lấy kỳ hạn từ AutoCompleteTextView
-        String termStr = autoCompleteTerm.getText().toString().trim();
-
-        if (!termStr.isEmpty()) {
-            // Ngày hiện tại
-            Calendar calendar = Calendar.getInstance();
-
-            // Xác định số tháng từ kỳ hạn
-            if (termStr.contains("3 Tháng")) {
-                months = 3;
-            } else if (termStr.contains("6 Tháng")) {
-                months = 6;
-            } else if (termStr.contains("12 Tháng")) {
-                months = 12;
-            } else if (termStr.contains("24 Tháng")) {
-                months = 24;
-            }
-
-            // Cộng thêm số tháng vào ngày hiện tại
-            calendar.add(Calendar.MONTH, months);
-            maturityDate = calendar.getTime();
-
-            // Định dạng ngày đáo hạn
-            SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy", Locale.getDefault());
-            String maturityDate = sdf.format(calendar.getTime());
-
-            // Hiển thị lên TextView
-            if(months != 0){
-                tvMaturityDate.setText(maturityDate);
-            }
-            else{
-                tvMaturityDate.setText("Không thời hạn");
-            }
-        } else {
-            tvMaturityDate.setText("Chưa chọn kỳ hạn");
-        }
-    }
-
-
-
-    //Cập nhật lợi nhuận giao diện
-    private void loadEstimatedProfit(){
-        String formatProfit = String.format("%,.0f VND", profit);
-        tvEstimatedProfit.setText(formatProfit);
-    }
-
-    private void OpenSaving(String userId){
-        // accountId tự động tạo
-        String accountId = generateAccountId("02");
-        String rawAmount = amount.getText().toString().trim();
-        if (rawAmount.isEmpty()) {
-            Toast.makeText(this, "Vui lòng nhập số tiền", Toast.LENGTH_SHORT).show();
-            return;
-        }
-        // Xóa dấu phẩy hoặc chấm ngăn cách hàng nghìn
-        String cleanAmount = rawAmount.replaceAll("[^\\d]", "");
-        Amount = Double.parseDouble(cleanAmount);
-        Calendar calendar = Calendar.getInstance();
-        calendar.add(Calendar.MONTH, 1); //hạn nhận là 1 tháng
-
-
-        Map<String, Object> account = new HashMap<>();
-        account.put("account_id", accountId);
-        account.put("user_id", userId);
-        account.put("account_type", "savings");
-        account.put("balance", Amount);
-        account.put("created_at", FieldValue.serverTimestamp());
-        if(tvMaturityDate.getText() == "Không thời hạn"){
-            account.put("maturity_date", "Không thời hạn");
-        }else{
-            account.put("maturity_date", maturityDate);
-            account.put("interest_rate", rate);
-        }
-
-        account.put("period_day", calendar.getTime());
-        account.put("status", "active");
-
-        db.collection("Accounts").document(accountId).set(account)
-                .addOnSuccessListener(aVoid -> {
-                    FirestoreHelper helper = new FirestoreHelper();
-                    helper.changeCheckingBalanceByUserId(this,userId,-Amount);
-                    Toast.makeText(this, "Tài khoản tiết kiệm đã được tạo thành công", Toast.LENGTH_SHORT).show();
-                    finish();
-                })
-                .addOnFailureListener(e -> {
-                    Toast.makeText(this, "Lỗi tạo tài khoản: " + e.getMessage(), Toast.LENGTH_SHORT).show();
                 });
     }
 
-    private String generateAccountId(String type) {
-        String branchCode = "1010";      // mã chi nhánh
-
-        // Sinh 6 số ngẫu nhiên
-        int randomNumber = (int)(Math.random() * 1000000);
-        String randomSixDigits = String.format("%06d", randomNumber);
-
-        // Ghép lại thành accountId
-        return branchCode + type + randomSixDigits;
+    private void loadInterestRate() {
+        db.collection("InterestRates")
+                .whereEqualTo("interest_type", "savings")
+                .orderBy("created_at", Query.Direction.DESCENDING)
+                .limit(1)
+                .get()
+                .addOnSuccessListener(snapshot -> {
+                    if (!snapshot.isEmpty()) {
+                        rate = snapshot.getDocuments().get(0).getDouble("interest_rate");
+                        binding.tvAppliedRate.setText(rate + "% / năm");
+                    }
+                });
     }
 
+    // ================= CALCULATION =================
+
+    private void updateMaturityDate() {
+        String term = binding.autoCompleteTerm.getText().toString();
+
+        months = 0;
+        if (term.contains("3")) months = 3;
+        else if (term.contains("6")) months = 6;
+        else if (term.contains("12")) months = 12;
+        else if (term.contains("24")) months = 24;
+
+        if (months == 0) {
+            binding.tvMaturityDate.setText("Không thời hạn");
+            maturityDate = null;
+        } else {
+            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+                // Sử dụng LocalDate (Chỉ có ngày tháng năm, không có giờ phút giây)
+                java.time.LocalDate now = java.time.LocalDate.now();
+                java.time.LocalDate futureDate = now.plusMonths(months);
+
+                // Chuyển về Date để lưu vào Firestore
+                java.time.ZonedDateTime zdt = futureDate.atStartOfDay(java.time.ZoneId.systemDefault());
+                maturityDate = java.util.Date.from(zdt.toInstant());
+
+                // Format hiển thị
+                java.time.format.DateTimeFormatter formatter =
+                        java.time.format.DateTimeFormatter.ofPattern("dd/MM/yyyy");
+                binding.tvMaturityDate.setText(futureDate.format(formatter));
+            } else {
+                // Dùng cách Calendar đã sửa ở trên cho các máy đời cũ
+                Calendar cal = Calendar.getInstance();
+
+                // 🔹 QUAN TRỌNG: Đưa về 00:00:00:00 để chuẩn hóa ngày (Tránh lệch giờ phút giây)
+                cal.set(Calendar.HOUR_OF_DAY, 0);
+                cal.set(Calendar.MINUTE, 0);
+                cal.set(Calendar.SECOND, 0);
+                cal.set(Calendar.MILLISECOND, 0);
+
+                months = 0;
+                if (term.contains("3")) months = 3;
+                else if (term.contains("6")) months = 6;
+                else if (term.contains("12")) months = 12;
+                else if (term.contains("24")) months = 24;
+
+                if (months == 0) {
+                    binding.tvMaturityDate.setText("Không thời hạn");
+                    maturityDate = null;
+                } else {
+                    // 🔹 Dùng add(MONTH) là đúng, nhưng cần lưu ý:
+                    // Nếu hôm nay là 31/01, cộng 1 tháng sẽ ra 28/02 (chuẩn ngân hàng)
+                    cal.add(Calendar.MONTH, months);
+
+                    maturityDate = cal.getTime();
+
+                    binding.tvMaturityDate.setText(
+                            new SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
+                                    .format(maturityDate)
+                    );
+                }
+            }
+        }
+    }
+
+    private void calculateProfit() {
+        String raw = binding.edtAmount.getText().toString().replaceAll("[^\\d]", "");
+        if (raw.isEmpty() || rate == 0) {
+            binding.tvEstimatedProfit.setText("0 VND");
+            return;
+        }
+
+        double amount = Double.parseDouble(raw);
+        // Formula: Profit = (Principal * Annual Rate / 100) / 12 * Months
+        profit = (amount * rate / 100) / 12 * months;
+
+        binding.tvEstimatedProfit.setText(
+                String.format("%,.0f VND", profit)
+        );
+    }
+
+    // ================= OTP =================
+
+    private void openOtpDialog() {
+
+        String raw = binding.edtAmount.getText().toString().replaceAll("[^\\d]", "");
+        if (raw.isEmpty()) {
+            Toast.makeText(this, "Vui lòng nhập số tiền", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        OtpDialogFragment dialog = new OtpDialogFragment(new OtpDialogFragment.OtpCallback() {
+            @Override
+            public void onOtpSuccess() {
+                // Sử dụng số tiền đã làm sạch định dạng để truyền vào hàm giao dịch
+                openSavingAtomic(Double.parseDouble(raw));
+            }
+
+            @Override
+            public void onOtpFailed() {
+                Toast.makeText(open_savings.this,
+                        "Xác thực thất bại", Toast.LENGTH_SHORT).show();
+            }
+        });
+
+        dialog.show(getSupportFragmentManager(), "OTP_DIALOG");
+    }
+
+    // ================= ATOMIC TRANSACTION =================
+
+    // Hàm giả lập tạo số tài khoản. Thực tế cần logic phức tạp hơn.
+    private String generateAccountNumber(String prefix) {
+        return prefix + UUID.randomUUID().toString().replaceAll("[^\\d]", "").substring(0, 8);
+    }
+
+    private void openSavingAtomic(double amount) {
+        String savingsAccountNumber = generateAccountNumber("02");
+        showLoading(true);
+        db.collection("Accounts")
+                .whereEqualTo("user_id", userId)
+                .whereEqualTo("account_type", "checking")
+                .limit(1)
+                .get()
+                .addOnSuccessListener(snapshot -> {
+
+                    if (snapshot.isEmpty()) {
+                        Toast.makeText(this, "Không tìm thấy tài khoản nguồn", Toast.LENGTH_LONG).show();
+                        return;
+                    }
+
+                    DocumentSnapshot checkingDoc = snapshot.getDocuments().get(0);
+
+                    db.runTransaction((Transaction.Function<Void>) transaction -> {
+                        DocumentSnapshot freshChecking = transaction.get(checkingDoc.getReference());
+
+                        double currentBalance = freshChecking.getDouble("balance") != null ?
+                                freshChecking.getDouble("balance") : 0.0;
+
+                        if (currentBalance >= amount) {
+                            // 1. Tính toán số dư mới của tài khoản thanh toán
+                            double newBalance = currentBalance - amount;
+
+                            // 2. Cập nhật số dư tài khoản thanh toán
+                            transaction.update(checkingDoc.getReference(), "balance", newBalance);
+
+                            // 3. Tạo tài khoản tiết kiệm mới
+                            Map<String, Object> savingAccount = new HashMap<>();
+                            savingAccount.put("user_id", userId);
+                            savingAccount.put("account_number", savingsAccountNumber);
+                            savingAccount.put("account_type", "savings");
+                            savingAccount.put("balance", amount);
+                            savingAccount.put("interest_rate", rate);
+                            savingAccount.put("period_months", months);
+                            savingAccount.put("status", "active");
+                            savingAccount.put("created_at", FieldValue.serverTimestamp()); // Dùng ServerTimestamp cho đồng bộ
+                            if (maturityDate != null) {
+                                savingAccount.put("maturity_date", maturityDate);
+                            }
+
+                            // Tạo Document ID mới cho tài khoản tiết kiệm
+                            transaction.set(db.collection("Accounts").document(), savingAccount);
+
+                            // 4. Tạo lịch sử giao dịch (AccountTransactions)
+                            String txnId = db.collection("AccountTransactions").document().getId();
+                            Map<String, Object> txn = new HashMap<>();
+                            txn.put("transactionId", txnId);
+                            txn.put("userId", userId);
+                            txn.put("type", "OPEN_SAVINGS");
+                            txn.put("amount", amount);
+                            txn.put("balanceAfter", newBalance);
+                            txn.put("status", "SUCCESS");
+                            txn.put("timestamp", FieldValue.serverTimestamp());
+                            txn.put("senderAccountNumber", freshChecking.getString("account_number"));
+                            txn.put("receiverAccountNumber", savingsAccountNumber);
+                            txn.put("description", "Mở sổ tiết kiệm kỳ hạn " +
+                                    (months == 0 ? "không thời hạn" : months + " tháng"));
+
+                            transaction.set(db.collection("AccountTransactions").document(txnId), txn);
+
+                        } else {
+                            throw new RuntimeException("Insufficient balance");
+                        }
+                        return null;
+
+                    }).addOnSuccessListener(aVoid -> {
+                        showLoading(false);
+                        Toast.makeText(open_savings.this, "Mở tài khoản tiết kiệm thành công!", Toast.LENGTH_LONG).show();
+                        finish();
+                    }).addOnFailureListener(e -> {
+                        showLoading(false);
+                        if (e.getMessage() != null && e.getMessage().contains("Insufficient balance")) {
+                            Toast.makeText(this, "Số dư tài khoản không đủ.", Toast.LENGTH_LONG).show();
+                        } else {
+                            Toast.makeText(this, "Lỗi hệ thống: " + e.getLocalizedMessage(), Toast.LENGTH_LONG).show();
+                        }
+                    });
+                });
+    }
 }

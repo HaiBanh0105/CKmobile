@@ -6,6 +6,8 @@ public class Account {
     private String account_number;
     private String name;
     private Double balance;
+    private String BankCode;
+
 
     public String getUser_id() {
         return user_id;
@@ -23,7 +25,6 @@ public class Account {
         this.name = name;
     }
 
-    private String BankCode;
 
     public Account() {} // Firestore cần constructor rỗng
 

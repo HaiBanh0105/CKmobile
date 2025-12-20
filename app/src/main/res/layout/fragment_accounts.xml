@@ -5,8 +5,10 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="#F4F7F9"
     tools:context=".AccountsFragment">
 
+    <!-- Tiêu đề của Fragment -->
     <TextView
         android:id="@+id/tvTitle"
         android:layout_width="wrap_content"
@@ -14,9 +16,12 @@
         android:text="Tài khoản của tôi"
         android:textAppearance="@style/TextAppearance.MaterialComponents.Headline5"
         android:padding="16dp"
+        android:textColor="@color/dark_blue"
+        android:textStyle="bold"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"/>
 
+    <!-- Danh sách các tài khoản -->
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rvAccounts"
         android:layout_width="0dp"
@@ -29,14 +34,19 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"/>
+    <!-- Bạn cần đảm bảo layout item_account.xml cũng sử dụng phối màu mới -->
+
+    <!-- Nút Mở tài khoản tiết kiệm (FAB) -->
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/fabOpenSavings"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_margin="16dp"
+        android:layout_margin="24dp"
         android:contentDescription="Mở tài khoản tiết kiệm"
-        app:srcCompat="@android:drawable/ic_input_add"
-        app:backgroundTint="@android:color/holo_green_light"
+        app:srcCompat="@drawable/ic_addaccount"
+        app:tint="@color/white"
+        app:backgroundTint="@color/orange"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>

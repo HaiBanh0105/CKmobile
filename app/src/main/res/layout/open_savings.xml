@@ -6,7 +6,7 @@
     android:id="@+id/openSaving"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="?android:attr/colorBackground"
+    android:background="#F4F7F9"
     tools:context=".open_savings">
 
     <com.google.android.material.appbar.AppBarLayout
@@ -19,8 +19,13 @@
             android:id="@+id/toolbar"
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
+            android:background="@color/white"
             app:title="Mở Tiết kiệm Online"
-            app:navigationIcon="@drawable/ic_arrow_back_standard" />
+            app:titleCentered="true"
+            app:titleTextColor="@color/dark_blue"
+            app:navigationIcon="@drawable/ic_arrow_back_standard"
+            app:navigationIconTint="@color/dark_blue" />
+
     </com.google.android.material.appbar.AppBarLayout>
 
     <androidx.core.widget.NestedScrollView
@@ -42,13 +47,15 @@
                 android:layout_height="wrap_content"
                 android:text="Nguồn tiền"
                 android:textStyle="bold"
+                android:textSize="16sp"
+                android:textColor="@color/dark_blue"
                 android:layout_marginBottom="8dp"/>
 
             <com.google.android.material.card.MaterialCardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                app:cardCornerRadius="8dp"
-                app:strokeColor="@color/dividerColor"
+                app:cardCornerRadius="12dp"
+                app:strokeColor="#DDDDDD"
                 app:strokeWidth="1dp"
                 app:cardElevation="0dp"
                 android:layout_marginBottom="24dp">
@@ -64,15 +71,16 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="Tài khoản thanh toán"
-                        android:textColor="?android:attr/textColorSecondary" />
+                        android:textColor="#757575" />
 
                     <TextView
                         android:id="@+id/tvSourceBalance"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="4dp"
-                        android:text="Số dư: 10.500.000 VND"
-                        android:textColor="?attr/colorPrimary"
+                        android:text="Số dư khả dụng: 10.500.000 VND"
+                        android:textColor="@color/dark_blue"
+                        android:textSize="16sp"
                         android:textStyle="bold" />
                 </LinearLayout>
 
@@ -84,7 +92,8 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:hint="Số tiền gửi (VND)"
-                app:helperText="Tối thiểu 1.000.000 VND">
+                app:helperText="Tối thiểu 1.000.000 VND"
+                app:helperTextTextColor="@color/orange"> <!-- Dùng màu cam cho helper text -->
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/edtAmount"
@@ -98,6 +107,8 @@
                 android:layout_height="wrap_content"
                 android:text="Kỳ hạn gửi"
                 android:textStyle="bold"
+                android:textSize="16sp"
+                android:textColor="@color/dark_blue"
                 android:layout_marginTop="24dp"
                 android:layout_marginBottom="8dp"/>
 
@@ -113,91 +124,107 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:inputType="none"
-                    android:text="6 Tháng" />
+                    android:text="6 Tháng"
+                    android:textColor="@color/dark_blue"/>
             </com.google.android.material.textfield.TextInputLayout>
 
+            <!-- Card tóm tắt thông tin lãi suất -->
             <com.google.android.material.card.MaterialCardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="24dp"
-                app:cardBackgroundColor="#F0F8FF"
-                app:cardCornerRadius="8dp"
-                app:cardElevation="0dp">
+                app:cardBackgroundColor="#E3F2FD"
+            app:cardCornerRadius="12dp"
+            app:cardElevation="0dp">
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:padding="20dp"
+                android:orientation="vertical">
+
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:padding="16dp"
-                    android:orientation="vertical">
-
-                    <LinearLayout
-                        android:layout_width="match_parent"
+                    android:orientation="horizontal">
+                    <TextView
+                        android:layout_width="0dp"
                         android:layout_height="wrap_content"
-                        android:orientation="horizontal">
-                        <TextView
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:text="Lãi suất áp dụng:"/>
-                        <TextView
-                            android:id="@+id/tvAppliedRate"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="5.5% / năm"
-                            android:textStyle="bold"/>
-                    </LinearLayout>
-
-                    <LinearLayout
-                        android:layout_width="match_parent"
+                        android:layout_weight="1"
+                        android:text="Lãi suất áp dụng:"
+                        android:textColor="@color/dark_blue"/>
+                    <TextView
+                        android:id="@+id/tvAppliedRate"
+                        android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:orientation="horizontal"
-                        android:layout_marginTop="8dp">
-                        <TextView
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:text="Lợi nhuận dự kiến:"/>
-                        <TextView
-                            android:id="@+id/tvEstimatedProfit"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="0 VND"
-                            android:textColor="@android:color/holo_green_dark"
-                            android:textStyle="bold"/>
-                    </LinearLayout>
-
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="horizontal"
-                        android:layout_marginTop="8dp">
-                        <TextView
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:text="Ngày đáo hạn:"/>
-
-                        <TextView
-                            android:id="@+id/tvMaturityDate"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="--/--/----"
-                            android:textStyle="bold" />
-                    </LinearLayout>
+                        android:text="5.5% / năm"
+                        android:textColor="@color/orange"
+                        android:textStyle="bold"/>
                 </LinearLayout>
-            </com.google.android.material.card.MaterialCardView>
 
-        </LinearLayout>
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:layout_marginTop="12dp">
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="Lợi nhuận dự kiến:"
+                        android:textColor="@color/dark_blue"/>
+                    <TextView
+                        android:id="@+id/tvEstimatedProfit"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="0 VND"
+                        android:textColor="@android:color/holo_green_dark"
+                        android:textStyle="bold"/>
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:layout_marginTop="12dp">
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="Ngày đáo hạn:"
+                        android:textColor="@color/dark_blue"/>
+
+                    <!-- Dòng bị thiếu trong mã gốc -->
+                    <TextView
+                        android:id="@+id/tvMaturityDate"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="12/12/2026"
+                        android:textColor="@color/dark_blue"
+                        android:textStyle="bold"/>
+                </LinearLayout>
+
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+    </LinearLayout>
     </androidx.core.widget.NestedScrollView>
 
+        <!-- Nút xác nhận được ghim xuống đáy -->
     <com.google.android.material.button.MaterialButton
-        android:id="@+id/btnConfirmOpen"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_margin="16dp"
-        android:padding="14dp"
-        android:text="Mở sổ tiết kiệm"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
+    android:id="@+id/btnConfirmOpen"
+    android:layout_width="match_parent"
+    android:layout_height="60dp"
+    android:layout_margin="16dp"
+    android:text="Xác nhận mở tiết kiệm"
+    app:cornerRadius="12dp"
+    app:backgroundTint="@color/orange"
+    android:textColor="@color/white"
+    android:textStyle="bold"
+    android:textSize="16sp"
+    app:layout_constraintBottom_toBottomOf="parent"
+    app:layout_constraintStart_toStartOf="parent"
+    app:layout_constraintEnd_toEndOf="parent" />
+
+    <include
+        layout="@layout/view_loading_overlay" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

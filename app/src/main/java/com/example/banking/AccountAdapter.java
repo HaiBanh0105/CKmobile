@@ -41,12 +41,12 @@ public class AccountAdapter extends RecyclerView.Adapter<AccountAdapter.AccountV
             Context context = v.getContext();
             if(account.getAccount_type().equals("savings")) {
                 Intent intent = new Intent(context, saving_infor.class);
-                intent.putExtra("account_id", account.getAccount_number());
+                intent.putExtra("account_number", account.getAccount_number());
                 context.startActivity(intent);
             }
             else{
                 Intent intent = new Intent(context, mortgages_infor.class);
-                intent.putExtra("account_id", account.getAccount_number());
+                intent.putExtra("account_number", account.getAccount_number());
                 context.startActivity(intent);
             }
         });
