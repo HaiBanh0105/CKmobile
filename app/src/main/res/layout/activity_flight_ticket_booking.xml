@@ -124,7 +124,6 @@
                 app:layout_constraintTop_toTopOf="parent"
                 app:srcCompat="@drawable/from_ic" />
 
-
             <Spinner
                 android:id="@+id/fromSpinner"
                 android:layout_width="0dp"

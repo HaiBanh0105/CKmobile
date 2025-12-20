@@ -14,7 +14,9 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
+import com.example.banking.Activity.TransactionHistory;
 import com.example.banking.Activity.transfer;
+import com.example.banking.Adapter.TransactionAdapter;
 import com.example.banking.databinding.FragmentHomeBinding;
 import com.example.banking.model.AccountTransaction;
 import com.example.banking.util.ClickEffectUtil;
@@ -23,11 +25,8 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.ListenerRegistration;
 import com.google.firebase.firestore.Query;
 
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
-import java.util.Locale;
 
 public class HomeFragment extends Fragment {
 
@@ -86,7 +85,7 @@ public class HomeFragment extends Fragment {
     }
 
     private void setupRecyclerView() {
-        adapter = new TransactionAdapter(transactionList);
+        adapter = new TransactionAdapter(transactionList, transaction -> {});
         binding.rvRecentTransactions.setLayoutManager(new LinearLayoutManager(requireContext()));
         binding.rvRecentTransactions.setAdapter(adapter);
     }
@@ -122,6 +121,9 @@ public class HomeFragment extends Fragment {
 
         binding.btnPayBill.setOnClickListener(v ->
                 startActivity(new Intent(requireContext(), bill_payment.class)));
+
+        binding.tvViewMore.setOnClickListener(v ->
+                startActivity(new Intent(requireContext(), TransactionHistory.class)));
     }
 
     // Load thông tin tài khoản
@@ -131,13 +133,15 @@ public class HomeFragment extends Fragment {
                 new FirestoreHelper.AccountCallback() {
                     @Override
                     public void onSuccess(String number, Double balance) {
-                        binding.tvAccountNumber.setText("Số tài khoản: " + number);
-                        currentBalance = balance;
+                        if (binding != null) {
+                            binding.tvAccountNumber.setText("Số tài khoản: " + number);
+                            currentBalance = balance;
 
-                        if (isBalanceVisible) {
-                            binding.tvBalanceAmount.setText(
-                                    String.format("%,.0f VND", balance)
-                            );
+                            if (isBalanceVisible) {
+                                binding.tvBalanceAmount.setText(
+                                        String.format("%,.0f VND", balance)
+                                );
+                            }
                         }
                     }
 
@@ -158,6 +162,7 @@ public class HomeFragment extends Fragment {
                 .orderBy("timestamp", Query.Direction.DESCENDING)
                 .limit(10)
                 .addSnapshotListener((snapshots, e) -> {
+                    if (binding == null || !isAdded()) return;
 
                     if (e != null) {
                         Toast.makeText(

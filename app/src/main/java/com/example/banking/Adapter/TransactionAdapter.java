@@ -1,4 +1,4 @@
-package com.example.banking;
+package com.example.banking.Adapter;
 
 import android.graphics.Color;
 import android.view.LayoutInflater;
@@ -9,6 +9,7 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.banking.R;
 import com.example.banking.model.AccountTransaction;
 
 import java.text.SimpleDateFormat;
@@ -20,8 +21,17 @@ public class TransactionAdapter
 
     private final List<AccountTransaction> transactionList;
 
-    public TransactionAdapter(List<AccountTransaction> transactionList) {
-        this.transactionList = transactionList;
+    private final OnItemClickListener listener;
+
+    // Interface click item
+    public interface OnItemClickListener {
+        void onItemClick(AccountTransaction transaction);
+    }
+
+    public TransactionAdapter(List<AccountTransaction> list,
+                                     OnItemClickListener listener) {
+        this.transactionList = list;
+        this.listener = listener;
     }
 
     @NonNull
@@ -52,7 +62,7 @@ public class TransactionAdapter
             holder.tvTransactionDate.setText("Đang xử lý");
         }
 
-        // Tên giao dịch -> description
+        // Tên giao dịch
         String description = transaction.getDescription();
         holder.tvTransactionName.setText(
                 description != null && !description.isEmpty()
@@ -60,7 +70,7 @@ public class TransactionAdapter
                         : "Giao dịch"
         );
 
-        // Xác định tiền vào / ra
+        // Tiền vào / ra
         boolean isIncome = isIncome(transaction.getType());
         double amount = transaction.getAmount() != null
                 ? transaction.getAmount()
@@ -75,7 +85,15 @@ public class TransactionAdapter
                 isIncome ? Color.parseColor("#2E7D32")
                         : Color.parseColor("#C62828")
         );
+
+        // 👉 Click item
+        holder.itemView.setOnClickListener(v -> {
+            if (listener != null) {
+                listener.onItemClick(transaction);
+            }
+        });
     }
+
 
     @Override
     public int getItemCount() {

@@ -1,13 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools" >
+    xmlns:tools="http://schemas.android.com/tools">
 
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.CAMERA" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
-    <uses-permission android:name="android.permission.READ_CONTACTS"/>
-
+    <uses-permission android:name="android.permission.READ_CONTACTS" />
 
     <uses-feature
         android:name="android.hardware.camera"
@@ -24,7 +23,10 @@
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:theme="@style/Theme.Banking" >
+        android:theme="@style/Theme.Banking">
+        <activity
+            android:name=".Activity.TransactionHistory"
+            android:exported="false" />
         <activity
             android:name=".Activity.AccountTransactionActivity"
             android:exported="false" />
@@ -91,7 +93,7 @@
         <!-- android:exported="false" /> -->
         <activity
             android:name=".staff_main"
-            android:exported="false" >
+            android:exported="false">
 
             <!-- <intent-filter> -->
             <!-- <action android:name="android.intent.action.MAIN" /> -->
@@ -132,7 +134,7 @@
             android:exported="false" />
         <activity
             android:name=".splash"
-            android:exported="true" >
+            android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 

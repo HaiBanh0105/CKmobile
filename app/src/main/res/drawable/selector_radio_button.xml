@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Khi được chọn: Hiện màu gradient hoặc màu chính -->
+    <item android:state_checked="true">
+        <shape android:shape="rectangle">
+            <solid android:color="#FFFFFF" /> <!-- Hoặc màu chủ đạo của bạn -->
+            <corners android:radius="8dp" />
+        </shape>
+    </item>
+    <!-- Khi không được chọn: Để nền trong suốt -->
+    <item>
+        <shape android:shape="rectangle">
+            <solid android:color="@android:color/transparent" />
+        </shape>
+    </item>
+</selector>
