@@ -2,6 +2,8 @@ package com.example.banking;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.widget.Button;
+import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -18,8 +20,9 @@ import java.security.NoSuchAlgorithmException;
 
 public class login extends AppCompatActivity {
 
-    private TextInputEditText edtUsername, edtPassword;
-    private MaterialButton btnLogin, btnRegister;
+    private EditText edtUsername, edtPassword;
+    private MaterialButton btnRegister;
+    private Button btnLogin;
     private TextView tvForgotPassword;
     private FirebaseAuth mAuth;
     private FirebaseFirestore db;
