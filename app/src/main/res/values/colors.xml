@@ -14,4 +14,6 @@
     <color name="red">#dddee0</color>
     <color name="teal_200">#80CBC4</color>
     <color name="highlight">#E0F7FA</color>
+    <color name="orange">#EA6D35</color>
+    <color name="dark_blue">#4c6184</color>
 </resources>
