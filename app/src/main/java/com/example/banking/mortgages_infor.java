@@ -2,15 +2,38 @@ package com.example.banking;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
+import com.google.android.material.button.MaterialButton;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.ListenerRegistration;
+
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Locale;
+import java.util.Map;
+
 public class mortgages_infor extends AppCompatActivity {
     private String account_id;
+    Double cheking_balance, monthlyPayment;
+
+    private TextView tvMortgageRate, tvMortgagePrincipal, tvNextDueDate,  tvMonthlyPayment;
+
+    MaterialButton btnPayMortgage;
+    String userId= SessionManager.getInstance().getUserId();
+    String email = SessionManager.getInstance().getEmail();
+    private ListenerRegistration registration;
+    private ActivityResultLauncher<Intent> Launcher;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -23,66 +46,178 @@ public class mortgages_infor extends AppCompatActivity {
             return insets;
         });
 
+        Launcher = registerForActivityResult(
+                new ActivityResultContracts.StartActivityForResult(),
+                result -> {
+                    if (result.getResultCode() == RESULT_OK && result.getData() != null) {
+                        Toast.makeText(this, "Thanh toán thành công!", Toast.LENGTH_SHORT).show();
+                        FirestoreHelper helper = new FirestoreHelper();
+                        helper.changeCheckingBalanceByUserId(this,userId,-monthlyPayment);
+                        PayMortgage();
+                        finish();
+                    }
+                }
+        );
+
         Intent getIntent = getIntent();
         account_id = getIntent.getStringExtra("account_id");
 
+        tvMortgageRate = findViewById(R.id.tvMortgageRate);
+        tvMortgagePrincipal = findViewById(R.id.tvMortgagePrincipal);
+        tvNextDueDate = findViewById(R.id.tvNextDueDate);
+        tvMonthlyPayment = findViewById(R.id.tvMonthlyPayment);
+        btnPayMortgage = findViewById(R.id.btnPayMortgage);
+
+        loadCheckingInfor(userId);
+        loadMortgageInfor(account_id);
+
+        btnPayMortgage.setOnClickListener(v -> {
+            if(monthlyPayment > cheking_balance){
+                Toast.makeText(this, "Tài khoản thanh toaán không đủ: ", Toast.LENGTH_SHORT).show();
+                return;
+            }
+            else{
+                Intent intent = new Intent(mortgages_infor.this, otp.class);
+                intent.putExtra("email", email);
+                intent.putExtra("type", "transfer");
+                intent.putExtra("amount", monthlyPayment.toString());
+                Launcher.launch(intent);
+            }
+        });
+
+
     }
 
-//    private void loadMortgageInfor(String accountId) {
-//        FirebaseFirestore db = FirebaseFirestore.getInstance();
-//
-//        db.collection("Accounts").document(accountId).get()
-//                .addOnSuccessListener(doc -> {
-//                    if (doc.exists()) {
-//                        // Lấy dữ liệu từ document
-//                        Double balance = doc.getDouble("balance");
-//                        String maturityDate = doc.get("maturity_date") != null ? doc.get("maturity_date").toString() : "";
-//                        periodDate = doc.getDate("period_day");
-//
-//                        SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy", Locale.getDefault());
-//                        tvPeriodDate.setText(sdf.format(periodDate));
-//                        if ("Không thời hạn".equals(maturityDate)) {
-//                            // Hiển thị ngày đáo hạn
-//                            tvMaturityDate.setText(maturityDate);
-//                            // Truy vấn InterestRates để lấy rate mới nhất
-//                            db.collection("InterestRates")
-//                                    .whereEqualTo("interest_type", "savings")
-//                                    .orderBy("created_at", Query.Direction.DESCENDING)
-//                                    .limit(1)
-//                                    .get()
-//                                    .addOnSuccessListener(querySnapshots -> {
-//                                        if (!querySnapshots.isEmpty()) {
-//                                            Double latestRate = querySnapshots.getDocuments().get(0).getDouble("interest_rate");
-//                                            tvSavingsRate.setText(latestRate + "% / năm");
-//
-//                                            // Tính lợi nhuận tạm tính
-//                                            if (balance != null && latestRate != null) {
-//                                                estProfit = (balance * latestRate / 100) / 12;
-//                                                tvSavingsProfit.setText(String.format("+ %,.0f VND", estProfit));
-//                                            }
-//                                        }
-//                                    })
-//                                    .addOnFailureListener(e ->
-//                                            tvSavingsRate.setText("Lỗi lấy lãi suất: " + e.getMessage()));
-//                        } else {
-//                            Date date = doc.getDate("maturity_date");
-//                            if (date != null) {
-//                                tvMaturityDate.setText(sdf.format(date));
-//                            }
-//                            // Nếu có kỳ hạn: lấy rate từ document
-//                            Double rate = doc.getDouble("interest_rate");
-//                            if (rate != null) {
-//                                tvSavingsRate.setText(rate + "% / năm");
-//                                if (balance != null) {
-//                                    estProfit = (balance * rate / 100) / 12;
-//                                    tvSavingsProfit.setText(String.format("+ %,.0f VND", estProfit));
-//                                }
-//                            }
-//                        }
-//
-//                    }
-//                })
-//                .addOnFailureListener(e ->
-//                        tvSavingsRate.setText("Lỗi tải dữ liệu: " + e.getMessage()));
-//    }
+    private void loadMortgageInfor(String accountId) {
+
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        // Kiểm tra tháng hiện tại đã thanh toán chưa
+        String currentMonth = new SimpleDateFormat("yyyy-MM", Locale.getDefault()).format(new Date());
+
+        db.collection("Transactions")
+                .whereEqualTo("account_id", accountId)
+                .whereEqualTo("transaction_month", currentMonth)
+                .whereEqualTo("type", "pay_mortgage")
+                .get()
+                .addOnSuccessListener(query -> {
+                    if (!query.isEmpty()) {
+                        // Đã thanh toán tháng này
+                        btnPayMortgage.setEnabled(false);
+                        btnPayMortgage.setText("Đã thanh toán");
+                    } else {
+                        // Chưa thanh toán
+                        btnPayMortgage.setEnabled(true);
+                        btnPayMortgage.setText("Thanh toán ngay");
+                    }
+                })
+                .addOnFailureListener(e ->
+                        Toast.makeText(this, "Lỗi kiểm tra thanh toán: " + e.getMessage(), Toast.LENGTH_SHORT).show());
+
+        db.collection("Accounts").document(accountId).get()
+                .addOnSuccessListener(doc -> {
+                    if (doc.exists()) {
+                        // Lấy dữ liệu từ document
+                        SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy", Locale.getDefault());
+                        Double remaining_debt = doc.getDouble("remaining_debt");
+                        monthlyPayment = doc.getDouble("monthlyPayment");
+                        Double interest_rate = doc.getDouble("interest_rate");
+                        Date period_day = doc.getDate("period_day");
+
+                        tvMortgageRate.setText(interest_rate + "% / năm");
+                        tvMortgagePrincipal.setText(String.format("%,.0f VND", remaining_debt));
+                        tvNextDueDate.setText(sdf.format(period_day));
+                        tvMonthlyPayment.setText(String.format("%,.0f VND", monthlyPayment));
+
+                    }
+                })
+                .addOnFailureListener(e ->
+                        Toast.makeText(this, "Lỗi tải dữ liệu: " + e.getMessage(), Toast.LENGTH_SHORT).show());
+    }
+
+    private void PayMortgage(){
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+
+        db.collection("Accounts").document(account_id).get()
+                .addOnSuccessListener(doc -> {
+                    if (doc.exists()) {
+                        Double remaining_debt = doc.getDouble("remaining_debt");
+                        Double monthlyPayment = doc.getDouble("monthlyPayment");
+                        Date period_day = doc.getDate("period_day");
+
+                        if (remaining_debt != null && monthlyPayment != null && period_day != null) {
+                            // Trừ tiền thanh toán
+                            double newRemainingDebt = remaining_debt - monthlyPayment;
+
+                            // Cập nhật kỳ hạn tiếp theo (+1 tháng)
+                            java.util.Calendar cal = java.util.Calendar.getInstance();
+                            cal.setTime(period_day);
+                            cal.add(java.util.Calendar.MONTH, 1);
+                            Date nextPeriod = cal.getTime();
+
+                            // Cập nhật lại document Accounts
+                            db.collection("Accounts").document(account_id)
+                                    .update("remaining_debt", newRemainingDebt,
+                                            "period_day", nextPeriod)
+                                    .addOnSuccessListener(aVoid -> {
+                                        // Lưu lịch sử thanh toán
+                                        saveMortgagePayment(account_id, monthlyPayment);
+
+                                        // Cập nhật UI
+                                        tvMortgagePrincipal.setText(String.format("%,.0f VND", newRemainingDebt));
+                                        SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy", Locale.getDefault());
+                                        tvNextDueDate.setText(sdf.format(nextPeriod));
+
+                                        Toast.makeText(this, "Thanh toán thành công!", Toast.LENGTH_SHORT).show();
+                                    })
+                                    .addOnFailureListener(e ->
+                                            Toast.makeText(this, "Lỗi cập nhật: " + e.getMessage(), Toast.LENGTH_SHORT).show());
+                        }
+                    }
+                });
+    }
+
+
+    private void saveMortgagePayment(String accountId, double amount) {
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+
+        String month = new SimpleDateFormat("yyyy-MM", Locale.getDefault()).format(new Date());
+
+        Map<String, Object> record = new HashMap<>();
+        record.put("account_id", accountId);
+        record.put("user_id", userId);
+        record.put("type", "pay_mortgage");
+        record.put("amount", amount);
+        record.put("transaction_month", month);
+        record.put("transaction_date", new Date());
+        record.put("note", "Thanh toán khoản vay tháng " + month);
+
+        db.collection("Transactions").add(record);
+    }
+
+
+    private void loadCheckingInfor(String userId) {
+        FirestoreHelper helper = new FirestoreHelper();
+        registration = helper.loadCheckingInfor(userId, new FirestoreHelper.AccountCallback() {
+            @Override
+            public void onSuccess(String number, Double balance){
+                cheking_balance = balance;
+            }
+
+            @Override
+            public void onFailure(String errorMessage) {
+                Toast.makeText(mortgages_infor.this, errorMessage, Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        if (registration != null) {
+            registration.remove(); // hủy listener khi Activity dừng
+        }
+    }
+
 }

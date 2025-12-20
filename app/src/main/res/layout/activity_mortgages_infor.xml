@@ -31,7 +31,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="12dp"
-            android:text="Khoản vay Thế chấp"
+            android:text="Khoản vay "
             android:textColor="@android:color/holo_red_dark"
             android:textAppearance="@style/TextAppearance.MaterialComponents.Subtitle1"
             android:textStyle="bold" />
@@ -58,7 +58,7 @@
             android:textColor="?android:attr/textColorSecondary" />
 
         <TextView
-            android:id="@+id/tvLoanPrincipal"
+            android:id="@+id/tvMortgagePrincipal"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textStyle="bold"
@@ -79,7 +79,7 @@
             android:textColor="?android:attr/textColorSecondary" />
 
         <TextView
-            android:id="@+id/tvLoanRate"
+            android:id="@+id/tvMortgageRate"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textStyle="bold"
@@ -93,12 +93,30 @@
         android:background="#FFF0F0"
         android:padding="12dp"
         android:orientation="vertical">
-        <TextView
-            android:layout_width="wrap_content"
+
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Thanh toán kỳ này"
-            android:textColor="@android:color/holo_red_dark"
-            android:textStyle="bold"/>
+            android:layout_marginTop="4dp"
+            android:orientation="horizontal">
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Số tiền cần thanh toán"
+                android:textColor="@android:color/holo_red_dark"
+                android:textStyle="bold"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Hạn đóng"
+                android:textColor="@android:color/holo_red_dark"
+                android:textStyle="bold"/>
+
+        </LinearLayout>
+
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -120,17 +138,18 @@
                 android:id="@+id/tvNextDueDate"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Hạn: 05/12"
+                android:text="05/12"
                 android:textColor="@android:color/holo_red_dark"/>
         </LinearLayout>
     </LinearLayout>
 
     <com.google.android.material.button.MaterialButton
-        android:id="@+id/btnPayLoan"
+        android:id="@+id/btnPayMortgage"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="12dp"
         android:text="Thanh toán ngay"
+        android:textColor="@android:color/holo_red_dark"
         style="@style/Widget.MaterialComponents.Button.OutlinedButton"/>
 
 </LinearLayout>
