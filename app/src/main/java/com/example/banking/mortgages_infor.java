@@ -89,7 +89,29 @@ public class mortgages_infor extends AppCompatActivity {
     }
 
     private void loadMortgageInfor(String accountId) {
+
         FirebaseFirestore db = FirebaseFirestore.getInstance();
+        // Kiểm tra tháng hiện tại đã thanh toán chưa
+        String currentMonth = new SimpleDateFormat("yyyy-MM", Locale.getDefault()).format(new Date());
+
+        db.collection("Transactions")
+                .whereEqualTo("account_id", accountId)
+                .whereEqualTo("transaction_month", currentMonth)
+                .whereEqualTo("type", "pay_mortgage")
+                .get()
+                .addOnSuccessListener(query -> {
+                    if (!query.isEmpty()) {
+                        // Đã thanh toán tháng này
+                        btnPayMortgage.setEnabled(false);
+                        btnPayMortgage.setText("Đã thanh toán");
+                    } else {
+                        // Chưa thanh toán
+                        btnPayMortgage.setEnabled(true);
+                        btnPayMortgage.setText("Thanh toán ngay");
+                    }
+                })
+                .addOnFailureListener(e ->
+                        Toast.makeText(this, "Lỗi kiểm tra thanh toán: " + e.getMessage(), Toast.LENGTH_SHORT).show());
 
         db.collection("Accounts").document(accountId).get()
                 .addOnSuccessListener(doc -> {
@@ -105,28 +127,6 @@ public class mortgages_infor extends AppCompatActivity {
                         tvMortgagePrincipal.setText(String.format("%,.0f VND", remaining_debt));
                         tvNextDueDate.setText(sdf.format(period_day));
                         tvMonthlyPayment.setText(String.format("%,.0f VND", monthlyPayment));
-
-                        // Kiểm tra tháng hiện tại đã thanh toán chưa
-                        String currentMonth = new SimpleDateFormat("yyyy-MM", Locale.getDefault()).format(new Date());
-
-                        db.collection("Transactions")
-                                .whereEqualTo("account_id", accountId)
-                                .whereEqualTo("transaction_month", currentMonth)
-                                .whereEqualTo("type", "pay_mortgage")
-                                .get()
-                                .addOnSuccessListener(query -> {
-                                    if (!query.isEmpty()) {
-                                        // Đã thanh toán tháng này
-                                        btnPayMortgage.setEnabled(false);
-                                        btnPayMortgage.setText("Đã thanh toán");
-                                    } else {
-                                        // Chưa thanh toán
-                                        btnPayMortgage.setEnabled(true);
-                                        btnPayMortgage.setText("Thanh toán ngay");
-                                    }
-                                })
-                                .addOnFailureListener(e ->
-                                        Toast.makeText(this, "Lỗi kiểm tra thanh toán: " + e.getMessage(), Toast.LENGTH_SHORT).show());
 
                     }
                 })

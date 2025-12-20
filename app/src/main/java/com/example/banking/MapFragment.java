@@ -1,12 +1,16 @@
 package com.example.banking;
 
 import android.Manifest;
+import android.content.ActivityNotFoundException;
+import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -19,25 +23,26 @@ import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.SupportMapFragment;
-import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.libraries.places.api.Places;
-import com.google.android.libraries.places.api.model.CircularBounds;
-import com.google.android.libraries.places.api.model.Place;
 import com.google.android.libraries.places.api.net.PlacesClient;
-import com.google.android.libraries.places.api.net.SearchNearbyRequest;
+import com.google.android.material.button.MaterialButton;
+import com.google.android.material.card.MaterialCardView;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
-
-import java.util.Arrays;
-import java.util.List;
-import java.util.Locale;
 
 public class MapFragment extends Fragment {
     private GoogleMap mMap;
     private FusedLocationProviderClient fusedLocationClient;
     private PlacesClient placesClient;
     FloatingActionButton location;
+
+    MaterialCardView cardLocationDetails;
+    TextView tvBranchName, tvBranchAddress;
+    MaterialButton btnDirections;
+
+    LatLng myLatLng, selectedATM;;
+
+
 
     @Nullable
     @Override
@@ -47,6 +52,10 @@ public class MapFragment extends Fragment {
         View root = inflater.inflate(R.layout.fragment_map, container, false);
 
         location = root.findViewById(R.id.fabMyLocation);
+        cardLocationDetails = root.findViewById(R.id.cardLocationDetails);
+        tvBranchName = root.findViewById(R.id.tvBranchName);
+        tvBranchAddress = root.findViewById(R.id.tvBranchAddress);
+        btnDirections = root.findViewById(R.id.btnDirections);
 
         location.setOnClickListener(v -> {
             moveToCurrentLocationAndSearch();
@@ -73,10 +82,34 @@ public class MapFragment extends Fragment {
             mapFragment.getMapAsync(googleMap -> {
                 mMap = googleMap;
 
-
+                // Chỉ nên gọi ở đây khi mMap đã sẵn sàng
                 enableMyLocationAndSearch();
+
+                mMap.setOnMarkerClickListener(marker -> {
+                    if (!"Vị trí của tôi".equals(marker.getTitle())) {
+                        // cập nhật CardView
+                        tvBranchName.setText(marker.getTitle());
+                        tvBranchAddress.setText(marker.getSnippet());
+                        cardLocationDetails.setVisibility(View.VISIBLE);
+
+                        // lưu ATM được chọn để khi bấm nút "Chỉ đường" mới gọi Directions API
+                        selectedATM = marker.getPosition();
+                    }
+                    return false;
+                });
             });
         }
+
+
+        btnDirections.setOnClickListener(v -> {
+            // Chỉ cần kiểm tra đã chọn ATM chưa.
+            // Google Maps sẽ tự lấy vị trí hiện tại của người dùng làm điểm xuất phát.
+            if (selectedATM != null) {
+                openGoogleMapsNavigation(selectedATM);
+            } else {
+                Toast.makeText(requireContext(), "Vui lòng chọn một địa điểm ATM trên bản đồ", Toast.LENGTH_SHORT).show();
+            }
+        });
 
     }
 
@@ -111,11 +144,11 @@ public class MapFragment extends Fragment {
 
             fusedLocationClient.getLastLocation().addOnSuccessListener(loc -> {
                 if (loc != null && mMap != null) {
-                    LatLng myLatLng = new LatLng(loc.getLatitude(), loc.getLongitude());
+                    myLatLng = new LatLng(loc.getLatitude(), loc.getLongitude());
 
                     mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(myLatLng, 15));
+                    addFakeATMs(myLatLng);
 
-                    searchNearbyPlaces(myLatLng);
                 } else {
                     Log.e("MapFragment", "Location is null. Check Emulator settings.");
                 }
@@ -123,66 +156,51 @@ public class MapFragment extends Fragment {
         }
     }
 
-    private void searchNearbyPlaces(LatLng centerLocation) {
-        List<Place.Field> placeFields = Arrays.asList(
-                Place.Field.ID,
-                Place.Field.DISPLAY_NAME,
-                Place.Field.LAT_LNG,
-                Place.Field.FORMATTED_ADDRESS
-        );
+    // Hàm nhận vào LatLng myLatLng và thêm vài ATM giả định quanh đó
+    private void addFakeATMs(LatLng myLatLng) {
+        if (mMap == null || myLatLng == null) return;
 
-        // Bán kính 2000m (2km) là hợp lý cho nội thành
-        CircularBounds circle = CircularBounds.newInstance(centerLocation, 20000.0);
+        LatLng atm1 = new LatLng(myLatLng.latitude + 0.001, myLatLng.longitude + 0.001);
 
-        // --- CẤU HÌNH GIẢ LẬP: TÌM SIÊU THỊ ---
-        // Khi nào làm thật thì đổi thành Arrays.asList("bank", "atm");
-        List<String> includedTypes = Arrays.asList("supermarket", "grocery_or_supermarket");
+        LatLng atm2 = new LatLng(myLatLng.latitude - 0.001, myLatLng.longitude - 0.001);
 
-        SearchNearbyRequest request = SearchNearbyRequest.builder(circle, placeFields)
-                .setIncludedTypes(includedTypes)
-                .setMaxResultCount(20)
-                .build();
+        LatLng atm3 = new LatLng(myLatLng.latitude - 0.001, myLatLng.longitude + 0.001);
 
-        placesClient.searchNearby(request).addOnSuccessListener(response -> {
-            mMap.clear(); // Xóa marker cũ để tránh trùng lặp
+        // Thêm marker cho từng ATM
+        mMap.addMarker(new com.google.android.gms.maps.model.MarkerOptions()
+                .position(atm1)
+                .title("ATM Ngân hàng ACB")
+                .snippet("123 Nguyễn Hữu Thọ, Tân Phong, Q.7"));
 
-            for (Place place : response.getPlaces()) {
-                LatLng latLng = place.getLatLng();
-                String name = place.getDisplayName();
-                String address = place.getFormattedAddress();
+        mMap.addMarker(new com.google.android.gms.maps.model.MarkerOptions()
+                .position(atm2)
+                .title("ATM Ngân hàng ACB")
+                .snippet("654 Nguyễn Văn Linh, Tân Phong, Q.7"));
 
-                if (latLng != null && name != null) {
-                    String lowerName = name.toLowerCase(Locale.ROOT);
-
-                    // --- LOGIC GIẢ LẬP: COI BÁCH HÓA XANH LÀ NGÂN HÀNG CỦA TÔI ---
-                    // Kiểm tra cả có dấu và không dấu
-                    boolean isTargetBank = lowerName.contains("bach hoa xanh") ||
-                            lowerName.contains("bách hóa xanh") ||
-                            lowerName.contains("bachhoaxanh");
-
-                    MarkerOptions markerOptions = new MarkerOptions()
-                            .position(latLng)
-                            .title(name)
-                            .snippet(address);
-
-                    if (isTargetBank) {
-                        // Màu Xanh Lá = Ngân hàng của tôi (Giả lập là BHX)
-                        markerOptions.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN));
-                        // Z-Index cao hơn để marker này nổi lên trên marker khác
-                        markerOptions.zIndex(1.0f);
-                    } else {
-                        // Màu Đỏ = Ngân hàng khác / Siêu thị khác
-                        markerOptions.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED));
-                    }
-
-                    mMap.addMarker(markerOptions);
-                }
-            }
-        }).addOnFailureListener(exception -> {
-            Log.e("PlacesAPI", "Lỗi tìm kiếm: " + exception.getMessage());
-        });
+        mMap.addMarker(new com.google.android.gms.maps.model.MarkerOptions()
+                .position(atm3)
+                .title("ATM Ngân hàng ACB")
+                .snippet("444 Lê Văn Lương, Tân Phong, Q.1"));
     }
 
+    //Mở google map chỉ đường
+    private void openGoogleMapsNavigation(LatLng dest) {
+        Uri gmmIntentUri = Uri.parse("http://maps.google.com/maps?daddr=" + dest.latitude + "," + dest.longitude + "&dirflg=w");
 
+        Intent mapIntent = new Intent(Intent.ACTION_VIEW, gmmIntentUri);
+        mapIntent.setPackage("com.google.android.apps.maps");
+
+        try {
+            startActivity(mapIntent);
+        } catch (ActivityNotFoundException e) {
+            // Nếu chưa cài App Maps thì mở trình duyệt
+            try {
+                Intent unrestrictedIntent = new Intent(Intent.ACTION_VIEW, gmmIntentUri);
+                startActivity(unrestrictedIntent);
+            } catch (ActivityNotFoundException innerE) {
+                Toast.makeText(requireContext(), "Vui lòng cài đặt Google Maps", Toast.LENGTH_SHORT).show();
+            }
+        }
+    }
 
 }

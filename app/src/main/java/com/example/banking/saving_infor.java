@@ -118,6 +118,27 @@ public class saving_infor extends AppCompatActivity {
     private void loadSavingInfor(String accountId) {
         FirebaseFirestore db = FirebaseFirestore.getInstance();
 
+        // Sau khi hiển thị thông tin tài khoản
+        String currentMonth = new SimpleDateFormat("yyyy-MM", Locale.getDefault()).format(new Date());
+        db.collection("Transactions")
+                .whereEqualTo("account_id", accountId)
+                .whereEqualTo("transaction_month", currentMonth)
+                .whereEqualTo("type", "withdraw_savings")
+                .get()
+                .addOnSuccessListener(snapshot -> {
+                    if (!snapshot.isEmpty()) {
+                        // Đã rút trong tháng này
+                        btnWithdraw.setEnabled(false);
+                        btnWithdraw.setText("Đã rút tháng này");
+                    } else {
+                        // Chưa rút
+                        btnWithdraw.setEnabled(true);
+                        btnWithdraw.setText("Rút tiền");
+                    }
+                })
+                .addOnFailureListener(e ->
+                        Toast.makeText(this, "Lỗi kiểm tra lịch sử rút: " + e.getMessage(), Toast.LENGTH_SHORT).show());
+
         db.collection("Accounts").document(accountId).get()
                 .addOnSuccessListener(doc -> {
                     if (doc.exists()) {
@@ -171,28 +192,6 @@ public class saving_infor extends AppCompatActivity {
                 })
                 .addOnFailureListener(e ->
                         tvSavingsRate.setText("Lỗi tải dữ liệu: " + e.getMessage()));
-
-        // Sau khi hiển thị thông tin tài khoản
-        String currentMonth = new SimpleDateFormat("yyyy-MM", Locale.getDefault()).format(new Date());
-
-        db.collection("Transactions")
-                .whereEqualTo("account_id", accountId)
-                .whereEqualTo("transaction_month", currentMonth)
-                .whereEqualTo("type", "withdraw_savings")
-                .get()
-                .addOnSuccessListener(snapshot -> {
-                    if (!snapshot.isEmpty()) {
-                        // Đã rút trong tháng này
-                        btnWithdraw.setEnabled(false);
-                        btnWithdraw.setText("Đã rút tháng này");
-                    } else {
-                        // Chưa rút
-                        btnWithdraw.setEnabled(true);
-                        btnWithdraw.setText("Rút tiền");
-                    }
-                })
-                .addOnFailureListener(e ->
-                        Toast.makeText(this, "Lỗi kiểm tra lịch sử rút: " + e.getMessage(), Toast.LENGTH_SHORT).show());
 
     }
 
