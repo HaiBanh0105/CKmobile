@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.Toast;
@@ -23,11 +24,15 @@ import com.google.android.material.textfield.TextInputLayout;
 import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 
-import java.io.File;
 import java.io.IOException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Random;
+import java.util.UUID;
 
 public class customer_infor extends AppCompatActivity {
 
@@ -129,7 +134,7 @@ public class customer_infor extends AppCompatActivity {
             if ("customer_register".equalsIgnoreCase(role)) {
                 checkDuplicateAndRegister();
             } else {
-                if (!isUpdate()) {
+                if (!isUpdate() && faceImagePath == null) {
                     Toast.makeText(this, "Không có thông tin thay đổi", Toast.LENGTH_SHORT).show();
                     return;
                 }
@@ -233,6 +238,26 @@ public class customer_infor extends AppCompatActivity {
         db.collection("Users").document(id).update(updates);
         Toast.makeText(this, "Cập nhật thành công", Toast.LENGTH_SHORT).show();
         finish();
+
+        if (faceImagePath != null && !faceImagePath.trim().isEmpty()) {
+            //Update faceID
+            final List<Float> faceEmbedding;
+            try {
+                faceEmbedding = extractFaceEmbedding(this, faceImagePath);
+            }
+            catch (IOException e) {
+                e.printStackTrace();
+                Toast.makeText(this, "Lỗi xử lý ảnh: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                return; // dừng lại nếu không tạo được embedding
+            }
+            Map<String, Object> faceID_update = new HashMap<>();
+            faceID_update.put("faceEmbedding", faceEmbedding);
+            faceID_update.put("time", FieldValue.serverTimestamp());
+
+            db.collection("faceId").document(id)
+                    .update(faceID_update);
+
+        }
     }
 
     private boolean isUpdate() {
@@ -302,15 +327,46 @@ public class customer_infor extends AppCompatActivity {
         }
     }
 
-    private List<Float> extractFaceEmbedding(Context c, String path) throws IOException {
-        Bitmap bmp = BitmapFactory.decodeFile(path);
-        if (bmp == null) throw new IOException();
-        FaceEmbeddingExtractor ex = new FaceEmbeddingExtractor(c);
-        float[] arr = ex.getEmbedding(bmp);
-        ex.close();
+    private List<Float> normalizeEmbedding(float[] embeddingArray) {
+        double norm = 0.0;
+        for (float v : embeddingArray) norm += v * v;
+        norm = Math.sqrt(norm);
 
-        List<Float> list = new ArrayList<>();
-        for (float f : arr) list.add(f);
-        return list;
+        List<Float> normalized = new ArrayList<>(embeddingArray.length);
+        if (norm == 0) {
+            // tránh chia cho 0
+            for (float v : embeddingArray) normalized.add(v);
+            return normalized;
+        }
+
+        for (float v : embeddingArray) normalized.add((float)(v / norm));
+
+        // kiểm tra norm sau chuẩn hóa
+        double normCheck = 0.0;
+        for (float v : normalized) normCheck += v * v;
+        normCheck = Math.sqrt(normCheck);
+        Log.d("Embedding", "Norm sau chuẩn hóa = " + normCheck);
+
+        return normalized;
+    }
+
+
+
+    private List<Float> extractFaceEmbedding(Context context, String imagePath) throws IOException {
+        Bitmap bitmap = BitmapFactory.decodeFile(imagePath);
+        if (bitmap == null) {
+            throw new IOException("Không thể đọc ảnh từ đường dẫn: " + imagePath);
+        }
+
+        FaceEmbeddingExtractor extractor = new FaceEmbeddingExtractor(context);
+        float[] embeddingArray = extractor.getEmbedding(bitmap);
+        extractor.close();
+
+        if (embeddingArray == null || embeddingArray.length == 0) {
+            throw new IOException("Không thể trích xuất embedding từ ảnh");
+        }
+
+        return normalizeEmbedding(embeddingArray);
+
     }
 }
