@@ -13,7 +13,7 @@
         android:id="@+id/header"
         android:layout_width="match_parent"
         android:layout_height="60dp"
-        android:background="@color/blue"
+        android:background="@drawable/gradient_primary_bg"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
@@ -31,9 +31,10 @@
 
         <ImageView
             android:id="@+id/btnBack"
-            android:layout_width="42dp"
-            android:layout_height="42dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
             android:layout_marginStart="12dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
@@ -67,114 +68,135 @@
             android:padding="16dp">
 
             <!-- ===== TÓM TẮT CHUYẾN BAY ===== -->
+            <!-- ===== TÓM TẮT CHUYẾN BAY ===== -->
             <androidx.cardview.widget.CardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 app:cardCornerRadius="16dp"
                 app:cardUseCompatPadding="true">
 
-                <LinearLayout
+                <FrameLayout
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:padding="16dp">
+                    android:layout_height="wrap_content">
 
-                    <RelativeLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content">
-
-                        <TextView
-                            android:id="@+id/txtAirlineName"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:textSize="14sp"
-                            android:textStyle="bold"
-                            android:textColor="@color/black" />
-
-                        <TextView
-                            android:id="@+id/txtFlightNumber"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_alignParentEnd="true"
-                            android:textSize="13sp"
-                            android:textColor="#929ca5" />
-                    </RelativeLayout>
-
-                    <View
-                        android:layout_width="match_parent"
-                        android:layout_height="1dp"
-                        android:layout_marginVertical="12dp"
-                        android:background="#EEEEEE" />
-
+                    <!-- Nội dung chính (đặt ID để ẩn hiện) -->
                     <LinearLayout
+                        android:id="@+id/layoutFlightContent"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:orientation="horizontal">
+                        android:orientation="vertical"
+                        android:padding="16dp"
+                        android:visibility="gone"> <!-- Mặc định ẩn khi đang load -->
+
+                        <RelativeLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content">
+
+                            <TextView
+                                android:id="@+id/txtAirlineName"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:textSize="14sp"
+                                android:textStyle="bold"
+                                android:textColor="@color/black" />
+
+                            <TextView
+                                android:id="@+id/txtFlightNumber"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_alignParentEnd="true"
+                                android:textSize="13sp"
+                                android:textColor="#929ca5" />
+                        </RelativeLayout>
+
+                        <View
+                            android:layout_width="match_parent"
+                            android:layout_height="1dp"
+                            android:layout_marginVertical="12dp"
+                            android:background="#EEEEEE" />
 
                         <LinearLayout
-                            android:layout_width="0dp"
+                            android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:orientation="vertical">
+                            android:orientation="horizontal">
 
-                            <TextView
-                                android:id="@+id/txtDepDate"
-                                android:layout_width="wrap_content"
+                            <LinearLayout
+                                android:layout_width="0dp"
                                 android:layout_height="wrap_content"
-                                android:textSize="16sp"
-                                android:textStyle="bold" />
+                                android:layout_weight="1"
+                                android:orientation="vertical">
 
-                            <TextView
-                                android:id="@+id/txtDepTimeAndCode"
-                                android:layout_width="wrap_content"
+                                <TextView
+                                    android:id="@+id/txtDepDate"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:textSize="16sp"
+                                    android:textStyle="bold" />
+
+                                <TextView
+                                    android:id="@+id/txtDepTimeAndCode"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:textStyle="bold" />
+                            </LinearLayout>
+
+                            <ImageView
+                                android:layout_width="32dp"
+                                android:layout_height="32dp"
+                                android:layout_gravity="center"
+                                android:contentDescription="@null"
+                                android:padding="6dp"
+                                app:srcCompat="@drawable/arrow_right_black" />
+
+                            <LinearLayout
+                                android:layout_width="0dp"
                                 android:layout_height="wrap_content"
-                                android:textStyle="bold" />
+                                android:layout_weight="1"
+                                android:gravity="end"
+                                android:orientation="vertical">
+
+                                <TextView
+                                    android:id="@+id/txtArrDate"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:textSize="16sp"
+                                    android:textStyle="bold" />
+
+                                <TextView
+                                    android:id="@+id/txtArrTimeAndCode"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:textStyle="bold" />
+                            </LinearLayout>
                         </LinearLayout>
 
-                        <ImageView
-                            android:layout_width="32dp"
-                            android:layout_height="32dp"
-                            android:layout_gravity="center"
-                            android:contentDescription="@null"
-                            android:padding="6dp"
-                            app:srcCompat="@drawable/arrow_right_black" />
+                        <View
+                            android:layout_width="match_parent"
+                            android:layout_height="1dp"
+                            android:layout_marginVertical="12dp"
+                            android:background="#EEEEEE" />
 
-                        <LinearLayout
-                            android:layout_width="0dp"
+                        <TextView
+                            android:id="@+id/txtClass"
+                            android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:gravity="end"
-                            android:orientation="vertical">
-
-                            <TextView
-                                android:id="@+id/txtArrDate"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:textSize="16sp"
-                                android:textStyle="bold" />
-
-                            <TextView
-                                android:id="@+id/txtArrTimeAndCode"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:textStyle="bold" />
-                        </LinearLayout>
+                            android:textSize="13sp"
+                            android:textColor="@color/orange" />
                     </LinearLayout>
 
-                    <View
-                        android:layout_width="match_parent"
-                        android:layout_height="1dp"
-                        android:layout_marginVertical="12dp"
-                        android:background="#EEEEEE" />
+                    <!-- PROGRESS BAR (Hiện lên khi đang tải) -->
+                    <ProgressBar
+                        android:id="@+id/flightSummaryProgress"
+                        android:layout_width="30dp"
+                        android:layout_height="30dp"
+                        android:indeterminateTint="@color/orange"
+                        android:layout_gravity="center"
+                        android:layout_margin="32dp"
+                        android:visibility="visible" />
 
-                    <TextView
-                        android:id="@+id/txtClass"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:textSize="13sp"
-                        android:textColor="@color/blue" />
-                </LinearLayout>
+                </FrameLayout>
             </androidx.cardview.widget.CardView>
+
 
             <!-- ===== CHI TIẾT GIÁ ===== -->
             <androidx.cardview.widget.CardView
@@ -183,39 +205,63 @@
                 app:cardCornerRadius="16dp"
                 app:cardUseCompatPadding="true">
 
-                <LinearLayout
+                <FrameLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:padding="16dp">
+                    android:minHeight="100dp"> <!-- Đặt minHeight để Card không bị quá nhỏ khi đang load -->
 
-                    <TextView
-                        android:layout_width="wrap_content"
+                    <!-- Nội dung chi tiết giá -->
+                    <LinearLayout
+                        android:id="@+id/layoutPriceContent"
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="Chi tiết giá"
-                        android:layout_marginBottom="4dp"
-                        android:textStyle="bold"
-                        android:textSize="14sp" />
+                        android:orientation="vertical"
+                        android:padding="16dp"
+                        android:visibility="gone">
 
-                    <TextView
-                        android:id="@+id/txtAdultPrice"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:textSize="14sp" />
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Chi tiết giá"
+                            android:layout_marginBottom="8dp"
+                            android:textStyle="bold"
+                            android:textColor="@color/black"
+                            android:textSize="14sp" />
 
-                    <TextView
-                        android:id="@+id/txtChildPrice"
-                        android:layout_width="wrap_content"
-                        android:layout_marginVertical="4dp"
-                        android:layout_height="wrap_content"
-                        android:textSize="14sp" />
+                        <TextView
+                            android:id="@+id/txtAdultPrice"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:textSize="14sp"
+                            android:text="Người lớn: --" />
 
-                    <TextView
-                        android:id="@+id/txtInfantPrice"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:textSize="14sp" />
-                </LinearLayout>
+                        <TextView
+                            android:id="@+id/txtChildPrice"
+                            android:layout_width="wrap_content"
+                            android:layout_marginVertical="4dp"
+                            android:layout_height="wrap_content"
+                            android:textSize="14sp"
+                            android:text="Trẻ em: --" />
+
+                        <TextView
+                            android:id="@+id/txtInfantPrice"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:textSize="14sp"
+                            android:text="Em bé: --" />
+                    </LinearLayout>
+
+                    <!-- 🔹 Progress Loading -->
+                    <ProgressBar
+                        android:id="@+id/priceProgress"
+                        android:layout_width="30dp"
+                        android:layout_height="30dp"
+                        android:indeterminateTint="@color/orange"
+                        android:layout_gravity="center"
+                        android:layout_margin="32dp"
+                        android:visibility="visible" />
+
+                </FrameLayout>
             </androidx.cardview.widget.CardView>
 
             <!-- ===== HÀNH KHÁCH ===== -->
@@ -225,28 +271,48 @@
                 app:cardCornerRadius="16dp"
                 app:cardUseCompatPadding="true">
 
-                <LinearLayout
+                <FrameLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:padding="16dp">
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Thông tin hành khách"
-                        android:textStyle="bold"
-                        android:textSize="14sp" />
-
+                    android:minHeight="80dp">
                     <LinearLayout
-                        android:id="@+id/passengerContainer"
+                        android:id="@+id/layoutPassengerContent"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="8dp"
-                        android:background="@color/surface"
-                        android:orientation="vertical" />
-                </LinearLayout>
+                        android:orientation="vertical"
+                        android:padding="16dp"
+                        android:visibility="gone">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Thông tin hành khách"
+                            android:textStyle="bold"
+                            android:textColor="@color/black"
+                            android:textSize="14sp" />
+
+                        <LinearLayout
+                            android:id="@+id/passengerContainer"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="8dp"
+                            android:background="@color/surface"
+                            android:orientation="vertical" />
+                    </LinearLayout>
+
+                    <!-- Loading Progress -->
+                    <ProgressBar
+                        android:id="@+id/passengerProgress"
+                        android:layout_width="30dp"
+                        android:layout_height="30dp"
+                        android:layout_gravity="center"
+                        android:layout_margin="32dp"
+                        android:indeterminateTint="@color/orange"
+                        android:visibility="visible" />
+
+                </FrameLayout>
             </androidx.cardview.widget.CardView>
+
 
             <!-- ===== LIÊN HỆ ===== -->
             <androidx.cardview.widget.CardView
@@ -305,7 +371,7 @@
                         android:layout_gravity="end"
                         android:layout_marginTop="8dp"
                         android:text="Dùng thông tin tài khoản đăng nhập"
-                        android:textColor="@color/blue"
+                        android:textColor="@color/dark_blue"
                         android:textSize="13sp"
                         android:textStyle="bold" />
                 </LinearLayout>
@@ -344,20 +410,25 @@
                 android:layout_height="wrap_content"
                 android:textSize="18sp"
                 android:textStyle="bold"
-                android:textColor="@color/blue" />
+                android:textColor="@color/orange" />
         </LinearLayout>
 
-        <androidx.appcompat.widget.AppCompatButton
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/btnConfirmPayment"
             android:layout_width="160dp"
             android:layout_height="50dp"
             android:text="Thanh toán"
             android:textStyle="bold"
             android:textColor="@color/surface"
-            android:background="@drawable/rounded_blue_bg"
+            app:backgroundTint="@color/orange"
+            app:cornerRadius="12dp"
+            android:insetTop="0dp"
+            android:insetBottom="0dp"
+            app:rippleColor="@color/dark_blue"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintBottom_toBottomOf="parent" />
+
     </androidx.constraintlayout.widget.ConstraintLayout>
     <include
         layout="@layout/view_loading_overlay" />

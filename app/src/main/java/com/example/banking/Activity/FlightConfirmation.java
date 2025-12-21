@@ -76,28 +76,72 @@ public class FlightConfirmation extends BaseSecureActivity {
     // ================= INTENT =================
     private void getIntentData() {
         Intent intent = getIntent();
+        if (intent == null) return;
 
+        // 1. Lấy dữ liệu từ Intent
         adult = intent.getIntExtra("ADULT", 1);
         child = intent.getIntExtra("CHILD", 0);
         infant = intent.getIntExtra("INFANT", 0);
-
         String flightId = intent.getStringExtra("FLIGHT_ID");
         String seatClassKey = intent.getStringExtra("SEAT_CLASS");
 
+        if (flightId == null) {
+            Toast.makeText(this, "Không tìm thấy thông tin chuyến bay", Toast.LENGTH_SHORT).show();
+            finish();
+            return;
+        }
+
+        // 2. Kích hoạt trạng thái Loading cho các CardView (XML bạn đã thêm ProgressBar)
+        setLoadingState(true);
+
+        // 3. Truy vấn Firestore
         db.collection("Flights")
                 .document(flightId)
                 .get()
                 .addOnSuccessListener(doc -> {
-                    selectedFlight = doc.toObject(Flight.class);
-                    if (selectedFlight != null) {
-                        selectedFlight.setId(doc.getId());
-                        selectedFlight.setSelectedSeatClassKey(seatClassKey);
-                        bindFlightData();
-                        bindPriceDetail();
-                        addPassengers();
+                    if (doc.exists()) {
+                        selectedFlight = doc.toObject(Flight.class);
+                        if (selectedFlight != null) {
+                            selectedFlight.setId(doc.getId());
+                            selectedFlight.setSelectedSeatClassKey(seatClassKey);
+
+                            // Đổ dữ liệu lên UI
+                            bindFlightData();
+                            bindPriceDetail();
+                            addPassengers();
+                        }
+                    } else {
+                        Toast.makeText(this, "Chuyến bay không tồn tại", Toast.LENGTH_SHORT).show();
                     }
+                    setLoadingState(false);
+                })
+                .addOnFailureListener(e -> {
+                    setLoadingState(false);
+                    Toast.makeText(this, "Lỗi tải dữ liệu: " + e.getMessage(), Toast.LENGTH_SHORT).show();
                 });
     }
+
+    // Hàm quản lý hiển thị Loading đồng bộ
+    private void setLoadingState(boolean isLoading) {
+        int contentVisibility = isLoading ? View.GONE : View.VISIBLE;
+        int progressVisibility = isLoading ? View.VISIBLE : View.GONE;
+
+        // Tóm tắt chuyến bay
+        binding.flightSummaryProgress.setVisibility(progressVisibility);
+        binding.layoutFlightContent.setVisibility(contentVisibility);
+
+        // Chi tiết giá
+        binding.priceProgress.setVisibility(progressVisibility);
+        binding.layoutPriceContent.setVisibility(contentVisibility);
+
+        // Hành khách
+        binding.passengerProgress.setVisibility(progressVisibility);
+        binding.layoutPassengerContent.setVisibility(contentVisibility);
+
+        // Disable nút thanh toán khi đang load
+        binding.btnConfirmPayment.setEnabled(!isLoading);
+    }
+
 
     // ================= UI =================
     private void bindFlightData() {
@@ -134,11 +178,30 @@ public class FlightConfirmation extends BaseSecureActivity {
 
         binding.btnConfirmPayment.setOnClickListener(v -> {
             for (Passenger p : passengerList) {
-                if (p.fullName == null || p.fullName.isEmpty()) {
-                    toast("Vui lòng nhập đủ thông tin cho " + p.title);
+
+                // 🔹 BẮT BUỘC CHO TẤT CẢ
+                if (p.fullName == null || p.fullName.trim().isEmpty()) {
+                    toast("Vui lòng nhập họ tên cho " + p.title);
                     return;
                 }
+
+                // 🔹 NGƯỜI LỚN: cần CCCD
+                if ("ADULT".equals(p.type)) {
+                    if (p.idCard == null || p.idCard.trim().isEmpty()) {
+                        toast("Vui lòng nhập CCCD cho " + p.title);
+                        return;
+                    }
+                }
+
+                // 🔹 TRẺ EM / EM BÉ: cần ngày sinh
+                if ("CHILD".equals(p.type) || "INFANT".equals(p.type)) {
+                    if (p.dob == null || p.dob.trim().isEmpty()) {
+                        toast("Vui lòng chọn ngày sinh cho " + p.title);
+                        return;
+                    }
+                }
             }
+
             String phone = binding.edtPhone.getText().toString().trim();
             String email = binding.edtEmail.getText().toString().trim();
 
@@ -225,17 +288,18 @@ public class FlightConfirmation extends BaseSecureActivity {
     // ================= PASSENGERS =================
     private void addPassengers() {
         for (int i = 0; i < adult; i++)
-            addPassengerView("Người lớn " + (i + 1));
+            addPassengerView("Người lớn " + (i + 1), "ADULT");
 
         for (int i = 0; i < child; i++)
-            addPassengerView("Trẻ em " + (i + 1));
+            addPassengerView("Trẻ em " + (i + 1), "CHILD");
 
         for (int i = 0; i < infant; i++)
-            addPassengerView("Em bé " + (i + 1));
+            addPassengerView("Em bé " + (i + 1), "INFANT");
     }
 
-    private void addPassengerView(String title) {
-        Passenger passenger = new Passenger(title);
+    private void addPassengerView(String title, String type) {
+
+        Passenger passenger = new Passenger(title, type);
         passengerList.add(passenger);
 
         View view = LayoutInflater.from(this)
@@ -252,11 +316,17 @@ public class FlightConfirmation extends BaseSecureActivity {
 
         txtTitle.setText(title);
 
+        // 🔹 Toggle expand
         header.setOnClickListener(v -> {
             boolean expand = body.getVisibility() == View.GONE;
             body.setVisibility(expand ? View.VISIBLE : View.GONE);
             toggle.setRotation(expand ? 180 : 0);
         });
+
+        // 🔹 ẨN CCCD nếu không phải ADULT
+        if (!"ADULT".equals(type)) {
+            edtId.setVisibility(View.GONE);
+        }
 
         // 🔹 LƯU DATA
         edtName.addTextChangedListener(SimpleTextWatcher.after(s -> passenger.fullName = s));

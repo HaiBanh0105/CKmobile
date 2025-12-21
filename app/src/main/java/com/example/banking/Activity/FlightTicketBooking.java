@@ -15,6 +15,7 @@ import androidx.core.view.WindowInsetsCompat;
 
 import com.example.banking.databinding.ActivityFlightTicketBookingBinding;
 import com.example.banking.model.FlightLocation;
+import com.example.banking.util.ClickEffectUtil;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 
@@ -68,9 +69,9 @@ public class FlightTicketBooking extends AppCompatActivity {
         initPassenger();
         loadLocations();
         initSearch();
-        initRadioGroup();
         initCalendarPicker();
         initClassSeat();
+        setupSpinnerListeners();
         binding.btnBack.setOnClickListener(v -> finish());
         binding.btnSearchFlight.setOnClickListener(v -> {
 
@@ -91,13 +92,6 @@ public class FlightTicketBooking extends AppCompatActivity {
                 return;
             }
 
-            // 3️⃣ Nếu khứ hồi → kiểm tra ngày về
-            if (binding.radioRoundTrip.isChecked()
-                    && binding.returnDate.getText().toString().equals("--/--/----")) {
-                toast("Vui lòng chọn ngày trở về");
-                return;
-            }
-
             Intent intent = new Intent(this, SearchFlight.class);
 
             intent.putExtra("FROM_LOCATION", fromLocation);
@@ -110,24 +104,22 @@ public class FlightTicketBooking extends AppCompatActivity {
             intent.putExtra("DEPART_DATE",
                     binding.departureDate.getText().toString());
 
-            intent.putExtra("IS_ROUND_TRIP",
-                    binding.radioRoundTrip.isChecked());
-
-            if (binding.radioRoundTrip.isChecked()) {
-                intent.putExtra("RETURN_DATE",
-                        binding.returnDate.getText().toString());
-            }
             intent.putExtra("CLASS_SEAT", selectedClassSeat);
 
             intent.putExtra("DEPART_TS", departCalendar.getTimeInMillis());
-
-            if (binding.radioRoundTrip.isChecked()) {
-                intent.putExtra("RETURN_TS", returnCalendar.getTimeInMillis());
-            }
             startActivity(intent);
         });
+    }
 
-
+    private void initClickEffect() {
+        ClickEffectUtil.apply(binding.btnSearchFlight);
+        ClickEffectUtil.apply(binding.btnAdultPlus);
+        ClickEffectUtil.apply(binding.btnAdultMinus);
+        ClickEffectUtil.apply(binding.btnChildMinus);
+        ClickEffectUtil.apply(binding.btnChildPlus);
+        ClickEffectUtil.apply(binding.btnInfantMinus);
+        ClickEffectUtil.apply(binding.btnInfantPlus);
+        ClickEffectUtil.apply(binding.linearDepDate);
     }
 
     private void initCalendarPicker() {
@@ -135,12 +127,6 @@ public class FlightTicketBooking extends AppCompatActivity {
         // Ngày khởi hành
         binding.linearDepDate.setOnClickListener(v -> {
             showDatePicker(true);
-        });
-
-        // Ngày trở về
-        binding.linearArrivalDate.setOnClickListener(v -> {
-            if (!binding.radioRoundTrip.isChecked()) return;
-            showDatePicker(false);
         });
     }
 
@@ -159,20 +145,11 @@ public class FlightTicketBooking extends AppCompatActivity {
                                 vnDateFormat.format(calendar.getTime())
                         );
 
-                        // Nếu là khứ hồi mà ngày về < ngày đi → reset
-                        if (binding.radioRoundTrip.isChecked()
-                                && returnCalendar.before(departCalendar)) {
-                            binding.returnDate.setText("---");
-                        }
                     } else {
                         if (calendar.before(departCalendar)) {
                             toast("Ngày trở về phải sau ngày khởi hành");
                             return;
                         }
-
-                        binding.returnDate.setText(
-                                vnDateFormat.format(calendar.getTime())
-                        );
                     }
                 },
                 calendar.get(Calendar.YEAR),
@@ -190,23 +167,6 @@ public class FlightTicketBooking extends AppCompatActivity {
         Toast.makeText(this,
                 content,
                 Toast.LENGTH_SHORT).show();
-    }
-
-    public void initRadioGroup() {
-        binding.radioOneWay.setChecked(true);
-        disableReturnDate();
-
-        binding.radioOneWay.setOnCheckedChangeListener((buttonView, isChecked) -> {
-            if (isChecked) {
-                disableReturnDate();
-            }
-        });
-
-        binding.radioRoundTrip.setOnCheckedChangeListener((buttonView, isChecked) -> {
-            if (isChecked) {
-                enableReturnDate();
-            }
-        });
     }
 
     private void initClassSeat() {
@@ -250,18 +210,6 @@ public class FlightTicketBooking extends AppCompatActivity {
             public void onNothingSelected(AdapterView<?> parent) {}
         });
     }
-
-
-    private void disableReturnDate() {
-        binding.returnDate.setEnabled(false);
-        binding.returnDate.setAlpha(0.4f);
-    }
-
-    private void enableReturnDate() {
-        binding.returnDate.setEnabled(true);
-        binding.returnDate.setAlpha(1f);
-    }
-
 
     // ================= PASSENGER =================
     private void initPassenger() {
@@ -313,12 +261,7 @@ public class FlightTicketBooking extends AppCompatActivity {
 
     // ================= LOCATION =================
     private void loadLocations() {
-        // 🔹 ĐANG LOAD
-        binding.fromSpinner.setEnabled(false);
-        binding.toSpinner.setEnabled(false);
-
-        binding.fromProgress.setVisibility(View.VISIBLE);
-        binding.toProgress.setVisibility(View.VISIBLE);
+        setLoadingState(true);
 
         db.collection("FlightLocations")
                 .whereEqualTo("isActive", true)
@@ -326,23 +269,43 @@ public class FlightTicketBooking extends AppCompatActivity {
                 .addOnSuccessListener(query -> {
                     locations.clear();
                     for (DocumentSnapshot doc : query) {
-                        locations.add(doc.toObject(FlightLocation.class));
+                        FlightLocation loc = doc.toObject(FlightLocation.class);
+                        if (loc != null) locations.add(loc);
                     }
 
-                    setupSpinners();
+                    // Kiểm tra dữ liệu trước khi truy cập index 0, 1
+                    if (locations.size() >= 2) {
+                        setupSpinners();
 
-                    // 🔹 LOAD XONG
-                    binding.fromProgress.setVisibility(View.GONE);
-                    binding.toProgress.setVisibility(View.GONE);
+                        // Khởi tạo giá trị mặc định
+                        fromLocation = locations.get(0);
+                        toLocation = locations.get(1);
 
-                    binding.fromSpinner.setEnabled(true);
-                    binding.toSpinner.setEnabled(true);
+                        // Cập nhật vị trí chọn trên Spinner (nếu cần)
+                        binding.fromSpinner.setSelection(0);
+                        binding.toSpinner.setSelection(1);
+                    } else if (!locations.isEmpty()) {
+                        setupSpinners();
+                        fromLocation = locations.get(0);
+                        binding.fromSpinner.setSelection(0);
+                    }
+
+                    setLoadingState(false);
                 })
                 .addOnFailureListener(e -> {
-                    binding.fromProgress.setVisibility(View.GONE);
-                    binding.toProgress.setVisibility(View.GONE);
-                    Toast.makeText(this, "Không tải được địa điểm", Toast.LENGTH_SHORT).show();
+                    setLoadingState(false);
+                    Toast.makeText(this, "Lỗi kết nối: " + e.getMessage(), Toast.LENGTH_SHORT).show();
                 });
+    }
+
+    // Hàm phụ để code sạch hơn (Clean Code)
+    private void setLoadingState(boolean isLoading) {
+        int visibility = isLoading ? View.VISIBLE : View.GONE;
+        binding.fromProgress.setVisibility(visibility);
+        binding.toProgress.setVisibility(visibility);
+
+        binding.fromSpinner.setEnabled(!isLoading);
+        binding.toSpinner.setEnabled(!isLoading);
     }
 
     private void setupSpinners() {
@@ -362,38 +325,42 @@ public class FlightTicketBooking extends AppCompatActivity {
             fromLocation = locations.get(0);
             toLocation = locations.get(1);
         }
+    }
 
+    private void setupSpinnerListeners() {
+        // 1. Xử lý cho Điểm đi (fromSpinner)
         binding.fromSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int pos, long id) {
-                fromLocation = locations.get(pos);
+                FlightLocation selected = locations.get(pos);
+
+                // Kiểm tra trùng với Điểm đến
+                if (toLocation != null && selected.getCode().equals(toLocation.getCode())) {
+                    showErrorToast();
+                    int oldPos = locations.indexOf(fromLocation);
+                    binding.fromSpinner.setSelection(oldPos != -1 ? oldPos : (pos == 0 ? 1 : 0));
+                    return;
+                }
+                fromLocation = selected;
             }
 
             @Override
             public void onNothingSelected(AdapterView<?> parent) {}
         });
 
+        // 2. Xử lý cho Điểm đến (toSpinner)
         binding.toSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int pos, long id) {
                 FlightLocation selected = locations.get(pos);
 
-                if (fromLocation != null &&
-                        selected.getCode().equals(fromLocation.getCode())) {
-
-                    Toast.makeText(
-                            FlightTicketBooking.this,
-                            "Điểm đến không được trùng điểm đi",
-                            Toast.LENGTH_SHORT
-                    ).show();
-
-                    // Quay về vị trí khác an toàn
-                    binding.toSpinner.setSelection(
-                            pos == 0 && locations.size() > 1 ? 1 : 0
-                    );
+                // Kiểm tra trùng với Điểm đi
+                if (fromLocation != null && selected.getCode().equals(fromLocation.getCode())) {
+                    showErrorToast();
+                    int oldPos = locations.indexOf(toLocation);
+                    binding.toSpinner.setSelection(oldPos != -1 ? oldPos : (pos == 0 ? 1 : 0));
                     return;
                 }
-
                 toLocation = selected;
             }
 
@@ -401,6 +368,12 @@ public class FlightTicketBooking extends AppCompatActivity {
             public void onNothingSelected(AdapterView<?> parent) {}
         });
     }
+
+    // Hàm phụ phải nằm ngoài hàm setupSpinnerListeners
+    private void showErrorToast() {
+        Toast.makeText(this, "Điểm đi và điểm đến không được trùng nhau", Toast.LENGTH_SHORT).show();
+    }
+
 
     private void initSearch() {
         binding.btnSearchFlight.setOnClickListener(v -> {

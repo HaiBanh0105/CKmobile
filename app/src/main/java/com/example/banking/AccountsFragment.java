@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -27,6 +28,7 @@ public class AccountsFragment extends Fragment {
     private List<Account> accountList = new ArrayList<>();
     private FirebaseFirestore db;
     private String userId = SessionManager.getInstance().getUserId();
+    private ProgressBar progressBar;
 
     FloatingActionButton openSaving;
     @Nullable
@@ -38,6 +40,7 @@ public class AccountsFragment extends Fragment {
 
         openSaving = root.findViewById(R.id.fabOpenSavings);
         rvAccounts = root.findViewById(R.id.rvAccounts);
+        progressBar = root.findViewById(R.id.progressBar);
         rvAccounts.setLayoutManager(new LinearLayoutManager(getContext()));
 
         adapter = new AccountAdapter(accountList);
@@ -55,6 +58,7 @@ public class AccountsFragment extends Fragment {
     }
 
     private void loadAccounts() {
+        progressBar.setVisibility(View.VISIBLE);
         db.collection("Accounts")
                 .whereEqualTo("user_id", userId)
                 .get()
@@ -66,10 +70,13 @@ public class AccountsFragment extends Fragment {
                             accountList.add(account);
                         }
                     }
+                    progressBar.setVisibility(View.GONE);
                     adapter.notifyDataSetChanged();
                 })
-                .addOnFailureListener(e ->
-                        Toast.makeText(getContext(), "Lỗi tải dữ liệu: " + e.getMessage(), Toast.LENGTH_SHORT).show());
+                .addOnFailureListener(e -> {
+                    progressBar.setVisibility(View.GONE);
+                    Toast.makeText(getContext(), "Lỗi tải dữ liệu: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                });
     }
 
     @Override

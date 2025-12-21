@@ -1,19 +1,31 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="primary">#6200EE</color>
-    <color name="onPrimary">#FFFFFF</color>
-    <color name="secondary">#03DAC6</color>
-    <color name="onSecondary">#000000</color>
-    <color name="surface">#FFFFFF</color>
-    <color name="dividerColor">#DDDDDD</color>
-    <color name="blue">#0d68f3</color>
-    <color name="gray">#F0F0F0</color>
-    <color name="black">#000000</color>
+    <!-- MÀU CHỦ ĐẠO (BRAND COLORS) -->
+    <color name="primary">#EA6D35</color>        <!-- Orange: Cho Button chính, Action quan trọng -->
+    <color name="onPrimary">#FFFFFF</color>      <!-- Chữ trên nền Orange -->
+
+    <color name="secondary">#4C6184</color>      <!-- Dark Blue: Cho Header, Icon phụ, Navigation -->
+    <color name="onSecondary">#FFFFFF</color>    <!-- Chữ trên nền Dark Blue -->
+
+    <!-- MÀU HỖ TRỢ (SUPPORT COLORS) -->
+    <color name="blue">#0D68F3</color>           <!-- Blue: Cho link, giá tiền, trạng thái active -->
+    <color name="highlight">#E0F7FA</color>      <!-- Xanh nhạt: Cho background item được chọn -->
+    <color name="orange_light">#FFF3E0</color>   <!-- Cam nhạt: Cho nền cảnh báo hoặc tag -->
+
+    <!-- MÀU HỆ THỐNG (SYSTEM COLORS) -->
+    <color name="error">#E53935</color>          <!-- Đỏ: Cho thông báo lỗi (đã sửa mã màu chuẩn) -->
+    <color name="surface">#FFFFFF</color>        <!-- Nền trắng cho Card, màn hình -->
+    <color name="background">#F8F9FA</color>     <!-- Nền xám cực nhẹ cho toàn app -->
+
+    <!-- MÀU TRUNG TÍNH (NEUTRAL COLORS) -->
+    <color name="black">#1A1A1A</color>          <!-- Đen (giảm độ chói cho mắt) -->
+    <color name="dark_gray">#4A4A4A</color>      <!-- Chữ nội dung phụ -->
+    <color name="gray">#F0F0F0</color>           <!-- Nền ô nhập liệu -->
+    <color name="dividerColor">#DDDDDD</color>   <!-- Đường kẻ chia cách -->
     <color name="white">#FFFFFF</color>
     <color name="grey">#dddee0</color>
-    <color name="red">#dddee0</color>
-    <color name="teal_200">#80CBC4</color>
-    <color name="highlight">#E0F7FA</color>
+
+    <!-- ALIASES (TÊN GỢI NHỚ) -->
     <color name="orange">#EA6D35</color>
-    <color name="dark_blue">#4c6184</color>
+    <color name="dark_blue">#4C6184</color>
 </resources>

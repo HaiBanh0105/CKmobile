@@ -2,6 +2,7 @@ package com.example.banking.Activity;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.View;
 import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
@@ -61,21 +62,22 @@ public class SearchFlight extends AppCompatActivity {
     }
 
     private void loadFlights() {
-
+        binding.progressBar.setVisibility(View.VISIBLE);
         if (fromLocation == null || toLocation == null || departTs <= 0) {
             Toast.makeText(this, "Thiếu dữ liệu tìm kiếm", Toast.LENGTH_SHORT).show();
+            binding.progressBar.setVisibility(View.GONE);
             return;
         }
 
         Timestamp start = getStartOfDay(departTs);
         Timestamp end = getEndOfDay(departTs);
 
+
         Query departQuery = db.collection("Flights")
                 .whereEqualTo("origin", fromLocation.getCode())
                 .whereEqualTo("destination", toLocation.getCode())
                 .whereGreaterThanOrEqualTo("departureTime", start)
                 .whereLessThanOrEqualTo("departureTime", end);
-
         departQuery.get()
                 .addOnSuccessListener(snapshot -> {
                     ArrayList<Flight> departFlights = new ArrayList<>();
@@ -88,13 +90,16 @@ public class SearchFlight extends AppCompatActivity {
                         }
                     }
                     adapter.setData(departFlights);
-
                     if (departFlights.isEmpty()) {
                         Toast.makeText(this, "Không có chuyến bay chiều đi", Toast.LENGTH_SHORT).show();
                     }
+                    binding.progressBar.setVisibility(View.GONE);
+
                 })
-                .addOnFailureListener(e ->
-                        Toast.makeText(this, "Lỗi tải chuyến bay", Toast.LENGTH_SHORT).show()
+                .addOnFailureListener(e -> {
+                        Toast.makeText(this, "Lỗi tải chuyến bay", Toast.LENGTH_SHORT).show();
+                            binding.progressBar.setVisibility(View.GONE);
+                        }
                 );
 
 
