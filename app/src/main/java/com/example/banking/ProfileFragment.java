@@ -90,7 +90,6 @@ public class ProfileFragment extends Fragment {
         LnPassword = root.findViewById(R.id.itemSecurity);
         LnPin = root.findViewById(R.id.itemChangepin);
 
-
         btnUpdateAvatar.setOnClickListener(v -> {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
                 ActivityCompat.requestPermissions(requireActivity(),

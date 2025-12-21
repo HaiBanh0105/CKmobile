@@ -13,7 +13,7 @@
         android:textSize="13sp"
         android:background="@drawable/rounded_gray_bg"
         android:text="Hành động"
-        android:textColor="@color/grey"
+        android:textColor="@color/dark_blue"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"

@@ -6,15 +6,19 @@
     android:id="@+id/top_up"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#F5F5F5"> <androidx.appcompat.widget.Toolbar
-    android:id="@+id/toolbar"
-    android:layout_width="match_parent"
-    android:layout_height="?attr/actionBarSize"
-    android:background="@color/white"
-    android:elevation="4dp"
-    app:layout_constraintTop_toTopOf="parent"
-    app:title="Nạp tiền điện thoại"
-    app:titleTextColor="#000000" />
+    android:background="#F5F5F5">
+
+    <androidx.appcompat.widget.Toolbar
+        android:id="@+id/toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        android:background="@color/white"
+        android:elevation="4dp"
+        app:navigationIcon="@drawable/ic_arrow_back_standard"
+        app:layout_constraintTop_toTopOf="parent"
+        app:titleCentered="true"
+        app:title="Nạp tiền điện thoại"
+        app:titleTextColor="#000000" />
 
     <ScrollView
         android:layout_width="match_parent"
@@ -40,7 +44,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 app:cardCornerRadius="10dp"
-                app:cardElevation="2dp"
+                app:cardUseCompatPadding="true"
                 android:layout_marginBottom="24dp">
 
                 <LinearLayout
@@ -61,7 +65,7 @@
                         android:text="50,000,000 VND"
                         android:textSize="18sp"
                         android:textStyle="bold"
-                        android:textColor="#00796B"/> </LinearLayout>
+                        android:textColor="@color/orange"/> </LinearLayout>
             </androidx.cardview.widget.CardView>
 
             <TextView
@@ -76,7 +80,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 app:cardCornerRadius="10dp"
-                app:cardElevation="2dp"
+                app:cardUseCompatPadding="true"
                 android:layout_marginBottom="24dp">
 
                 <LinearLayout
@@ -191,14 +195,25 @@
         </LinearLayout>
     </ScrollView>
 
-    <Button
+    <com.google.android.material.button.MaterialButton
         android:id="@+id/btnContinue"
+        style="@style/Widget.Material3.Button"
         android:layout_width="match_parent"
-        android:layout_height="60dp"
+        android:layout_height="56dp"
+        android:layout_marginHorizontal="24dp"
+        android:layout_marginBottom="16dp"
         android:text="TIẾP TỤC"
         android:textSize="16sp"
         android:textStyle="bold"
-        android:backgroundTint="#00796B"
-        app:layout_constraintBottom_toBottomOf="parent"/>
+        android:textColor="@color/white"
+        app:backgroundTint="@color/orange"
+        app:cornerRadius="12dp"
+        app:rippleColor="#40FFFFFF"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        android:insetTop="0dp"
+        android:insetBottom="0dp"
+        android:elevation="4dp" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

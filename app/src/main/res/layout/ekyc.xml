@@ -72,7 +72,7 @@
         android:id="@+id/btnBack"
         android:layout_width="48dp"
         android:layout_height="48dp"
-        android:src="@drawable/ic_arrow_back"
+        android:src="@drawable/back"
         android:background="?attr/selectableItemBackgroundBorderless"
         android:layout_margin="16dp"
         app:tint="#FFFFFF"

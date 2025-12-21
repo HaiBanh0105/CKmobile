@@ -6,6 +6,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:fillViewport="true"
+    android:background="@color/white"
     tools:context=".UtilitiesFragment">
 
     <LinearLayout
@@ -19,6 +20,8 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Tiện ích"
+            android:textStyle="bold"
+            android:textColor="@color/dark_blue"
             android:textAppearance="@style/TextAppearance.MaterialComponents.Headline5"
             android:layout_marginBottom="16dp"/>
 
@@ -28,68 +31,93 @@
             android:layout_height="wrap_content"
             android:columnCount="3"
             android:alignmentMode="alignMargins"
-            android:columnOrderPreserved="false"
-            android:rowCount="3" >
+            android:columnOrderPreserved="false">
+
+            <!-- Item 1: Điện -->
             <LinearLayout
+                android:id="@+id/btnElectric"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:gravity="center_horizontal"
-                android:padding="16dp"
                 android:layout_columnWeight="1"
-                android:layout_rowWeight="1">
+                android:layout_margin="8dp"
+                android:padding="12dp"
+                android:gravity="center"
+                android:orientation="vertical"
+                android:background="@drawable/rounded_light_orange_bg"
+                android:clickable="true"
+                android:focusable="true"
+                android:foreground="?attr/selectableItemBackground">
 
                 <ImageView
-                    android:id="@+id/btnElectric"
-                    android:layout_width="48dp"
-                    android:layout_height="48dp"
+                    android:layout_width="46dp"
+                    android:layout_height="46dp"
+                    android:background="@drawable/background_circle_icon"
                     android:src="@drawable/ic_electric"
                     android:contentDescription="Thanh toán điện"/>
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Thanh toán Điện"
+                    android:text="Tiền điện"
+                    android:textStyle="bold"
+                    android:textColor="@color/dark_blue"
+                    android:textSize="12sp"
                     android:gravity="center"
                     android:layout_marginTop="8dp"/>
             </LinearLayout>
 
+            <!-- Item 2: Nước -->
             <LinearLayout
+                android:id="@+id/btnWater"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:gravity="center_horizontal"
-                android:padding="16dp"
                 android:layout_columnWeight="1"
-                android:layout_rowWeight="1">
+                android:layout_margin="8dp"
+                android:padding="12dp"
+                android:gravity="center"
+                android:orientation="vertical"
+                android:background="@drawable/rounded_light_orange_bg"
+                android:clickable="true"
+                android:focusable="true"
+                android:foreground="?attr/selectableItemBackground">
 
                 <ImageView
-                    android:layout_width="48dp"
-                    android:layout_height="48dp"
+                    android:layout_width="46dp"
+                    android:layout_height="46dp"
+                    android:background="@drawable/background_circle_icon"
                     android:src="@drawable/ic_water"
-                    android:contentDescription="Thanh toán nước"/>
+                    android:contentDescription="Thanh toán nước" />
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Thanh toán Nước"
+                    android:text="Tiền nước"
+                    android:textStyle="bold"
+                    android:textColor="@color/dark_blue"
+                    android:textSize="12sp"
                     android:gravity="center"
-                    android:layout_marginTop="8dp"/>
+                    android:layout_marginTop="8dp" />
             </LinearLayout>
 
+            <!-- Item 3: Nạp tiền ĐT -->
             <LinearLayout
+                android:id="@+id/btnTopUp"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:gravity="center_horizontal"
-                android:padding="16dp"
                 android:layout_columnWeight="1"
-                android:layout_rowWeight="1">
+                android:layout_margin="8dp"
+                android:padding="12dp"
+                android:gravity="center"
+                android:orientation="vertical"
+                android:background="@drawable/rounded_light_orange_bg"
+                android:clickable="true"
+                android:focusable="true"
+                android:foreground="?attr/selectableItemBackground">
 
                 <ImageView
-                    android:id="@+id/btnTopUp"
-                    android:layout_width="48dp"
-                    android:layout_height="48dp"
+                    android:layout_width="46dp"
+                    android:layout_height="46dp"
+                    android:background="@drawable/background_circle_icon"
                     android:src="@drawable/ic_phone_topup"
                     android:contentDescription="Nạp tiền điện thoại"/>
 
@@ -97,80 +125,111 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Nạp tiền ĐT"
+                    android:textColor="@color/dark_blue"
+                    android:textSize="12sp"
+                    android:textStyle="bold"
                     android:gravity="center"
                     android:layout_marginTop="8dp"/>
             </LinearLayout>
 
+            <!-- Item 4: Vé xem phim -->
             <LinearLayout
+                android:id="@+id/btnMovieBooking"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:gravity="center_horizontal"
-                android:padding="16dp"
                 android:layout_columnWeight="1"
-                android:layout_rowWeight="1">
+                android:layout_margin="8dp"
+                android:padding="12dp"
+                android:gravity="center"
+                android:orientation="vertical"
+                android:background="@drawable/rounded_light_orange_bg"
+                android:clickable="true"
+                android:focusable="true"
+                android:foreground="?attr/selectableItemBackground">
 
                 <ImageView
-                    android:id="@+id/btnMovieBooking"
-                    android:layout_width="48dp"
-                    android:layout_height="48dp"
-                    android:contentDescription="Mua vé xem phim"
-                    android:src="@drawable/ic_movie_ticket" />
+                    android:layout_width="46dp"
+                    android:layout_height="46dp"
+                    android:background="@drawable/background_circle_icon"
+                    android:src="@drawable/ic_movie_ticket"
+                    android:contentDescription="Mua vé xem phim" />
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Vé xem phim"
+                    android:textStyle="bold"
+                    android:textColor="@color/dark_blue"
+                    android:textSize="12sp"
                     android:gravity="center"
                     android:layout_marginTop="8dp"/>
             </LinearLayout>
 
+            <!-- Item 5: Vé máy bay -->
             <LinearLayout
+                android:id="@+id/btnFlightBooking"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:gravity="center_horizontal"
-                android:padding="16dp"
                 android:layout_columnWeight="1"
-                android:layout_rowWeight="1">
+                android:layout_margin="8dp"
+                android:padding="12dp"
+                android:gravity="center"
+                android:orientation="vertical"
+                android:background="@drawable/rounded_light_orange_bg"
+                android:clickable="true"
+                android:focusable="true"
+                android:foreground="?attr/selectableItemBackground">
 
                 <ImageView
-                    android:id="@+id/btnFlightBooking"
-                    android:layout_width="48dp"
-                    android:layout_height="48dp"
-                    android:contentDescription="Đặt vé máy bay"
-                    android:src="@drawable/ic_flight" />
+                    android:layout_width="46dp"
+                    android:layout_height="46dp"
+                    android:background="@drawable/background_circle_icon"
+                    android:src="@drawable/ic_flight"
+                    android:contentDescription="Đặt vé máy bay" />
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Vé máy bay"
+                    android:textColor="@color/dark_blue"
+                    android:textSize="12sp"
+                    android:textStyle="bold"
                     android:gravity="center"
                     android:layout_marginTop="8dp"/>
             </LinearLayout>
 
-            <LinearLayout
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:gravity="center_horizontal"
-                android:padding="16dp"
-                android:layout_columnWeight="1"
-                android:layout_rowWeight="1">
+<!--            &lt;!&ndash; Item 6: Đặt phòng khách sạn (Bổ sung cho đủ lưới 3x2) &ndash;&gt;-->
+<!--            <LinearLayout-->
+<!--                android:id="@+id/btnHotel"-->
+<!--                android:layout_width="0dp"-->
+<!--                android:layout_height="wrap_content"-->
+<!--                android:layout_columnWeight="1"-->
+<!--                android:layout_margin="8dp"-->
+<!--                android:padding="12dp"-->
+<!--                android:gravity="center"-->
+<!--                android:orientation="vertical"-->
+<!--                android:background="@drawable/rounded_light_orange_bg"-->
+<!--                android:clickable="true"-->
+<!--                android:focusable="true"-->
+<!--                android:foreground="?attr/selectableItemBackground">-->
 
-                <ImageView
-                    android:layout_width="48dp"
-                    android:layout_height="48dp"
-                    android:src="@drawable/ic_hotel"
-                    android:contentDescription="Đặt phòng khách sạn"/>
+<!--                <ImageView-->
+<!--                    android:layout_width="48dp"-->
+<!--                    android:layout_height="48dp"-->
+<!--                    android:padding="10dp"-->
+<!--                    android:background="@drawable/background_circle_icon"-->
+<!--                    android:src="@drawable/ic_hotel"-->
+<!--                    android:contentDescription="Đặt phòng khách sạn" />-->
 
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Đặt phòng"
-                    android:gravity="center"
-                    android:layout_marginTop="8dp"/>
-            </LinearLayout>
+<!--                <TextView-->
+<!--                    android:layout_width="wrap_content"-->
+<!--                    android:layout_height="wrap_content"-->
+<!--                    android:text="Khách sạn"-->
+<!--                    android:textColor="@color/dark_blue"-->
+<!--                    android:textSize="12sp"-->
+<!--                    android:gravity="center"-->
+<!--                    android:layout_marginTop="8dp"/>-->
+<!--            </LinearLayout>-->
 
         </GridLayout>
     </LinearLayout>
