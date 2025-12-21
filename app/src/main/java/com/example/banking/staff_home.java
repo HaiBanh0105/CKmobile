@@ -9,6 +9,7 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.widget.SearchView;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -25,6 +26,8 @@ public class staff_home extends Fragment {
     private RecyclerView rvCustomers;
     private CustomerAdapter adapter;
     private List<Customer> customerList = new ArrayList<>();
+    SearchView searchView;
+
     private FirebaseFirestore db;
     @Nullable
     @Override
@@ -43,6 +46,8 @@ public class staff_home extends Fragment {
 
         // Lấy FloatingActionButton từ layout đã inflate
         FloatingActionButton fabAddCustomer = view.findViewById(R.id.fabAddCustomer);
+        searchView = view.findViewById(R.id.searchView);
+
 
         fabAddCustomer.setOnClickListener(v -> {
             // Mở EditCustomerActivity
@@ -59,31 +64,63 @@ public class staff_home extends Fragment {
         db = FirebaseFirestore.getInstance();
 
         loadCustomers();
+
+        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+            @Override
+            public boolean onQueryTextSubmit(String query) {
+                // Khi người dùng nhấn Enter/Search
+                filterCustomers(query);
+                return true;
+            }
+
+            @Override
+            public boolean onQueryTextChange(String newText) {
+                // Khi người dùng gõ chữ
+                filterCustomers(newText);
+                return true;
+            }
+        });
+
     }
 
     private void loadCustomers() {
         FirebaseFirestore db = FirebaseFirestore.getInstance();
 
         db.collection("Users")
-                .whereEqualTo("role", "customer")   // lọc theo role = customer
-                .get()
-                .addOnSuccessListener(queryDocumentSnapshots -> {
+                .whereEqualTo("role", "customer")
+                .addSnapshotListener((snapshots, e) -> {
+                    if (e != null) {
+                        Toast.makeText(getContext(), "Lỗi: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                        return;
+                    }
                     customerList.clear();
-                    for (DocumentSnapshot doc : queryDocumentSnapshots) {
-                        // ánh xạ sang model Customer
+                    for (DocumentSnapshot doc : snapshots) {
                         Customer customer = new Customer(
-                                doc.getString("user_id"),   // hoặc doc.getId() nếu bạn dùng id document
+                                doc.getString("user_id"),
                                 doc.getString("name"),
                                 doc.getString("email")
                         );
                         customerList.add(customer);
                     }
                     adapter.notifyDataSetChanged();
-                })
-                .addOnFailureListener(e ->
-                        Toast.makeText(getContext(),
-                                "Lỗi tải dữ liệu: " + e.getMessage(),
-                                Toast.LENGTH_SHORT).show());
+                });
     }
 
+    private void filterCustomers(String text) {
+        List<Customer> filteredList = new ArrayList<>();
+        for (Customer c : customerList) {
+            if (c.getName().toLowerCase().contains(text.toLowerCase()) ||
+                    c.getEmail().toLowerCase().contains(text.toLowerCase())) {
+                filteredList.add(c);
+            }
+        }
+        adapter.updateList(filteredList); // viết hàm updateList trong adapter
+    }
+
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        loadCustomers();
+    }
 }

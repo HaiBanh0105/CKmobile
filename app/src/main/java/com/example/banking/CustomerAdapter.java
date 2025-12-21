@@ -78,5 +78,11 @@ public class CustomerAdapter extends RecyclerView.Adapter<CustomerAdapter.Custom
             imgAddSaving = itemView.findViewById(R.id.imgAddSaving);
         }
     }
+
+    public void updateList(List<Customer> newList) {
+        this.customers = newList;
+        notifyDataSetChanged();
+    }
+
 }
 
