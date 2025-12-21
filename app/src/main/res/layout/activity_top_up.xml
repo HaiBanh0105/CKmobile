@@ -199,14 +199,16 @@
         android:id="@+id/btnContinue"
         style="@style/Widget.Material3.Button"
         android:layout_width="match_parent"
-        android:layout_height="56dp"
+        android:layout_height="wrap_content"
         android:layout_marginHorizontal="24dp"
         android:layout_marginBottom="16dp"
         android:text="TIẾP TỤC"
         android:textSize="16sp"
         android:textStyle="bold"
         android:textColor="@color/white"
-        app:backgroundTint="@color/orange"
+        android:textAllCaps="false"
+        android:background="@drawable/gradient_primary_rounded_bg"
+        app:backgroundTint="@null"
         app:cornerRadius="12dp"
         app:rippleColor="#40FFFFFF"
         app:layout_constraintBottom_toBottomOf="parent"
@@ -215,5 +217,7 @@
         android:insetTop="0dp"
         android:insetBottom="0dp"
         android:elevation="4dp" />
+    <include
+        layout="@layout/view_loading_overlay" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

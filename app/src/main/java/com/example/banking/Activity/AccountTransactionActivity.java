@@ -101,6 +101,10 @@ public class AccountTransactionActivity extends BaseSecureActivity {
                     if (e != null || snapshot == null || !snapshot.exists()) return;
                     transaction = snapshot.toObject(AccountTransaction.class);
                     if (transaction != null) bindData();
+                    else {
+                        Toast.makeText(this, "Giao dịch không tồn tại", Toast.LENGTH_SHORT).show();
+                        finish();
+                    }
                 });
     }
 
@@ -161,9 +165,7 @@ public class AccountTransactionActivity extends BaseSecureActivity {
             binding.dividerAccount.setVisibility(android.view.View.GONE);
         }
 
-        String displayService = (transaction.getCategory() != null && !transaction.getCategory().isEmpty())
-                ? getCategoryVi(transaction.getCategory())
-                : getTransactionTypeVi(transaction.getType());
+        String displayService = getTransactionTypeVi(transaction.getType());
 
         binding.tvConfirmType.setText(displayService);
 
@@ -193,7 +195,7 @@ public class AccountTransactionActivity extends BaseSecureActivity {
     private String getTransactionTypeVi(String type) {
         if (type == null) return "Giao dịch";
         switch (type) {
-            case "TRANSFER": return "Chuyển khoản";
+            case "TRANSFER_OUT": return "Chuyển khoản";
             case "SERVICE": return "Thanh toán dịch vụ";
             case "BILL": return "Thanh toán hoá đơn";
             default: return "Giao dịch";
@@ -283,7 +285,7 @@ public class AccountTransactionActivity extends BaseSecureActivity {
                     });
 
         } else if ("BILL".equals(transaction.getType())) {
-            db.collection("Bills")
+            db.collection("billing")
                     .whereEqualTo("transactionId", transactionId)
                     .limit(1)
                     .get()
