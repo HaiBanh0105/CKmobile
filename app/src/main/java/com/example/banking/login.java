@@ -2,7 +2,6 @@ package com.example.banking;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.view.View;
 import android.widget.Toast;
 
 import androidx.annotation.Nullable;
@@ -21,6 +20,7 @@ public class login extends BaseSecureActivity {
 
     private LoginBinding binding;
     private FirebaseAuth mAuth;
+
     private FirebaseFirestore db;
 
     @Override
@@ -40,6 +40,7 @@ public class login extends BaseSecureActivity {
 
         // Hiệu ứng click
         ClickEffectUtil.apply(binding.btnLogin);
+        ClickEffectUtil.apply(binding.tvForgotPassword);
 
         // ===== ĐĂNG NHẬP =====
         binding.btnLogin.setOnClickListener(v -> {
@@ -106,6 +107,12 @@ public class login extends BaseSecureActivity {
         binding.btnRegister.setOnClickListener(v -> {
             Intent intent = new Intent(this, customer_infor.class);
             intent.putExtra("role", "customer_register");
+            startActivity(intent);
+        });
+
+        //Quên mk
+        binding.tvForgotPassword.setOnClickListener(v -> {
+            Intent intent = new Intent(this, forgot_password.class);
             startActivity(intent);
         });
     }

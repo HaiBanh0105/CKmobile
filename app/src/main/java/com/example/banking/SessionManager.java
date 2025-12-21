@@ -37,4 +37,20 @@ public class SessionManager {
 
     public void setAvatarUrl(String avatarUrl) { this.avatarUrl = avatarUrl; }
     public String getAvatarUrl() { return avatarUrl; }
+
+    public void createLoginSession(String userId, String name, String email, String pin) {
+        this.userId = userId;
+        this.name = name;
+        this.email = email;
+        this.pin = pin;
+    }
+
+    public void logoutUser() {
+        this.userId = null;
+        this.name = null;
+        this.pin = null;
+        this.email = null;
+        this.phone = null;
+        this.avatarUrl = null;
+    }
 }
