@@ -4,6 +4,7 @@ import android.Manifest;
 import android.content.ActivityNotFoundException;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.location.Location;
 import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
@@ -23,7 +24,9 @@ import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.libraries.places.api.Places;
 import com.google.android.libraries.places.api.net.PlacesClient;
 import com.google.android.material.button.MaterialButton;
@@ -40,7 +43,7 @@ public class MapFragment extends Fragment {
     TextView tvBranchName, tvBranchAddress;
     MaterialButton btnDirections;
 
-    LatLng myLatLng, selectedATM;;
+    LatLng myLatLng, selectedATM, lat;
 
 
 
@@ -147,7 +150,8 @@ public class MapFragment extends Fragment {
                     myLatLng = new LatLng(loc.getLatitude(), loc.getLongitude());
 
                     mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(myLatLng, 15));
-                    addFakeATMs(myLatLng);
+                    lat = new LatLng(10.732163295241257, 106.69932033795564); // địa chỉ ĐH TDT
+                    suggestNearestATM(myLatLng);
 
                 } else {
                     Log.e("MapFragment", "Location is null. Check Emulator settings.");
@@ -156,32 +160,87 @@ public class MapFragment extends Fragment {
         }
     }
 
-    // Hàm nhận vào LatLng myLatLng và thêm vài ATM giả định quanh đó
-    private void addFakeATMs(LatLng myLatLng) {
+
+
+    private void suggestNearestATM(LatLng myLatLng) {
         if (mMap == null || myLatLng == null) return;
 
-        LatLng atm1 = new LatLng(myLatLng.latitude + 0.001, myLatLng.longitude + 0.001);
+        // Danh sách địa chỉ thật quanh Tôn Đức Thắng
+        String[] addresses = {
+                "1058 Nguyễn Văn Linh, Tân Phong, Quận 7",   // SC VivoCity
+                "101 Tôn Dật Tiên, Tân Phú, Quận 7",        // Crescent Mall
+                "469 Nguyễn Hữu Thọ, Tân Hưng, Quận 7",     // Lotte Mart
+                "2-4 Đường số 9, Tân Hưng, Quận 7",         // Artinus 3D Gallery
+                "Nguyễn Lương Bằng, Phú Mỹ Hưng, Quận 7",   // Sakura Park
+                "63 Nguyễn Thị Thập, Tân Phú, Quận 7",      // Jump Arena
+                "2-4 Phú Mỹ Hưng, Quận 7",                  // Vietopia
+                "Cầu Ánh Sao, Tôn Dật Tiên, Quận 7",        // Cầu Ánh Sao
+                "Cầu Phú Mỹ, Nguyễn Văn Linh, Quận 7",      // Cầu Phú Mỹ
+                "107 Khánh Hội, phường 3, Quận 4"      // Đại học Tôn Đức Thắng
+        };
 
-        LatLng atm2 = new LatLng(myLatLng.latitude - 0.001, myLatLng.longitude - 0.001);
+        // Tọa độ tương ứng
+        LatLng[] atms = {
+                new LatLng(10.730558873096253, 106.70337445648383), // SC VivoCity
+                new LatLng(10.728735473977917, 106.71874679562649), // Crescent Mall
+                new LatLng(10.741271082812466, 106.70181464112719), // Lotte Mart
+                new LatLng(10.743239179277857, 106.69493995396807), // Artinus 3D Gallery
+                new LatLng(10.722016583520034, 106.72644165467958), // Sakura Park
+                new LatLng(10.73765617609127, 106.72744323168207), // Jump Arena
+                new LatLng(10.71665363898424, 106.73155272201866), // Vietopia
+                new LatLng(10.725161114873131, 106.7198589220605), // Cầu Ánh Sao
+                new LatLng(10.732949462537649, 106.72047401154215), // Cầu Phú Mỹ
+                new LatLng(10.755670833566942, 106.7015042783351)
+        };
 
-        LatLng atm3 = new LatLng(myLatLng.latitude - 0.001, myLatLng.longitude + 0.001);
+        int nearestIndex = -1;
+        float minDistance = Float.MAX_VALUE;
+        float[] results = new float[1];
 
-        // Thêm marker cho từng ATM
-        mMap.addMarker(new com.google.android.gms.maps.model.MarkerOptions()
-                .position(atm1)
-                .title("ATM Ngân hàng ACB")
-                .snippet("123 Nguyễn Hữu Thọ, Tân Phong, Q.7"));
+// Bước 1: tìm ATM gần nhất
+        for (int i = 0; i < atms.length; i++) {
+            Location.distanceBetween(myLatLng.latitude, myLatLng.longitude,
+                    atms[i].latitude, atms[i].longitude, results);
 
-        mMap.addMarker(new com.google.android.gms.maps.model.MarkerOptions()
-                .position(atm2)
-                .title("ATM Ngân hàng ACB")
-                .snippet("654 Nguyễn Văn Linh, Tân Phong, Q.7"));
+            if (results[0] < minDistance) {
+                minDistance = results[0];
+                nearestIndex = i;
+            }
+        }
 
-        mMap.addMarker(new com.google.android.gms.maps.model.MarkerOptions()
-                .position(atm3)
-                .title("ATM Ngân hàng ACB")
-                .snippet("444 Lê Văn Lương, Tân Phong, Q.1"));
+    // Bước 2: thêm tất cả ATM, chỉ ATM gần nhất mới màu xanh
+        for (int i = 0; i < atms.length; i++) {
+            float hue = (i == nearestIndex)
+                    ? BitmapDescriptorFactory.HUE_GREEN
+                    : BitmapDescriptorFactory.HUE_RED;
+
+            mMap.addMarker(new MarkerOptions()
+                    .position(atms[i])
+                    .title("West Bank")
+                    .snippet(addresses[i])
+                    .icon(BitmapDescriptorFactory.defaultMarker(hue)));
+
+            Log.d("ATM_LOG", "ATM #" + (i+1) + " | " + addresses[i]
+                    + " | Lat: " + atms[i].latitude
+                    + ", Lng: " + atms[i].longitude);
+        }
+
+    // Làm nổi bật ATM gần nhất trên UI
+        if (nearestIndex != -1) {
+            LatLng nearestATM = atms[nearestIndex];
+            String nearestAddress = addresses[nearestIndex];
+
+            mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(nearestATM, 15));
+
+            tvBranchName.setText("ATM gần nhất");
+            tvBranchAddress.setText(nearestAddress);
+            cardLocationDetails.setVisibility(View.VISIBLE);
+
+            selectedATM = nearestATM;
+        }
+
     }
+
 
     //Mở google map chỉ đường
     private void openGoogleMapsNavigation(LatLng dest) {

@@ -25,6 +25,9 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.Banking">
         <activity
+            android:name=".forgot_password"
+            android:exported="false" />
+        <activity
             android:name=".Activity.TransactionHistory"
             android:exported="false" />
         <activity
