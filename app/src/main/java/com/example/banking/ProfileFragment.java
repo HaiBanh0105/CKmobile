@@ -71,7 +71,7 @@ public class ProfileFragment extends Fragment {
         if (cachedUrl != null && !cachedUrl.isEmpty()) {
             Glide.with(requireContext())
                     .load(cachedUrl)
-                    .placeholder(R.drawable.ic_person)
+                    .placeholder(R.drawable.men)
                     .diskCacheStrategy(DiskCacheStrategy.ALL)
                     .skipMemoryCache(false)
                     .centerCrop()
