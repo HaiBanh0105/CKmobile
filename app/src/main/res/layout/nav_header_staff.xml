@@ -3,6 +3,7 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="176dp"
+    android:id="@+id/nav_header_staff"
     android:background="?attr/colorPrimary"
     android:gravity="bottom"
     android:orientation="vertical"
@@ -14,6 +15,7 @@
         android:layout_height="64dp"
         android:src="@drawable/ic_bank_staff" />
     <TextView
+        android:id="@+id/staffName"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Nhân viên: Trần Văn B"

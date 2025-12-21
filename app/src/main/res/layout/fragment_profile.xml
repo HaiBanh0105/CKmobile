@@ -15,16 +15,7 @@
         android:gravity="center_horizontal"
         android:padding="16dp">
 
-<!--        <com.google.android.material.imageview.ShapeableImageView-->
-<!--            android:id="@+id/imgProfile"-->
-<!--            android:layout_width="120dp"-->
-<!--            android:layout_height="120dp"-->
-<!--            android:src="@drawable/ic_person"-->
-<!--            android:scaleType="centerCrop"-->
-<!--            android:layout_marginTop="32dp"-->
-<!--            app:shapeAppearanceOverlay="@style/ShapeAppearance.Material3.Corner.Full"-->
-<!--            app:strokeColor="?attr/colorPrimary"-->
-<!--            app:strokeWidth="2dp" />-->
+
         <FrameLayout
             android:layout_width="120dp"
             android:layout_height="120dp"
@@ -40,16 +31,16 @@
                 app:strokeColor="?attr/colorPrimary"
                 app:strokeWidth="2dp" />
 
-            <!-- Biểu tượng cập nhật ảnh -->
-            <ImageView
-                android:id="@+id/btnUpdateAvatar"
-                android:layout_width="40dp"
-                android:layout_height="40dp"
-                android:layout_gravity="bottom|end"
-                android:background="@drawable/rounded_white_bg"
-                android:contentDescription="Cập nhật ảnh đại diện"
-                android:padding="4dp"
-                android:src="@drawable/ic_camera" />
+<!--            &lt;!&ndash; Biểu tượng cập nhật ảnh &ndash;&gt;-->
+<!--            <ImageView-->
+<!--                android:id="@+id/btnUpdateAvatar"-->
+<!--                android:layout_width="40dp"-->
+<!--                android:layout_height="40dp"-->
+<!--                android:layout_gravity="bottom|end"-->
+<!--                android:background="@drawable/rounded_white_bg"-->
+<!--                android:contentDescription="Cập nhật ảnh đại diện"-->
+<!--                android:padding="4dp"-->
+<!--                android:src="@drawable/ic_camera" />-->
         </FrameLayout>
 
         <TextView

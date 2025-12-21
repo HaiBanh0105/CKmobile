@@ -2,6 +2,8 @@ package com.example.banking;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.View;
+import android.widget.TextView;
 
 import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
@@ -24,7 +26,13 @@ public class staff_main extends AppCompatActivity {
 
         drawerLayout = findViewById(R.id.activity_staff_main);
         navView = findViewById(R.id.nav_view);
+        View headerView = navView.getHeaderView(0);
+        TextView tvName = headerView.findViewById(R.id.staffName);
         toolbar = findViewById(R.id.toolbar);
+
+        String userName = SessionManager.getInstance().getUserName();
+        tvName.setText("Nhân viên: "+ userName);
+
 
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
                 this, drawerLayout, toolbar,
@@ -33,6 +41,7 @@ public class staff_main extends AppCompatActivity {
         );
         drawerLayout.addDrawerListener(toggle);
         toggle.syncState();
+
 
         navView.setNavigationItemSelectedListener(item -> {
             int id = item.getItemId();
@@ -56,6 +65,7 @@ public class staff_main extends AppCompatActivity {
                     .replace(R.id.fragment_container, new staff_home())
                     .commit();
             navView.setCheckedItem(R.id.nav_dashboard);
+
         }
     }
 }

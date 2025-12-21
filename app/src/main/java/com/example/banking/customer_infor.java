@@ -81,15 +81,16 @@ public class customer_infor extends AppCompatActivity {
     }
 
     private void setupToolbar() {
-        String role = getIntent().getStringExtra("role");
-        customer_ID = getIntent().getStringExtra("customer_ID");
+        Intent getIntent = getIntent();
+        String role = getIntent.getStringExtra("role");
+        customer_ID = getIntent.getStringExtra("customer_ID");
 
         if ("customer_register".equalsIgnoreCase(role)) {
             toolbar.setTitle("Đăng ký tài khoản");
         } else {
             tilIdCard.setVisibility(View.GONE);
 
-            if (customer_ID != null) {
+            if (customer_ID != null && !customer_ID.isEmpty()) {
                 toolbar.setTitle("Thông tin khách hàng");
                 btnSave.setText("Cập nhật thông tin khách hàng");
                 loadCustomerInfor(customer_ID);
@@ -283,7 +284,7 @@ public class customer_infor extends AppCompatActivity {
     }
 
     private void loadCustomerInfor(String id) {
-        new FirestoreHelper().loadCustomerInfor(userId, new FirestoreHelper.CustomerCallback() {
+        new FirestoreHelper().loadCustomerInfor(id, new FirestoreHelper.CustomerCallback() {
             @Override
             public void onSuccess(String name, String phone, String email,
                                   String address, String id, String avatarUrl) {
