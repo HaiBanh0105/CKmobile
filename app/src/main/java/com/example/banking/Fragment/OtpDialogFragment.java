@@ -22,12 +22,11 @@ import androidx.fragment.app.DialogFragment;
 import com.example.banking.EmailService;
 import com.example.banking.R;
 import com.example.banking.SessionManager;
-
-import java.util.Map;
-import java.util.Random;
-import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FieldValue;
+import com.google.firebase.firestore.FirebaseFirestore;
+
+import java.util.Random;
 
 public class OtpDialogFragment extends DialogFragment {
 
@@ -100,12 +99,35 @@ public class OtpDialogFragment extends DialogFragment {
         return dialog;
     }
 
+
+    private boolean isRegisterMode = false;
+
+    public void setRegisterMode(boolean isRegister) {
+        this.isRegisterMode = isRegister;
+    }
+
     private void setupInitialState() {
-        isPinVerified = false;
-        tvOtpTitle.setText("Xác thực mã PIN");
-        tvMessage.setText("Vui lòng nhập mã PIN để tiếp tục");
-        btnResend.setVisibility(View.GONE);
-        clearFields();
+        if (isRegisterMode) {
+            // NẾU LÀ ĐĂNG KÝ: Bỏ qua bước nhập PIN
+            isPinVerified = true; // Coi như đã qua bước PIN
+            tvOtpTitle.setText("Xác thực Email");
+            tvMessage.setText("Đang gửi mã OTP...");
+            btnResend.setVisibility(View.VISIBLE);
+
+            // Tự động gửi OTP luôn
+            sendOtpEmail();
+            startResendTimer();
+
+            // Focus vào ô nhập OTP
+            clearFields();
+        }
+        else {
+            isPinVerified = false;
+            tvOtpTitle.setText("Xác thực mã PIN");
+            tvMessage.setText("Vui lòng nhập mã PIN để tiếp tục");
+            btnResend.setVisibility(View.GONE);
+            clearFields();
+        }
     }
 
     private void setupOtpLogic() {

@@ -5,7 +5,6 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.Toast;
@@ -18,6 +17,7 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
+import com.example.banking.Fragment.OtpDialogFragment;
 import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.textfield.TextInputLayout;
@@ -45,7 +45,8 @@ public class customer_infor extends AppCompatActivity {
     private String faceImagePath, customer_ID;
     private String old_name, old_phone, old_email, old_address;
 
-    private ActivityResultLauncher<Intent> ekycLauncher, otpLauncher;
+    // [THAY ĐỔI 1] Chỉ giữ lại ekycLauncher, xóa otpLauncher
+    private ActivityResultLauncher<Intent> ekycLauncher;
 
     private final FirebaseFirestore db = FirebaseFirestore.getInstance();
     private final String userId = SessionManager.getInstance().getUserId();
@@ -105,20 +106,13 @@ public class customer_infor extends AppCompatActivity {
     }
 
     private void setupLaunchers() {
+        // [THAY ĐỔI 2] Xóa phần register otpLauncher cũ đi
         ekycLauncher = registerForActivityResult(
                 new ActivityResultContracts.StartActivityForResult(),
                 result -> {
                     if (result.getResultCode() == RESULT_OK && result.getData() != null) {
                         faceImagePath = result.getData().getStringExtra("faceImagePath");
                         btnEkycScan.setText("Đã quét khuôn mặt ✔");
-                    }
-                });
-
-        otpLauncher = registerForActivityResult(
-                new ActivityResultContracts.StartActivityForResult(),
-                result -> {
-                    if (result.getResultCode() == RESULT_OK) {
-                        updateCustomer();
                     }
                 });
     }
@@ -130,23 +124,47 @@ public class customer_infor extends AppCompatActivity {
             ekycLauncher.launch(i);
         });
 
+        // [THAY ĐỔI 3] Sửa logic nút Lưu
         btnSave.setOnClickListener(v -> {
             String role = getIntent().getStringExtra("role");
+
             if ("customer_register".equalsIgnoreCase(role)) {
+                // Đăng ký mới thì kiểm tra trùng và tạo luôn (thường không cần OTP đăng ký ở bước này)
                 checkDuplicateAndRegister();
             } else {
+                // Nếu là Cập nhật thông tin
                 if (!isUpdate() && faceImagePath == null) {
                     Toast.makeText(this, "Không có thông tin thay đổi", Toast.LENGTH_SHORT).show();
                     return;
                 }
-                Intent i = new Intent(this, otp.class);
-                i.putExtra("type", "pin");
-                otpLauncher.launch(i);
+
+                // Gọi Dialog OTP thay vì Intent cũ
+                showOtpDialog();
             }
         });
     }
 
-    // ================= CHECK TRÙNG =================
+    // [THAY ĐỔI 4] Hàm hiển thị Dialog OTP
+    private void showOtpDialog() {
+        OtpDialogFragment otpDialog = new OtpDialogFragment(new OtpDialogFragment.OtpCallback() {
+            @Override
+            public void onOtpSuccess() {
+                // OTP đúng -> Tiến hành cập nhật
+                updateCustomer();
+            }
+
+            @Override
+            public void onOtpFailed() {
+                // Hủy hoặc sai quá nhiều lần -> Không làm gì hoặc thông báo
+                Toast.makeText(customer_infor.this, "Hủy cập nhật thông tin", Toast.LENGTH_SHORT).show();
+            }
+        });
+
+        // Hiển thị Dialog
+        otpDialog.show(getSupportFragmentManager(), "OtpUpdateCustomer");
+    }
+
+    // ================= CHECK TRÙNG (GIỮ NGUYÊN) =================
     private void checkDuplicateAndRegister() {
         String name = edtFullName.getText().toString().trim();
         String phone = edtPhoneNumber.getText().toString().trim();
@@ -157,41 +175,61 @@ public class customer_infor extends AppCompatActivity {
             Toast.makeText(this, "Vui lòng nhập đủ thông tin", Toast.LENGTH_SHORT).show();
             return;
         }
+        if (faceImagePath == null) {
+            Toast.makeText(this, "Vui lòng quét khuôn mặt", Toast.LENGTH_SHORT).show();
+            return;
+        }
 
-        // 1️⃣ Check CCCD
         db.collection("Users").document(idCard).get().addOnSuccessListener(doc -> {
             if (doc.exists()) {
                 Toast.makeText(this, "CCCD đã tồn tại", Toast.LENGTH_SHORT).show();
                 return;
             }
-
-            // 2️⃣ Check SĐT
-            db.collection("Users")
-                    .whereEqualTo("phone", phone)
-                    .get()
-                    .addOnSuccessListener(qsPhone -> {
-                        if (!qsPhone.isEmpty()) {
-                            Toast.makeText(this, "Số điện thoại đã tồn tại", Toast.LENGTH_SHORT).show();
-                            return;
-                        }
-
-                        // 3️⃣ Check EMAIL
-                        db.collection("Users")
-                                .whereEqualTo("email", email)
-                                .get()
-                                .addOnSuccessListener(qsEmail -> {
-                                    if (!qsEmail.isEmpty()) {
-                                        Toast.makeText(this, "Email đã tồn tại", Toast.LENGTH_SHORT).show();
-                                    } else {
-                                        registerCustomer();
-                                    }
-                                });
-                    });
+            db.collection("Users").whereEqualTo("phone", phone).get().addOnSuccessListener(qsPhone -> {
+                if (!qsPhone.isEmpty()) {
+                    Toast.makeText(this, "Số điện thoại đã tồn tại", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+                db.collection("Users").whereEqualTo("email", email).get().addOnSuccessListener(qsEmail -> {
+                    if (!qsEmail.isEmpty()) {
+                        Toast.makeText(this, "Email đã tồn tại", Toast.LENGTH_SHORT).show();
+                    } else {
+//                        registerCustomer();
+                        showRegisterOtpDialog(email, idCard, name);
+                    }
+                });
+            });
         });
     }
 
+    private void showRegisterOtpDialog(String email, String tempId, String tempName) {
+
+        SessionManager.getInstance().createLoginSession(
+                tempId,
+                tempName,
+                email,
+                "000000"
+        );
+        OtpDialogFragment otpDialog = new OtpDialogFragment(new OtpDialogFragment.OtpCallback() {
+            @Override
+            public void onOtpSuccess() {
+                registerCustomer();
+            }
+
+            @Override
+            public void onOtpFailed() {
+                Toast.makeText(customer_infor.this, "Xác thực email thất bại, vui lòng thử lại!", Toast.LENGTH_SHORT).show();
+                SessionManager.getInstance().logoutUser();
+            }
+        });
+
+        otpDialog.setRegisterMode(true);
+
+        otpDialog.show(getSupportFragmentManager(), "OtpRegisterVerify");
+    }
 
     // ================= REGISTER =================
+    // ================= REGISTER (ĐÃ CẬP NHẬT GỬI MAIL) =================
     private void registerCustomer() {
         String name = edtFullName.getText().toString().trim();
         String phone = edtPhoneNumber.getText().toString().trim();
@@ -199,13 +237,9 @@ public class customer_infor extends AppCompatActivity {
         String address = edtAddress.getText().toString().trim();
         String idCard = edtIdCard.getText().toString().trim();
 
-        if (faceImagePath == null) {
-            Toast.makeText(this, "Vui lòng quét khuôn mặt", Toast.LENGTH_SHORT).show();
-            return;
-        }
-
-        String rawPass = generateRandomPassword();
-        String pin = generateRandomPin();
+        // 1. Tạo mật khẩu và PIN ngẫu nhiên
+        String rawPass = generateRandomPassword(); // Mật khẩu gốc để gửi mail
+        String rawPin = generateRandomPin();       // PIN gốc để gửi mail
 
         List<Float> embedding;
         try {
@@ -215,6 +249,7 @@ public class customer_infor extends AppCompatActivity {
             return;
         }
 
+        // 2. Tạo Map dữ liệu User
         Map<String, Object> user = new HashMap<>();
         user.put("user_id", idCard);
         user.put("name", name);
@@ -222,10 +257,16 @@ public class customer_infor extends AppCompatActivity {
         user.put("email", email);
         user.put("address", address);
         user.put("role", "customer");
+
+        // Lưu mật khẩu đã mã hóa vào DB (bảo mật)
         user.put("password", hashPassword(rawPass));
-        user.put("pin", pin);
+        user.put("pin", rawPin); // Lưu PIN (thường cũng nên hash, nhưng ở đây tạm lưu text)
         user.put("avatar", "");
 
+        // [QUAN TRỌNG] Đánh dấu là lần đăng nhập đầu tiên
+        user.put("is_first_login", true);
+
+        // 3. Lưu vào Firestore
         db.collection("Users").document(idCard).set(user).addOnSuccessListener(v -> {
             createDefaultCheckingAccount(idCard);
 
@@ -233,14 +274,39 @@ public class customer_infor extends AppCompatActivity {
             face.put("user_id", idCard);
             face.put("faceEmbedding", embedding);
             face.put("time", FieldValue.serverTimestamp());
-
             db.collection("faceId").document(idCard).set(face);
-            Toast.makeText(this, "Đăng ký thành công", Toast.LENGTH_SHORT).show();
+
+            // [MỚI] Gửi email chứa mật khẩu & PIN cho khách
+            sendWelcomeEmail(email, name, idCard, rawPass, rawPin);
+
+            Toast.makeText(this, "Đăng ký thành công! Đã gửi mật khẩu về email.", Toast.LENGTH_LONG).show();
+
+            // Đóng màn hình, quay về login
             finish();
         });
     }
 
-    // ================= UPDATE =================
+    // ================= GỬI EMAIL THÔNG BÁO =================
+    private void sendWelcomeEmail(String toEmail, String name, String username, String password, String pin) {
+        String subject = "Chào mừng bạn đến với Ngân hàng số - Đăng ký thành công";
+
+        String body = "Xin chào " + name + ",\n\n" +
+                "Chúc mừng bạn đã đăng ký tài khoản thành công.\n" +
+                "Dưới đây là thông tin đăng nhập của bạn:\n\n" +
+                "--------------------------------\n" +
+                "👤 Tên đăng nhập (CCCD): " + username + "\n" +
+                "🔑 Mật khẩu tạm thời: " + password + "\n" +
+                "🔢 Mã PIN giao dịch: " + pin + "\n" +
+                "--------------------------------\n\n" +
+                "⚠️ YÊU CẦU QUAN TRỌNG:\n" +
+                "Vì lý do bảo mật, vui lòng đăng nhập và ĐỔI MẬT KHẨU + MÃ PIN ngay lập tức.\n\n" +
+                "Xin cảm ơn đã sử dụng dịch vụ của chúng tôi!";
+
+        // Gọi EmailService (đảm bảo bạn đã có class này từ các bước trước)
+        EmailService.sendEmail(this, toEmail, subject, body, null);
+    }
+
+    // ================= UPDATE (GIỮ NGUYÊN) =================
     private void updateCustomer() {
         String id = customer_ID != null ? customer_ID : userId;
 
@@ -255,23 +321,19 @@ public class customer_infor extends AppCompatActivity {
         finish();
 
         if (faceImagePath != null && !faceImagePath.trim().isEmpty()) {
-            //Update faceID
             final List<Float> faceEmbedding;
             try {
                 faceEmbedding = extractFaceEmbedding(this, faceImagePath);
-            }
-            catch (IOException e) {
+            } catch (IOException e) {
                 e.printStackTrace();
                 Toast.makeText(this, "Lỗi xử lý ảnh: " + e.getMessage(), Toast.LENGTH_SHORT).show();
-                return; // dừng lại nếu không tạo được embedding
+                return;
             }
             Map<String, Object> faceID_update = new HashMap<>();
             faceID_update.put("faceEmbedding", faceEmbedding);
             faceID_update.put("time", FieldValue.serverTimestamp());
 
-            db.collection("faceId").document(id)
-                    .update(faceID_update);
-
+            db.collection("faceId").document(id).update(faceID_update);
         }
     }
 
@@ -283,12 +345,12 @@ public class customer_infor extends AppCompatActivity {
                 || !edtAddress.getText().toString().equals(old_address);
     }
 
+    // ================= LOAD DATA & UTILS (GIỮ NGUYÊN) =================
     private void loadCustomerInfor(String id) {
         new FirestoreHelper().loadCustomerInfor(id, new FirestoreHelper.CustomerCallback() {
             @Override
             public void onSuccess(String name, String phone, String email,
                                   String address, String id, String avatarUrl) {
-
                 edtFullName.setText(name);
                 edtPhoneNumber.setText(phone);
                 edtEmail.setText(email);
@@ -306,10 +368,8 @@ public class customer_infor extends AppCompatActivity {
                 Toast.makeText(customer_infor.this, errorMessage, Toast.LENGTH_SHORT).show();
             }
         });
-
     }
 
-    // ================= UTIL =================
     private String generateRandomPassword() {
         return UUID.randomUUID().toString().substring(0, 8);
     }
@@ -349,23 +409,13 @@ public class customer_infor extends AppCompatActivity {
 
         List<Float> normalized = new ArrayList<>(embeddingArray.length);
         if (norm == 0) {
-            // tránh chia cho 0
             for (float v : embeddingArray) normalized.add(v);
             return normalized;
         }
 
         for (float v : embeddingArray) normalized.add((float)(v / norm));
-
-        // kiểm tra norm sau chuẩn hóa
-        double normCheck = 0.0;
-        for (float v : normalized) normCheck += v * v;
-        normCheck = Math.sqrt(normCheck);
-        Log.d("Embedding", "Norm sau chuẩn hóa = " + normCheck);
-
         return normalized;
     }
-
-
 
     private List<Float> extractFaceEmbedding(Context context, String imagePath) throws IOException {
         Bitmap bitmap = BitmapFactory.decodeFile(imagePath);
@@ -382,6 +432,5 @@ public class customer_infor extends AppCompatActivity {
         }
 
         return normalizeEmbedding(embeddingArray);
-
     }
 }

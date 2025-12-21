@@ -83,16 +83,12 @@ public class forgot_password extends AppCompatActivity {
                         foundUserEmail = doc.getString("email");
                         String foundPin = doc.getString("pin"); // Giả sử trường lưu PIN là 'pin'
 
-                        // [QUAN TRỌNG] "Hack" SessionManager để OtpDialogFragment hoạt động
-                        // Vì OtpDialogFragment đọc từ SessionManager, ta phải set dữ liệu tạm
                         SessionManager.getInstance().createLoginSession(
                                 foundUserId,
-                                doc.getString("fullName"), // Hoặc tên
+                                doc.getString("fullName"),
                                 foundUserEmail,
                                 foundPin // Lưu ý: Cần chắc chắn SessionManager có hàm lưu PIN
                         );
-                        // Nếu SessionManager của bạn không lưu PIN trong hàm createLoginSession,
-                        // bạn cần thêm setter cho PIN trong SessionManager hoặc sửa OtpDialogFragment để nhận PIN từ constructor.
 
                         // BƯỚC 2: Gọi Dialog
                         showOtpDialog();
@@ -132,11 +128,11 @@ public class forgot_password extends AppCompatActivity {
 
     // BƯỚC 3: Tạo mật khẩu mới và gửi Email
     private void processResetPassword() {
-        // 1. Tạo mật khẩu ngẫu nhiên
+        //Tạo mật khẩu ngẫu nhiên
         String newPassword = generateRandomPassword(8);
         String newhash = hashPassword(newPassword);
-        // 2. Cập nhật mật khẩu mới lên Firestore
-        // Lưu ý: Thực tế nên mã hóa mật khẩu (Hashing) trước khi lưu
+        //Cập nhật mật khẩu mới lên Firestore
+
         Map<String, Object> updates = new HashMap<>();
         updates.put("password", newhash); // Ví dụ trường password
 
