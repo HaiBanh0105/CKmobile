@@ -160,10 +160,10 @@ public class TransactionHistory extends AppCompatActivity {
 
         if (checkedId == R.id.rb_income) {
             query = query.whereIn("type",
-                    List.of("TRANSFER_IN", "DEPOSIT"));
+                    List.of("TRANSFER_IN", "WITHDRAW_SAVINGS"));
         } else if (checkedId == R.id.rb_outcome) {
-            query = query.whereIn("type",
-                    List.of("TRANSFER_OUT", "BILL_PAYMENT"));
+            query = query.whereNotIn("type",
+                    List.of("TRANSFER_IN", "WITHDRAW_SAVINGS"));
         }
 
         query.get()

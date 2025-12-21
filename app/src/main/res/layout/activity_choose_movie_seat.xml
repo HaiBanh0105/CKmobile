@@ -24,9 +24,21 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="12dp"
             android:layout_marginTop="12dp"
+            android:elevation="4dp"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             app:srcCompat="@drawable/back_dark" />
+
+        <ImageView
+            android:id="@+id/imageView13"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:scaleType="fitXY"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:srcCompat="@drawable/top_background" />
 
         <LinearLayout
             android:id="@+id/layoutSelectedInfo"
@@ -211,7 +223,7 @@
                 android:layout_height="wrap_content"
                 android:text="TextView"
                 android:textAlignment="textEnd"
-                android:textColor="@color/blue"
+                android:textColor="@color/dark_blue"
                 android:textSize="20sp"
                 android:textStyle="bold" />
         </LinearLayout>
@@ -220,7 +232,7 @@
             android:id="@+id/confirmBtn"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="@drawable/rounded_blue_bg"
+            android:background="@drawable/gradient_primary_rounded_bg"
             android:text="Xác nhận ghế ngồi"
             android:textColor="@color/surface"
             android:textSize="16sp"

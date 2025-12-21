@@ -15,7 +15,6 @@
         android:gravity="center_horizontal"
         android:padding="16dp">
 
-
         <FrameLayout
             android:layout_width="120dp"
             android:layout_height="120dp"
@@ -25,22 +24,23 @@
                 android:id="@+id/imgProfile"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:src="@drawable/ic_person"
+                android:src="@drawable/men"
                 android:scaleType="centerCrop"
+                android:padding="2dp"
                 app:shapeAppearanceOverlay="@style/ShapeAppearance.Material3.Corner.Full"
                 app:strokeColor="?attr/colorPrimary"
                 app:strokeWidth="2dp" />
 
-<!--            &lt;!&ndash; Biểu tượng cập nhật ảnh &ndash;&gt;-->
-<!--            <ImageView-->
-<!--                android:id="@+id/btnUpdateAvatar"-->
-<!--                android:layout_width="40dp"-->
-<!--                android:layout_height="40dp"-->
-<!--                android:layout_gravity="bottom|end"-->
-<!--                android:background="@drawable/rounded_white_bg"-->
-<!--                android:contentDescription="Cập nhật ảnh đại diện"-->
-<!--                android:padding="4dp"-->
-<!--                android:src="@drawable/ic_camera" />-->
+            <!-- Biểu tượng cập nhật ảnh -->
+            <ImageView
+                android:id="@+id/btnUpdateAvatar"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:layout_gravity="bottom|end"
+                android:background="@drawable/rounded_white_bg"
+                android:contentDescription="Cập nhật ảnh đại diện"
+                android:padding="4dp"
+                android:src="@drawable/ic_camera" />
         </FrameLayout>
 
         <TextView
@@ -55,139 +55,157 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="32dp"
-            app:cardElevation="0dp"
+            android:layout_marginHorizontal="16dp"
+            app:cardCornerRadius="16dp"
+            app:cardElevation="2dp"
             app:strokeWidth="1dp"
-            android:background="?attr/colorSurface"
-            app:strokeColor="?attr/colorOnSurface">
+            app:cardUseCompatPadding="true"
+            app:strokeColor="@color/orange"
+            app:cardBackgroundColor="@color/surface">
 
-
-        <LinearLayout
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical">
 
+                <!-- MỤC 1: THÔNG TIN CÁ NHÂN -->
                 <LinearLayout
                     android:id="@+id/itemPersonalInfo"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:padding="16dp"
-                    android:gravity="center_vertical"
+                    android:layout_height="64dp"
+                    android:background="?attr/selectableItemBackground"
                     android:clickable="true"
                     android:focusable="true"
-                    android:background="?attr/selectableItemBackground">
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal"
+                    android:paddingHorizontal="16dp">
 
                     <ImageView
                         android:layout_width="24dp"
                         android:layout_height="24dp"
                         android:src="@drawable/ic_person"
-                        android:contentDescription="Icon thông tin cá nhân"/>
+                        app:tint="@color/dark_blue" />
 
                     <TextView
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
-                        android:layout_weight="1"
                         android:layout_marginStart="16dp"
+                        android:layout_weight="1"
                         android:text="Thông tin cá nhân"
-                        android:textAppearance="@style/TextAppearance.MaterialComponents.Body1"/>
+                        android:textColor="@color/black"
+                        android:textSize="15sp"
+                        android:textStyle="bold" />
 
                     <ImageView
                         android:id="@+id/btnInfor"
-                        android:layout_width="24dp"
-                        android:layout_height="24dp"
-                        android:src="@drawable/ic_chevron_right" />
+                        android:layout_width="20dp"
+                        android:layout_height="20dp"
+                        android:src="@drawable/ic_chevron_right"
+                        app:tint="@color/dark_blue" />
                 </LinearLayout>
 
-            <View
-                android:layout_width="match_parent"
-                android:layout_height="1dp"
-                android:background="@android:color/darker_gray"
-                android:layout_marginStart="56dp"/>
-
-
-            <LinearLayout
-                android:id="@+id/itemSecurity"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:padding="16dp"
-                android:gravity="center_vertical"
-                android:clickable="true"
-                android:focusable="true"
-                android:background="?attr/selectableItemBackground">
-
-                <ImageView
-                    android:layout_width="24dp"
-                    android:layout_height="24dp"
-                    android:src="@drawable/ic_security"
-                    android:contentDescription="Icon cài đặt bảo mật"/>
-
-                <TextView
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:layout_marginStart="16dp"
-                    android:text="Đổi mật khẩu"
-                    android:textAppearance="@style/TextAppearance.MaterialComponents.Body1"/>
-
-                <ImageView
-                    android:id="@+id/changePass"
-                    android:layout_width="24dp"
-                    android:layout_height="24dp"
-                    android:src="@drawable/ic_chevron_right" />
-            </LinearLayout>
-
-            <View
-                android:layout_width="match_parent"
-                android:layout_height="1dp"
-                android:background="@android:color/darker_gray"
-                android:layout_marginStart="56dp"/>
-
-                <LinearLayout
-                    android:id="@+id/itemChangepin"
+                <!-- ĐƯỜNG KẺ CHIA (Divider) -->
+                <View
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:padding="16dp"
-                    android:gravity="center_vertical"
+                    android:layout_height="1dp"
+                    android:layout_marginStart="56dp"
+                    android:background="@color/dividerColor" />
+
+                <!-- MỤC 2: ĐỔI MẬT KHẨU -->
+                <LinearLayout
+                    android:id="@+id/itemSecurity"
+                    android:layout_width="match_parent"
+                    android:layout_height="64dp"
+                    android:background="?attr/selectableItemBackground"
                     android:clickable="true"
                     android:focusable="true"
-                    android:background="?attr/selectableItemBackground">
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal"
+                    android:paddingHorizontal="16dp">
 
                     <ImageView
+                        android:id="@+id/changePass"
                         android:layout_width="24dp"
                         android:layout_height="24dp"
-                        android:src="@drawable/ic_help"
-                        android:contentDescription="Icon hỗ trợ"/>
+                        android:src="@drawable/ic_security"
+                        app:tint="@color/dark_blue" />
 
                     <TextView
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
-                        android:layout_weight="1"
                         android:layout_marginStart="16dp"
-                        android:text="Mã pin"
-                        android:textAppearance="@style/TextAppearance.MaterialComponents.Body1"/>
+                        android:layout_weight="1"
+                        android:text="Đổi mật khẩu"
+                        android:textStyle="bold"
+                        android:textColor="@color/black"
+                        android:textSize="15sp" />
+
+                    <ImageView
+                        android:layout_width="20dp"
+                        android:layout_height="20dp"
+                        android:src="@drawable/ic_chevron_right"
+                        app:tint="@color/dark_blue" />
+                </LinearLayout>
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:layout_marginStart="56dp"
+                    android:background="@color/dividerColor" />
+
+                <!-- MỤC 3: MÃ PIN -->
+                <LinearLayout
+                    android:id="@+id/itemChangepin"
+                    android:layout_width="match_parent"
+                    android:layout_height="64dp"
+                    android:background="?attr/selectableItemBackground"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal"
+                    android:paddingHorizontal="16dp">
 
                     <ImageView
                         android:id="@+id/changePin"
                         android:layout_width="24dp"
                         android:layout_height="24dp"
-                        android:src="@drawable/ic_chevron_right" />
+                        android:src="@drawable/ic_help"
+                        app:tint="@color/dark_blue" />
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="16dp"
+                        android:layout_weight="1"
+                        android:text="Mã PIN"
+                        android:textStyle="bold"
+                        android:textColor="@color/black"
+                        android:textSize="15sp" />
+
+                    <ImageView
+                        android:layout_width="20dp"
+                        android:layout_height="20dp"
+                        android:src="@drawable/ic_chevron_right"
+                        app:tint="@color/dark_blue" />
                 </LinearLayout>
 
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
 
+
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btnLogout"
             style="@style/Widget.MaterialComponents.Button.TextButton"
-            android:layout_width="match_parent"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="24dp"
             android:text="Đăng xuất"
+            android:textStyle="bold"
+            app:iconSize="30dp"
+            app:icon="@drawable/ic_logout_2"
             android:textColor="@android:color/holo_red_dark"
-            app:icon="@drawable/ic_logout"
-            app:iconTint="@android:color/holo_red_dark" />
+            app:iconTint="@android:color/holo_red_dark"
+             />
 
     </LinearLayout>
 </androidx.core.widget.NestedScrollView>

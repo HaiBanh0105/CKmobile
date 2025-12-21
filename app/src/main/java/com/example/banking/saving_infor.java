@@ -104,16 +104,20 @@ public class saving_infor extends BaseSecureActivity {
                     var doc = snapshot.getDocuments().get(0);
                     savingsDocId = doc.getId();
 
+                    // ===== SỐ DƯ =====
                     currentBalance = doc.getDouble("balance") != null
                             ? doc.getDouble("balance") : 0;
 
+                    // ===== NGÀY =====
                     createdAt = doc.getDate("created_at");
                     maturityDate = doc.getDate("maturity_date");
 
+                    // ===== KỲ HẠN & LÃI SUẤT =====
                     Long months = doc.getLong("period_months");
                     interestRate = doc.getDouble("interest_rate") != null
                             ? doc.getDouble("interest_rate") : 0;
 
+                    // ===== HIỂN THỊ KỲ HẠN =====
                     binding.tvPeriod.setText(
                             months == null || months == 0
                                     ? "Không thời hạn"
@@ -123,19 +127,59 @@ public class saving_infor extends BaseSecureActivity {
                     SimpleDateFormat sdf =
                             new SimpleDateFormat("dd/MM/yyyy", Locale.getDefault());
 
+                    // ===== NGÀY ĐÁO HẠN =====
                     binding.tvMaturityDate.setText(
-                            maturityDate != null ? sdf.format(maturityDate) : "Không thời hạn"
+                            maturityDate != null
+                                    ? sdf.format(maturityDate)
+                                    : "Không thời hạn"
                     );
 
+                    // ===== LÃI SUẤT =====
                     binding.tvSavingsRate.setText(interestRate + "% / năm");
 
+                    // ===== LỢI NHUẬN / LÃI =====
                     if (months != null && months > 0) {
-                        estProfit = (currentBalance * interestRate / 100) / 12 * months;
+                        // 🔹 CÓ KỲ HẠN → LỢI NHUẬN ƯỚC TÍNH
+                        estProfit =
+                                (currentBalance * interestRate / 100) / 12 * months;
+
+                        binding.tvProfitTitle.setText("Lợi nhuận ước tính");
                         binding.tvSavingsProfit.setText(
                                 String.format("+ %,.0f VND", estProfit)
                         );
+                    } else {
+                        // 🔹 KHÔNG THỜI HẠN → LÃI TẠM TÍNH ĐẾN HIỆN TẠI
+                        double accruedInterest =
+                                calculateAccruedInterest(
+                                        createdAt,
+                                        currentBalance,
+                                        interestRate
+                                );
+
+                        binding.tvProfitTitle.setText("Lãi tạm tính đến hôm nay");
+                        binding.tvSavingsProfit.setText(
+                                String.format("≈ + %,.0f VND", accruedInterest)
+                        );
                     }
                 });
+    }
+
+    private double calculateAccruedInterest(Date createdAt,
+                                            double balance,
+                                            double annualRate) {
+        if (createdAt == null || balance <= 0 || annualRate <= 0) return 0;
+
+        Date today = Calendar.getInstance().getTime();
+
+        long days = TimeUnit.DAYS.convert(
+                today.getTime() - createdAt.getTime(),
+                TimeUnit.MILLISECONDS
+        );
+
+        if (days <= 0) return 0;
+
+        // Lãi không kỳ hạn: tính theo ngày thực gửi
+        return (balance * annualRate * days) / 365 / 100;
     }
 
     /* ================= WITHDRAW ================= */
