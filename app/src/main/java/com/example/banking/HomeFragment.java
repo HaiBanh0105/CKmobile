@@ -14,6 +14,8 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
+import com.example.banking.Activity.FlightTicketBooking;
+import com.example.banking.Activity.MovieTicketBooking;
 import com.example.banking.Activity.TransactionHistory;
 import com.example.banking.Activity.transfer;
 import com.example.banking.Adapter.TransactionAdapter;
@@ -124,6 +126,12 @@ public class HomeFragment extends Fragment {
 
         binding.tvViewMore.setOnClickListener(v ->
                 startActivity(new Intent(requireContext(), TransactionHistory.class)));
+
+        binding.btnFlightTicket.setOnClickListener(v ->
+                startActivity(new Intent(requireContext(), FlightTicketBooking.class)));
+
+        binding.btnMovieTicket.setOnClickListener(v ->
+                startActivity(new Intent(requireContext(), MovieTicketBooking.class)));
     }
 
     // Load thông tin tài khoản

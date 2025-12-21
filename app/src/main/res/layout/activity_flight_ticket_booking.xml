@@ -496,19 +496,23 @@
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btnSearchFlight"
+            style="@style/Widget.Material3.Button"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="20dp"
             android:text="Tìm kiếm chuyến bay"
-            android:textColor="@color/surface"
+            android:textColor="@color/white"
             android:textSize="18sp"
             android:textStyle="bold"
-            app:backgroundTint="@color/orange"
+            android:textAllCaps="false"
+            android:background="@drawable/gradient_primary_rounded_bg"
+            app:backgroundTint="@null"
             app:cornerRadius="12dp"
-            app:rippleColor="@color/dark_blue"
+            app:rippleColor="#40FFFFFF"
             android:insetTop="0dp"
             android:insetBottom="0dp"
-            android:stateListAnimator="@null" />
+            android:stateListAnimator="@null"
+            android:elevation="4dp" />
 
     </LinearLayout>
 

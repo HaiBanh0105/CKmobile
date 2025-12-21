@@ -5,8 +5,8 @@ import com.google.firebase.Timestamp;
 public class AccountTransaction {
 
     private String transactionId;
-    private String userId;           // ID của chủ tài khoản thực hiện giao dịch này
-    private String type;             // Vd: "TRANSFER_OUT", "TRANSFER_IN", "BILL_PAYMENT", "DEPOSIT"
+    private String userId;
+    private String type;             // Vd: "TRANSFER_OUT", "TRANSFER_IN", "BILL", "SERVICE"
     private Double amount;
     private Double balanceAfter;
     private String description;

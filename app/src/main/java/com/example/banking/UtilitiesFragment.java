@@ -13,6 +13,7 @@ import androidx.fragment.app.Fragment;
 import com.example.banking.Activity.FlightTicketBooking;
 import com.example.banking.Activity.MovieTicketBooking;
 import com.example.banking.databinding.FragmentUtilitiesBinding;
+import com.example.banking.util.ClickEffectUtil;
 
 public class UtilitiesFragment extends Fragment {
 
@@ -53,17 +54,33 @@ public class UtilitiesFragment extends Fragment {
         binding.btnElectric.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                handleBillPaymentClick();
+                handleBillPaymentClick("electric");
             }
         });
 
+        binding.btnWater.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                handleBillPaymentClick("water");
+            }
+        });
 
+        setUpClickEffect();
 
         return rootView;
     }
 
-    private void handleBillPaymentClick() {
+    private void setUpClickEffect() {
+        ClickEffectUtil.apply(binding.btnElectric);
+        ClickEffectUtil.apply(binding.btnFlightBooking);
+        ClickEffectUtil.apply(binding.btnTopUp);
+        ClickEffectUtil.apply(binding.btnWater);
+        ClickEffectUtil.apply(binding.btnMovieBooking);
+    }
+
+    private void handleBillPaymentClick(String type) {
         Intent intent = new Intent(getActivity(), bill_payment.class);
+        intent.putExtra("BILL_TYPE", type);
         startActivity(intent);
     }
 
