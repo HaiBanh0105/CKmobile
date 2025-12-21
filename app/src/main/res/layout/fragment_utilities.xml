@@ -155,7 +155,7 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Vé xem phim"
+                    android:text="Vé phim"
                     android:textStyle="bold"
                     android:textColor="@color/dark_blue"
                     android:textSize="12sp"
