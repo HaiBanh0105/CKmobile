@@ -232,9 +232,9 @@ public class MapFragment extends Fragment {
 
             mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(nearestATM, 15));
 
-            tvBranchName.setText("ATM gần nhất");
-            tvBranchAddress.setText(nearestAddress);
-            cardLocationDetails.setVisibility(View.VISIBLE);
+//            tvBranchName.setText("ATM gần nhất");
+//            tvBranchAddress.setText(nearestAddress);
+//            cardLocationDetails.setVisibility(View.VISIBLE);
 
             selectedATM = nearestATM;
         }

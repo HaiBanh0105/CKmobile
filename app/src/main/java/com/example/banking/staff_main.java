@@ -36,6 +36,7 @@ public class staff_main extends AppCompatActivity {
         View headerView = navView.getHeaderView(0);
         TextView tvName = headerView.findViewById(R.id.staffName);
         toolbar = findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
 
         String userName = SessionManager.getInstance().getUserName();
         tvName.setText("Nhân viên: "+ userName);
