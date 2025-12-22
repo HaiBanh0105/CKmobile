@@ -57,6 +57,15 @@
                 android:textSize="14sp"
                 android:textColor="#757575"/>
         </LinearLayout>
+        <ImageView
+            android:id="@+id/imgDeposit"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:src="@drawable/ic_deposit"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:contentDescription="Nap tien"
+            android:padding="8dp"
+            />
 
         <ImageView
             android:id="@+id/imgAddMortgage"

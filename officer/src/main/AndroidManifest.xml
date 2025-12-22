@@ -9,7 +9,10 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.Banking">
-    <activity
+        <activity
+            android:name=".DepositDialogFragment"
+            android:exported="false" />
+        <activity
             android:name=".Activity.BaseSecureActivity"
             android:exported="false" />
         <activity
@@ -24,18 +27,14 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity
-            android:name=".Activity.staff_main" />
-
-        <activity
-            android:name=".Activity.customer_infor" />
-        <activity android:name="com.example.officer.Activity.ekyc" />
-        <activity android:name="com.example.officer.Activity.forgot_password" />
-        <activity android:name="com.example.officer.Activity.interest_rate" />
-        <activity android:name="com.example.officer.Activity.open_mortgage" />
-        <activity android:name="com.example.officer.Activity.open_savings" />
-        <activity android:name="com.example.officer.Activity.otp" />
-
+        <activity android:name=".Activity.staff_main" />
+        <activity android:name=".Activity.customer_infor" />
+        <activity android:name=".Activity.ekyc" />
+        <activity android:name=".Activity.forgot_password" />
+        <activity android:name=".Activity.interest_rate" />
+        <activity android:name=".Activity.open_mortgage" />
+        <activity android:name=".Activity.open_savings" />
+        <activity android:name=".Activity.otp" />
     </application>
 
 </manifest>
