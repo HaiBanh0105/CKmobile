@@ -8,7 +8,6 @@ public class Account {
     private Double balance;
     private String BankCode;
 
-
     public String getUser_id() {
         return user_id;
     }
@@ -24,7 +23,6 @@ public class Account {
     public void setName(String name) {
         this.name = name;
     }
-
 
     public Account() {} // Firestore cần constructor rỗng
 

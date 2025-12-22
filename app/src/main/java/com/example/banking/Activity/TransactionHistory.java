@@ -63,12 +63,6 @@ public class TransactionHistory extends AppCompatActivity {
         transactionList = new ArrayList<>();
 
         adapter = new TransactionAdapter(transactionList, transaction -> {
-            Toast.makeText(
-                    this,
-                    "Click giao dịch: " + transaction.getTransactionId(),
-                    Toast.LENGTH_SHORT
-            ).show();
-
             // Sau này:
             // Intent -> TransactionDetailActivity
             // hoặc BottomSheetDialogFragment

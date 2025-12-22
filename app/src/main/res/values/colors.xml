@@ -18,7 +18,7 @@
     <color name="background">#F8F9FA</color>     <!-- Nền xám cực nhẹ cho toàn app -->
 
     <!-- MÀU TRUNG TÍNH (NEUTRAL COLORS) -->
-    <color name="black">#1A1A1A</color>          <!-- Đen (giảm độ chói cho mắt) -->
+    <color name="black">#000000</color>          <!-- Đen (giảm độ chói cho mắt) -->
     <color name="dark_gray">#4A4A4A</color>      <!-- Chữ nội dung phụ -->
     <color name="gray">#F0F0F0</color>           <!-- Nền ô nhập liệu -->
     <color name="dividerColor">#DDDDDD</color>   <!-- Đường kẻ chia cách -->
