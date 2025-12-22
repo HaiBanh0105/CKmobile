@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <application
+        android:name=".MyApplication"
+        android:allowBackup="true"
+        android:icon="@mipmap/ic_launcher"
+        android:label="@string/app_name"
+        android:roundIcon="@mipmap/ic_launcher_round"
+        android:supportsRtl="true"
+        android:theme="@style/Theme.Banking">
+    <activity
+            android:name=".Activity.BaseSecureActivity"
+            android:exported="false" />
+        <activity
+            android:name=".Activity.login"
+            android:exported="false" />
+        <activity
+            android:name=".Activity.splash"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name=".Activity.staff_main" />
+
+        <activity
+            android:name=".Activity.customer_infor" />
+        <activity android:name="com.example.officer.Activity.ekyc" />
+        <activity android:name="com.example.officer.Activity.forgot_password" />
+        <activity android:name="com.example.officer.Activity.interest_rate" />
+        <activity android:name="com.example.officer.Activity.open_mortgage" />
+        <activity android:name="com.example.officer.Activity.open_savings" />
+        <activity android:name="com.example.officer.Activity.otp" />
+
+    </application>
+
+</manifest>

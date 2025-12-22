@@ -1,4 +1,4 @@
-package com.example.banking;
+package com.example.officer.Activity;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -6,10 +6,9 @@ import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 
-import com.example.banking.Activity.BaseSecureActivity;
-import com.example.banking.databinding.LoginBinding;
-import com.example.banking.util.ClickEffectUtil;
-import com.google.firebase.auth.FirebaseAuth;
+import com.example.officer.databinding.ActivityLoginBinding;
+import com.example.officer.util.ClickEffectUtil;
+import com.example.officer.util.SessionManager;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 
@@ -18,24 +17,23 @@ import java.security.NoSuchAlgorithmException;
 
 public class login extends BaseSecureActivity {
 
-    private LoginBinding binding;
-    private FirebaseAuth mAuth;
+    private ActivityLoginBinding binding;
 
     private FirebaseFirestore db;
+
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         // ViewBinding
-        binding = LoginBinding.inflate(getLayoutInflater());
+        binding = ActivityLoginBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
         // Loading (BaseSecureActivity)
         initLoading(binding.getRoot());
 
         // Firebase
-        mAuth = FirebaseAuth.getInstance();
         db = FirebaseFirestore.getInstance();
 
         // Hiệu ứng click
@@ -57,7 +55,7 @@ public class login extends BaseSecureActivity {
             showLoading(true);
             db.collection("Users")
                     .whereEqualTo("phone", phone)
-                    .whereEqualTo("role", "customer")
+                    .whereEqualTo("role", "staff")
                     .limit(1)
                     .get()
                     .addOnSuccessListener(querySnapshot -> {
@@ -83,9 +81,9 @@ public class login extends BaseSecureActivity {
 
                                 Toast.makeText(this, "Xin chào " + name, Toast.LENGTH_SHORT).show();
 
-                                if ("customer".equalsIgnoreCase(role)) {
-                                    startActivity(new Intent(this, customer_main.class));
-                                }
+                                if ("staff".equalsIgnoreCase(role))
+                                    startActivity(new Intent(this, staff_main.class));
+
                                 finish();
 
                             } else {
@@ -102,12 +100,6 @@ public class login extends BaseSecureActivity {
                     });
         });
 
-        // ===== ĐĂNG KÝ (eKYC) =====
-        binding.btnRegister.setOnClickListener(v -> {
-            Intent intent = new Intent(this, customer_infor.class);
-            intent.putExtra("role", "customer_register");
-            startActivity(intent);
-        });
 
         //Quên mk
         binding.tvForgotPassword.setOnClickListener(v -> {
