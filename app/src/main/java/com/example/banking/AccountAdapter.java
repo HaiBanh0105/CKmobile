@@ -40,7 +40,7 @@ public class AccountAdapter extends RecyclerView.Adapter<AccountAdapter.AccountV
         if (item.getType() == AccountItem.TYPE_SAVINGS) {
 
             SavingsAccount acc = item.getSavings();
-            holder.tvAccountName.setText("Tài khoản thanh toán");
+            holder.tvAccountName.setText("Tài khoản tiết kiệm");
             holder.tvAccountBalance.setText(
                     String.format("%,.0f VND", acc.getBalance())
             );

@@ -1,0 +1,56 @@
+package com.example.officer.util;
+
+public class SessionManager {
+    private static SessionManager instance;
+    private String userId;
+
+    private String name;
+
+    private String pin;
+    private String email;
+    private String phone;
+    private String avatarUrl;
+
+    private SessionManager() {}
+
+    public static SessionManager getInstance() {
+        if (instance == null) {
+            instance = new SessionManager();
+        }
+        return instance;
+    }
+
+    public void setUserId(String id) { this.userId = id; }
+    public String getUserId() { return userId; }
+
+    public void setUserName(String name) { this.name = name; }
+    public String getUserName() { return name; }
+
+    public void setPinNumber(String pin) { this.pin = pin; }
+    public String getPinNumber() { return pin; }
+
+    public void setEmail(String email) { this.email = email; }
+    public String getEmail() { return email; }
+
+    public void setPhone(String phone) { this.phone = phone; }
+    public String getPhone() { return phone; }
+
+    public void setAvatarUrl(String avatarUrl) { this.avatarUrl = avatarUrl; }
+    public String getAvatarUrl() { return avatarUrl; }
+
+    public void createLoginSession(String userId, String name, String email, String pin) {
+        this.userId = userId;
+        this.name = name;
+        this.email = email;
+        this.pin = pin;
+    }
+
+    public void logoutUser() {
+        this.userId = null;
+        this.name = null;
+        this.pin = null;
+        this.email = null;
+        this.phone = null;
+        this.avatarUrl = null;
+    }
+}
