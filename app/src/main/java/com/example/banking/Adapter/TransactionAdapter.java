@@ -115,6 +115,7 @@ public class TransactionAdapter
     private boolean isIncome(String type) {
         if (type == null) return false;
 
-        return type.equalsIgnoreCase("TRANSFER_IN") || type.equalsIgnoreCase("WITHDRAW_SAVINGS");
+        return type.equalsIgnoreCase("TRANSFER_IN") || type.equalsIgnoreCase("WITHDRAW_SAVINGS")
+                || type.equalsIgnoreCase("MORTGAGE_DISBURSE");
     }
 }

@@ -84,6 +84,7 @@ public class HomeFragment extends Fragment {
         ClickEffectUtil.apply(binding.btnPayBill);
         ClickEffectUtil.apply(binding.btnTopUp);
         ClickEffectUtil.apply(binding.btnSavings);
+        ClickEffectUtil.apply(binding.imgLogout);
     }
 
     private void setupRecyclerView() {
@@ -132,6 +133,13 @@ public class HomeFragment extends Fragment {
 
         binding.btnMovieTicket.setOnClickListener(v ->
                 startActivity(new Intent(requireContext(), MovieTicketBooking.class)));
+
+        binding.imgLogout.setOnClickListener(v -> {
+            Intent intent = new Intent(requireContext(), login.class);
+            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
+            startActivity(intent);
+            requireActivity().finish();
+        });
     }
 
     // Load thông tin tài khoản

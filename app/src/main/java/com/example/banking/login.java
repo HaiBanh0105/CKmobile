@@ -41,7 +41,7 @@ public class login extends BaseSecureActivity {
         // Hiệu ứng click
         ClickEffectUtil.apply(binding.btnLogin);
         ClickEffectUtil.apply(binding.tvForgotPassword);
-
+        binding.edtUsername.setText("0396930910");
         // ===== ĐĂNG NHẬP =====
         binding.btnLogin.setOnClickListener(v -> {
             String phone = binding.edtUsername.getText().toString().trim();

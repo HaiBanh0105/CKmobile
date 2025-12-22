@@ -140,7 +140,6 @@ public class TransactionHistory extends AppCompatActivity {
     private void loadTransactions() {
         if (currentUserId == null) return;
 
-        // 🔥 ĐÚNG UX
         showEmptyState(false);
         binding.progressBar.setVisibility(View.VISIBLE);
 
@@ -152,32 +151,46 @@ public class TransactionHistory extends AppCompatActivity {
 
         Query query = db.collection("AccountTransactions")
                 .whereEqualTo("userId", currentUserId)
+                .whereEqualTo("status", "SUCCESS")
                 .whereGreaterThanOrEqualTo("timestamp", fromDate)
                 .whereLessThanOrEqualTo("timestamp", toDate)
                 .orderBy("timestamp", Query.Direction.DESCENDING);
 
         int checkedId = binding.radioGroupFilter.getCheckedRadioButtonId();
 
-        if (checkedId == R.id.rb_income) {
-            query = query.whereIn("type",
-                    List.of("TRANSFER_IN", "WITHDRAW_SAVINGS"));
-        } else if (checkedId == R.id.rb_outcome) {
-            query = query.whereNotIn("type",
-                    List.of("TRANSFER_IN", "WITHDRAW_SAVINGS"));
-        }
+        // Danh sách INCOME
+        List<String> incomeTypes = new ArrayList<>();
+        incomeTypes.add("TRANSFER_IN");
+        incomeTypes.add("WITHDRAW_SAVINGS");
+        incomeTypes.add("MORTGAGE_DISBURSE");
 
         query.get()
                 .addOnSuccessListener(queryDocumentSnapshots -> {
-                    for (var doc : queryDocumentSnapshots) {
+
+                    for (com.google.firebase.firestore.DocumentSnapshot doc : queryDocumentSnapshots) {
+
                         AccountTransaction t = doc.toObject(AccountTransaction.class);
+                        if (t == null) continue;
+
                         t.setTransactionId(doc.getId());
-                        transactionList.add(t);
+
+                        // 🔥 FILTER TẠI CLIENT
+                        if (checkedId == R.id.rb_income) {
+                            if (incomeTypes.contains(t.getType())) {
+                                transactionList.add(t);
+                            }
+                        } else if (checkedId == R.id.rb_outcome) {
+                            if (!incomeTypes.contains(t.getType())) {
+                                transactionList.add(t);
+                            }
+                        } else {
+                            // TẤT CẢ
+                            transactionList.add(t);
+                        }
                     }
 
                     adapter.notifyDataSetChanged();
                     binding.progressBar.setVisibility(View.GONE);
-
-                    // 🔥 CHỈ hiện empty khi thật sự không có data
                     showEmptyState(transactionList.isEmpty());
                 })
                 .addOnFailureListener(e -> {
@@ -188,7 +201,6 @@ public class TransactionHistory extends AppCompatActivity {
                             Toast.LENGTH_SHORT).show();
                 });
     }
-
 
     private void showEmptyState(boolean show) {
         if (show) {

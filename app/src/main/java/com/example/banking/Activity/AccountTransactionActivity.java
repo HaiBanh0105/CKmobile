@@ -28,6 +28,7 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
 
 import java.text.NumberFormat;
+import java.util.Calendar;
 import java.util.Locale;
 
 public class AccountTransactionActivity extends BaseSecureActivity {
@@ -251,6 +252,11 @@ public class AccountTransactionActivity extends BaseSecureActivity {
                     if (senderSnap.isEmpty()) { failTransaction("Không tìm thấy tài khoản thanh toán"); return; }
                     DocumentReference senderRef = senderSnap.getDocuments().get(0).getReference();
 
+                    if ("PAY_MORTGAGE".equals(transaction.getType())) {
+                        fetchMortgageAndRunTransaction(senderRef);
+                        return;
+                    }
+
                     if (transaction.getReceiverAccountNumber() != null && !transaction.getReceiverAccountNumber().isEmpty()) {
                         db.collection("Accounts")
                                 .whereEqualTo("account_number", transaction.getReceiverAccountNumber())
@@ -267,6 +273,127 @@ public class AccountTransactionActivity extends BaseSecureActivity {
                     }
 
                 }).addOnFailureListener(e -> failTransaction("Lỗi kết nối hệ thống"));
+    }
+
+    private void fetchMortgageAndRunTransaction(DocumentReference senderRef) {
+        db.collection("Accounts")
+                .whereEqualTo("account_number", transaction.getReceiverAccountNumber())
+                .limit(1)
+                .get()
+                .addOnSuccessListener(mortgageSnap -> {
+                    if (mortgageSnap.isEmpty()) {
+                        failTransaction("Không tìm thấy khoản vay");
+                        return;
+                    }
+
+                    DocumentReference mortgageRef =
+                            mortgageSnap.getDocuments().get(0).getReference();
+
+                    DocumentReference txRef =
+                            db.collection("AccountTransactions").document(transactionId);
+
+                    runMortgageAtomicTransaction(senderRef, mortgageRef, txRef);
+                })
+                .addOnFailureListener(e -> failTransaction("Lỗi tra cứu khoản vay"));
+    }
+
+    private void runMortgageAtomicTransaction(
+            DocumentReference senderRef,
+            DocumentReference mortgageRef,
+            DocumentReference txRef
+    ) {
+        db.runTransaction(t -> {
+
+                    // ===== 1. READ ALL =====
+                    DocumentSnapshot senderSnap = t.get(senderRef);
+                    Account sender = senderSnap.toObject(Account.class);
+
+                    if (sender == null || sender.getBalance() == null)
+                        throw new FirebaseFirestoreException(
+                                "Không đọc được tài khoản thanh toán",
+                                FirebaseFirestoreException.Code.ABORTED
+                        );
+
+                    DocumentSnapshot mortgageSnap = t.get(mortgageRef);
+
+                    Double remainingDebt = mortgageSnap.getDouble("remaining_debt");
+                    Double monthlyPayment = mortgageSnap.getDouble("monthly_payment");
+                    Long paidMonths = mortgageSnap.getLong("paid_months");
+                    Long totalMonths = mortgageSnap.getLong("total_months");
+                    String loanStatus = mortgageSnap.getString("status");
+                    Timestamp nextPaymentTs = mortgageSnap.getTimestamp("next_payment_date");
+
+                    if (remainingDebt == null || monthlyPayment == null
+                            || paidMonths == null || totalMonths == null
+                            || nextPaymentTs == null)
+                        throw new FirebaseFirestoreException(
+                                "Dữ liệu khoản vay không hợp lệ",
+                                FirebaseFirestoreException.Code.ABORTED
+                        );
+
+                    if (!"ACTIVE".equals(loanStatus))
+                        throw new FirebaseFirestoreException(
+                                "Khoản vay không còn hiệu lực",
+                                FirebaseFirestoreException.Code.ABORTED
+                        );
+
+                    double amount = transaction.getAmount();
+
+                    // ===== 2. VALIDATE =====
+                    if (amount <= 0 || amount > remainingDebt)
+                        throw new FirebaseFirestoreException(
+                                "Số tiền thanh toán không hợp lệ",
+                                FirebaseFirestoreException.Code.ABORTED
+                        );
+
+                    if (sender.getBalance() < amount)
+                        throw new FirebaseFirestoreException(
+                                "Số dư không đủ",
+                                FirebaseFirestoreException.Code.ABORTED
+                        );
+
+                    // ===== 3. CALC =====
+                    double senderNewBalance = sender.getBalance() - amount;
+                    double newDebt = remainingDebt - amount;
+                    long newPaidMonths = paidMonths + 1;
+
+                    boolean isCompleted = newDebt <= 0 || newPaidMonths >= totalMonths;
+
+                    Calendar cal = Calendar.getInstance();
+                    cal.setTime(nextPaymentTs.toDate());
+                    cal.add(Calendar.MONTH, 1);
+
+                    // ===== 4. WRITE =====
+                    t.update(senderRef, "balance", senderNewBalance);
+
+                    if (isCompleted) {
+                        t.update(mortgageRef,
+                                "remaining_debt", 0,
+                                "paid_months", newPaidMonths,
+                                "status", "COMPLETED"
+                        );
+                    } else {
+                        t.update(mortgageRef,
+                                "remaining_debt", newDebt,
+                                "paid_months", newPaidMonths,
+                                "next_payment_date", cal.getTime()
+                        );
+                    }
+
+                    t.update(txRef,
+                            "status", "SUCCESS",
+                            "balanceBefore", sender.getBalance(),
+                            "balanceAfter", senderNewBalance,
+                            "timestamp", Timestamp.now()
+                    );
+
+                    return null;
+                })
+                .addOnSuccessListener(r -> showLoading(false))
+                .addOnFailureListener(e -> {
+                    showLoading(false);
+                    failTransaction(e.getMessage());
+                });
     }
 
     private void fetchRelatedDocRefsAndRunTransaction(DocumentReference senderRef,

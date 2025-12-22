@@ -15,6 +15,9 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.banking.model.Account;
+import com.example.banking.model.AccountItem;
+import com.example.banking.model.MortgageAccount;
+import com.example.banking.model.SavingsAccount;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -25,7 +28,7 @@ import java.util.List;
 public class AccountsFragment extends Fragment {
     private RecyclerView rvAccounts;
     private AccountAdapter adapter;
-    private List<Account> accountList = new ArrayList<>();
+    private List<AccountItem> accountItemList = new ArrayList<>();
     private FirebaseFirestore db;
     private String userId = SessionManager.getInstance().getUserId();
     private ProgressBar progressBar;
@@ -43,7 +46,7 @@ public class AccountsFragment extends Fragment {
         progressBar = root.findViewById(R.id.progressBar);
         rvAccounts.setLayoutManager(new LinearLayoutManager(getContext()));
 
-        adapter = new AccountAdapter(accountList);
+        adapter = new AccountAdapter(accountItemList);
         rvAccounts.setAdapter(adapter);
 
         db = FirebaseFirestore.getInstance();
@@ -59,23 +62,42 @@ public class AccountsFragment extends Fragment {
 
     private void loadAccounts() {
         progressBar.setVisibility(View.VISIBLE);
+
         db.collection("Accounts")
                 .whereEqualTo("user_id", userId)
                 .get()
-                .addOnSuccessListener(queryDocumentSnapshots -> {
-                    accountList.clear();
-                    for (DocumentSnapshot doc : queryDocumentSnapshots) {
-                        Account account = doc.toObject(Account.class);
-                        if (!"checking".equals(account.getAccount_type())) {
-                            accountList.add(account);
+                .addOnSuccessListener(query -> {
+
+                    accountItemList.clear();
+
+                    for (DocumentSnapshot doc : query.getDocuments()) {
+
+                        String type = doc.getString("account_type");
+
+                        if ("SAVINGS".equalsIgnoreCase(type)) {
+
+                            SavingsAccount savings =
+                                    doc.toObject(SavingsAccount.class);
+                            accountItemList.add(new AccountItem(savings));
+
+                        } else if ("MORTGAGE".equalsIgnoreCase(type)) {
+
+                            MortgageAccount mortgage =
+                                    doc.toObject(MortgageAccount.class);
+                            accountItemList.add(new AccountItem(mortgage));
                         }
                     }
+
                     progressBar.setVisibility(View.GONE);
                     adapter.notifyDataSetChanged();
                 })
                 .addOnFailureListener(e -> {
                     progressBar.setVisibility(View.GONE);
-                    Toast.makeText(getContext(), "Lỗi tải dữ liệu: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                    Toast.makeText(
+                            getContext(),
+                            "Lỗi tải dữ liệu: " + e.getMessage(),
+                            Toast.LENGTH_SHORT
+                    ).show();
                 });
     }
 

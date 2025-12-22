@@ -8,6 +8,16 @@ public class AccountTransaction {
     private String userId;
     private String type;             // Vd: "TRANSFER_OUT", "TRANSFER_IN", "BILL", "SERVICE"
     private Double amount;
+    private Double balanceBefore;
+
+    public Double getBalanceBefore() {
+        return balanceBefore;
+    }
+
+    public void setBalanceBefore(Double balanceBefore) {
+        this.balanceBefore = balanceBefore;
+    }
+
     private Double balanceAfter;
     private String description;
     private Timestamp timestamp;

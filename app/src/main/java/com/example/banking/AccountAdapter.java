@@ -12,14 +12,17 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.banking.model.Account;
+import com.example.banking.model.AccountItem;
+import com.example.banking.model.MortgageAccount;
+import com.example.banking.model.SavingsAccount;
 
 import java.util.List;
 
 public class AccountAdapter extends RecyclerView.Adapter<AccountAdapter.AccountViewHolder> {
-    private List<Account> accountList;
+    private final List<AccountItem> items;
 
-    public AccountAdapter(List<Account> accountList) {
-        this.accountList = accountList;
+    public AccountAdapter(List<AccountItem> items) {
+        this.items = items;
     }
 
     @NonNull
@@ -32,41 +35,59 @@ public class AccountAdapter extends RecyclerView.Adapter<AccountAdapter.AccountV
 
     @Override
     public void onBindViewHolder(@NonNull AccountViewHolder holder, int position) {
-        Account account = accountList.get(position);
-        holder.tvAccountName.setText(account.getAccount_type().equals("savings") ? "Tài khoản tiết kiệm" : "Tài khoản vay vốn");
-        holder.tvAccountNumber.setText(account.getAccount_number());
-        holder.tvAccountBalance.setText(String.format("%,.0f VND", account.getBalance()));
+        AccountItem item = items.get(position);
 
-        holder.itemView.setOnClickListener(v -> {
-            Context context = v.getContext();
-            if(account.getAccount_type().equals("savings")) {
-                Intent intent = new Intent(context, saving_infor.class);
-                intent.putExtra("account_number", account.getAccount_number());
-                context.startActivity(intent);
-            }
-            else{
-                Intent intent = new Intent(context, mortgages_infor.class);
-                intent.putExtra("account_number", account.getAccount_number());
-                context.startActivity(intent);
-            }
-        });
+        if (item.getType() == AccountItem.TYPE_SAVINGS) {
+
+            SavingsAccount acc = item.getSavings();
+            holder.tvAccountName.setText("Tài khoản thanh toán");
+            holder.tvAccountBalance.setText(
+                    String.format("%,.0f VND", acc.getBalance())
+            );
+
+            holder.itemView.setOnClickListener(v -> {
+                Context c = v.getContext();
+                Intent i = new Intent(c, saving_infor.class);
+                i.putExtra("account_number", acc.getAccount_number());
+                c.startActivity(i);
+            });
+
+        } else {
+
+            MortgageAccount acc = item.getMortgage();
+            holder.tvAccountName.setText("Tài khoản vay vốn");
+            holder.tvAccountBalance.setText(
+                    String.format("Dư nợ: %,.0f VND", acc.getRemaining_debt())
+            );
+
+            holder.itemView.setOnClickListener(v -> {
+                Context c = v.getContext();
+                Intent i = new Intent(c, mortgages_infor.class);
+                i.putExtra("account_number", acc.getAccount_number());
+                c.startActivity(i);
+            });
+        }
+
+        holder.tvAccountNumber.setText(
+                item.getType() == AccountItem.TYPE_SAVINGS
+                        ? item.getSavings().getAccount_number()
+                        : item.getMortgage().getAccount_number()
+        );
     }
 
     @Override
     public int getItemCount() {
-        return accountList.size();
+        return items.size();
     }
 
     static class AccountViewHolder extends RecyclerView.ViewHolder {
         TextView tvAccountName, tvAccountNumber, tvAccountBalance;
-        ImageView imgAccountIcon;
 
         public AccountViewHolder(@NonNull View itemView) {
             super(itemView);
             tvAccountName = itemView.findViewById(R.id.tvAccountName);
             tvAccountNumber = itemView.findViewById(R.id.tvAccountNumber);
             tvAccountBalance = itemView.findViewById(R.id.tvAccountBalance);
-            imgAccountIcon = itemView.findViewById(R.id.imgAccountIcon);
         }
     }
 }

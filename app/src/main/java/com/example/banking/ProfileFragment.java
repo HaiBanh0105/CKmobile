@@ -136,13 +136,11 @@ public class ProfileFragment extends Fragment {
             startActivity(intent);
         });
 
-
         logout.setOnClickListener(v -> {
             Intent intent = new Intent(requireContext(), login.class);
             intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
             startActivity(intent);
             requireActivity().finish();
-
         });
 
         return  root;
@@ -160,7 +158,7 @@ public class ProfileFragment extends Fragment {
                 if (isAdded()) {
                     Glide.with(requireContext())
                             .load(avatarUrl)
-                            .placeholder(R.drawable.ic_person)
+                            .placeholder(R.drawable.men)
                             .diskCacheStrategy(DiskCacheStrategy.ALL)
                             .skipMemoryCache(false)
                             .centerCrop()
