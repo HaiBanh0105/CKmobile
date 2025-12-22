@@ -1,4 +1,4 @@
-package com.example.banking;
+package com.example.banking.Adapter;
 
 import android.content.Context;
 import android.content.Intent;
@@ -11,7 +11,11 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.banking.R;
+import com.example.banking.customer_infor;
 import com.example.banking.model.Customer;
+import com.example.banking.open_mortgage;
+import com.example.banking.open_savings;
 
 import java.util.List;
 

@@ -8,6 +8,7 @@ import androidx.annotation.Nullable;
 
 import com.example.banking.Activity.BaseSecureActivity;
 import com.example.banking.databinding.LoginBinding;
+import com.example.banking.model.SessionManager;
 import com.example.banking.util.ClickEffectUtil;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentSnapshot;

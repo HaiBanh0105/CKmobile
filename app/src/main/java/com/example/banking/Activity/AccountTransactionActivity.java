@@ -15,7 +15,7 @@ import androidx.core.view.WindowInsetsCompat;
 
 import com.example.banking.Fragment.OtpDialogFragment;
 import com.example.banking.R;
-import com.example.banking.SessionManager;
+import com.example.banking.model.SessionManager;
 import com.example.banking.customer_main;
 import com.example.banking.databinding.ActivityAccountTransactionBinding;
 import com.example.banking.ekyc;

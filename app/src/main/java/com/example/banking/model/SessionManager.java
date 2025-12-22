@@ -1,4 +1,4 @@
-package com.example.banking;
+package com.example.banking.model;
 
 public class SessionManager {
     private static SessionManager instance;

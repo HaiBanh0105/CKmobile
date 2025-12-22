@@ -1,4 +1,4 @@
-package com.example.banking;
+package com.example.banking.Fragment;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -17,6 +17,13 @@ import androidx.fragment.app.Fragment;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
+import com.example.banking.util.FirestoreHelper;
+import com.example.banking.R;
+import com.example.banking.model.SessionManager;
+import com.example.banking.change_password;
+import com.example.banking.change_pin;
+import com.example.banking.customer_infor;
+import com.example.banking.login;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.imageview.ShapeableImageView;
 

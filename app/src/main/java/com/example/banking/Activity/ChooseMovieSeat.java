@@ -10,7 +10,7 @@ import androidx.core.view.WindowInsetsCompat;
 import androidx.recyclerview.widget.GridLayoutManager;
 
 import com.example.banking.Adapter.SeatAdapter;
-import com.example.banking.SessionManager;
+import com.example.banking.model.SessionManager;
 import com.example.banking.databinding.ActivityChooseMovieSeatBinding;
 import com.example.banking.model.AccountTransaction;
 import com.example.banking.model.Cinema;

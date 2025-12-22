@@ -1,4 +1,4 @@
-package com.example.banking;
+package com.example.banking.util;
 
 import android.content.Context;
 import android.widget.Toast;

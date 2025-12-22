@@ -1,4 +1,4 @@
-package com.example.banking;
+package com.example.banking.Fragment;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -12,7 +12,9 @@ import androidx.fragment.app.Fragment;
 
 import com.example.banking.Activity.FlightTicketBooking;
 import com.example.banking.Activity.MovieTicketBooking;
+import com.example.banking.bill_payment;
 import com.example.banking.databinding.FragmentUtilitiesBinding;
+import com.example.banking.top_up;
 import com.example.banking.util.ClickEffectUtil;
 
 public class UtilitiesFragment extends Fragment {

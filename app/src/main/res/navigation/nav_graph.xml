@@ -6,26 +6,26 @@
 
     <fragment
         android:id="@+id/navigation_home"
-        android:name="com.example.banking.HomeFragment"
+        android:name="com.example.banking.Fragment.HomeFragment"
         android:label="Trang chủ" />
 
     <fragment
         android:id="@+id/navigation_accounts"
-        android:name="com.example.banking.AccountsFragment"
+        android:name="com.example.banking.Fragment.AccountsFragment"
         android:label="Tài khoản" />
 
     <fragment
         android:id="@+id/navigation_utilities"
-        android:name="com.example.banking.UtilitiesFragment"
+        android:name="com.example.banking.Fragment.UtilitiesFragment"
         android:label="Tiện ích" />
 
     <fragment
         android:id="@+id/navigation_map"
-        android:name="com.example.banking.MapFragment"
+        android:name="com.example.banking.Fragment.MapFragment"
         android:label="Bản đồ" />
 
     <fragment
         android:id="@+id/navigation_profile"
-        android:name="com.example.banking.ProfileFragment"
+        android:name="com.example.banking.Fragment.ProfileFragment"
         android:label="Cá nhân" />
 </navigation>

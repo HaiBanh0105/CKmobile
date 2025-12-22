@@ -10,10 +10,9 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 
 import com.example.banking.Adapter.TransactionAdapter;
 import com.example.banking.R;
-import com.example.banking.SessionManager;
+import com.example.banking.model.SessionManager;
 import com.example.banking.databinding.ActivityTransactionHistoryBinding;
 import com.example.banking.model.AccountTransaction;
-import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
 

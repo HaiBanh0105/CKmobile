@@ -7,9 +7,6 @@ import android.widget.ArrayAdapter;
 import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
-import androidx.activity.result.ActivityResultLauncher;
-import androidx.activity.result.contract.ActivityResultContracts;
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
@@ -19,6 +16,7 @@ import com.example.banking.Activity.AccountTransactionActivity;
 import com.example.banking.Activity.BaseSecureActivity;
 import com.example.banking.databinding.ActivityBillPaymentBinding;
 import com.example.banking.model.AccountTransaction;
+import com.example.banking.model.SessionManager;
 import com.google.firebase.Timestamp;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;

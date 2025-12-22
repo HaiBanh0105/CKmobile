@@ -1,20 +1,21 @@
-package com.example.banking;
+package com.example.banking.Adapter;
 
 import android.content.Context;
 import android.content.Intent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.example.banking.model.Account;
+import com.example.banking.R;
 import com.example.banking.model.AccountItem;
 import com.example.banking.model.MortgageAccount;
 import com.example.banking.model.SavingsAccount;
+import com.example.banking.mortgages_infor;
+import com.example.banking.saving_infor;
 
 import java.util.List;
 

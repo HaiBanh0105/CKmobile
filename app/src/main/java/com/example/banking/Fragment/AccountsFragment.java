@@ -1,4 +1,4 @@
-package com.example.banking;
+package com.example.banking.Fragment;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -14,10 +14,13 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.example.banking.model.Account;
+import com.example.banking.Adapter.AccountAdapter;
+import com.example.banking.R;
+import com.example.banking.model.SessionManager;
 import com.example.banking.model.AccountItem;
 import com.example.banking.model.MortgageAccount;
 import com.example.banking.model.SavingsAccount;
+import com.example.banking.open_savings;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;

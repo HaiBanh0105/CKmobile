@@ -7,7 +7,6 @@ import android.widget.ArrayAdapter;
 import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
@@ -15,6 +14,7 @@ import androidx.core.view.WindowInsetsCompat;
 import com.example.banking.Activity.BaseSecureActivity;
 import com.example.banking.Fragment.OtpDialogFragment;
 import com.example.banking.databinding.OpenSavingsBinding;
+import com.example.banking.model.SessionManager;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;

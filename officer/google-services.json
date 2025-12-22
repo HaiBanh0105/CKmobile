@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "274543867310",
+    "project_id": "baning-65415",
+    "storage_bucket": "baning-65415.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:274543867310:android:e7f20ab5123767d0dbc43f",
+        "android_client_info": {
+          "package_name": "com.example.officer"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "274543867310-7boa1049fn5to74m4mo1rs743iktb57a.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.officer",
+            "certificate_hash": "4b80e0eb37ff4bc81e0a706378724adddbd26330"
+          }
+        },
+        {
+          "client_id": "274543867310-ikn1lc201o63aoatea9lctupriorn02s.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA24zeSJ5WZOSBQYgttFQlgNHChOeF3T1M"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "274543867310-ikn1lc201o63aoatea9lctupriorn02s.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

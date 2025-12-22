@@ -9,6 +9,8 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
+import com.example.banking.model.SessionManager;
+
 public class nav_header_staff extends AppCompatActivity {
     String userName = SessionManager.getInstance().getUserName();
     TextView staffName;

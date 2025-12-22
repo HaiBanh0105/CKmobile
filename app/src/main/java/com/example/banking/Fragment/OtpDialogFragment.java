@@ -21,7 +21,7 @@ import androidx.fragment.app.DialogFragment;
 
 import com.example.banking.EmailService;
 import com.example.banking.R;
-import com.example.banking.SessionManager;
+import com.example.banking.model.SessionManager;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
