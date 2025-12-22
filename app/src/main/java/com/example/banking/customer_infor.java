@@ -129,7 +129,7 @@ public class customer_infor extends AppCompatActivity {
             String role = getIntent().getStringExtra("role");
 
             if ("customer_register".equalsIgnoreCase(role)) {
-                // Đăng ký mới thì kiểm tra trùng và tạo luôn (thường không cần OTP đăng ký ở bước này)
+
                 checkDuplicateAndRegister();
             } else {
                 // Nếu là Cập nhật thông tin
@@ -144,7 +144,7 @@ public class customer_infor extends AppCompatActivity {
         });
     }
 
-    // [THAY ĐỔI 4] Hàm hiển thị Dialog OTP
+
     private void showOtpDialog() {
         OtpDialogFragment otpDialog = new OtpDialogFragment(new OtpDialogFragment.OtpCallback() {
             @Override
