@@ -23,6 +23,13 @@ public class staff_main extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.staff_main);
+//        EdgeToEdge.enable(this);
+//        setContentView(R.layout.staff_main);
+//        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.activity_staff_main), (v, insets) -> {
+//            Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
+//            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
+//            return insets;
+//        });
 
         drawerLayout = findViewById(R.id.activity_staff_main);
         navView = findViewById(R.id.nav_view);
