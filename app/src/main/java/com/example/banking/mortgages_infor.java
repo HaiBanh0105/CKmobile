@@ -11,6 +11,7 @@ import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
 import com.example.banking.Activity.AccountTransactionActivity;
+import com.example.banking.Activity.BaseSecureActivity;
 import com.example.banking.databinding.ActivityMortgagesInforBinding;
 import com.example.banking.model.AccountTransaction;
 import com.google.firebase.Timestamp;
@@ -21,7 +22,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
 
-public class mortgages_infor extends AppCompatActivity {
+public class mortgages_infor extends BaseSecureActivity {
 
     private ActivityMortgagesInforBinding binding;
     private FirebaseFirestore db;
@@ -38,6 +39,7 @@ public class mortgages_infor extends AppCompatActivity {
 
         binding = ActivityMortgagesInforBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
+        initLoading(binding.getRoot());
 
         ViewCompat.setOnApplyWindowInsetsListener(binding.main, (v, insets) -> {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
@@ -127,6 +129,8 @@ public class mortgages_infor extends AppCompatActivity {
             return;
         }
 
+        showLoading(true);
+
         String month = new SimpleDateFormat("MM/yyyy", Locale.getDefault())
                 .format(new Date());
 
@@ -163,15 +167,19 @@ public class mortgages_infor extends AppCompatActivity {
         tx.setTimestamp(Timestamp.now());
 
         txRef.set(tx)
-                .addOnSuccessListener(v ->
-                        openTransactionActivity(txRef.getId())
+                .addOnSuccessListener(v -> {
+                            showLoading(false);
+                    openTransactionActivity(txRef.getId());
+                        }
                 )
-                .addOnFailureListener(e ->
-                        Toast.makeText(
-                                this,
-                                "Không thể tạo giao dịch",
-                                Toast.LENGTH_SHORT
-                        ).show()
+                .addOnFailureListener(e -> {
+                            showLoading(false);
+                    Toast.makeText(
+                            this,
+                            "Không thể tạo giao dịch",
+                            Toast.LENGTH_SHORT
+                    ).show();
+                        }
                 );
     }
 

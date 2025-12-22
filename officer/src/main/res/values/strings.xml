@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">officer</string>
+    <string name="navigation_drawer_open">Mở menu</string>
+    <string name="navigation_drawer_close">Đóng menu</string>
 </resources>

@@ -25,7 +25,17 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".MainActivity" />
+            android:name=".Activity.staff_main" />
+
+        <activity
+            android:name=".Activity.customer_infor" />
+        <activity android:name="com.example.officer.Activity.ekyc" />
+        <activity android:name="com.example.officer.Activity.forgot_password" />
+        <activity android:name="com.example.officer.Activity.interest_rate" />
+        <activity android:name="com.example.officer.Activity.open_mortgage" />
+        <activity android:name="com.example.officer.Activity.open_savings" />
+        <activity android:name="com.example.officer.Activity.otp" />
+
     </application>
 
 </manifest>

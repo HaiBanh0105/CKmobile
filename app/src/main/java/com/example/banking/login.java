@@ -57,6 +57,7 @@ public class login extends BaseSecureActivity {
             showLoading(true);
             db.collection("Users")
                     .whereEqualTo("phone", phone)
+                    .whereEqualTo("role", "customer")
                     .limit(1)
                     .get()
                     .addOnSuccessListener(querySnapshot -> {
@@ -82,9 +83,7 @@ public class login extends BaseSecureActivity {
 
                                 Toast.makeText(this, "Xin chào " + name, Toast.LENGTH_SHORT).show();
 
-                                if ("staff".equalsIgnoreCase(role)) {
-                                    startActivity(new Intent(this, staff_main.class));
-                                } else {
+                                if ("customer".equalsIgnoreCase(role)) {
                                     startActivity(new Intent(this, customer_main.class));
                                 }
                                 finish();

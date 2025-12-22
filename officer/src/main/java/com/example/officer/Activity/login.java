@@ -6,8 +6,6 @@ import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 
-import com.example.officer.Activity.BaseSecureActivity;
-import com.example.officer.MainActivity;
 import com.example.officer.databinding.ActivityLoginBinding;
 import com.example.officer.util.ClickEffectUtil;
 import com.example.officer.util.SessionManager;
@@ -84,7 +82,7 @@ public class login extends BaseSecureActivity {
                                 Toast.makeText(this, "Xin chào " + name, Toast.LENGTH_SHORT).show();
 
                                 if ("staff".equalsIgnoreCase(role))
-                                    startActivity(new Intent(this, MainActivity.class));
+                                    startActivity(new Intent(this, staff_main.class));
 
                                 finish();
 
